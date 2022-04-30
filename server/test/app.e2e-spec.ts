@@ -1,10 +1,12 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as pactum from 'pactum';
+import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { AuthDto } from '../src/auth/dto';
 import { PrismaService } from '../src/prisma/prisma.service';
 import { EditUserDto } from '../src/user/dto';
+import { Tokens } from '../src/auth/types';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -25,7 +27,7 @@ describe('App e2e', () => {
     await app.listen(3333);
 
     prisma = app.get(PrismaService);
-    await prisma.cleanDb();
+    await prisma.cleanDatabase();
     pactum.request.setBaseUrl('http://localhost:3333');
   });
 
@@ -37,11 +39,12 @@ describe('App e2e', () => {
       email: 'aleksandr@fakemail.com',
       password: '12345',
     };
+    let tokens: Tokens;
     describe('Signup', () => {
       it('should throw if email empty', () => {
         return pactum
           .spec()
-          .post('/auth/signup')
+          .post('/auth/local/signup')
           .withBody({
             password: dto.password,
           })
@@ -50,21 +53,24 @@ describe('App e2e', () => {
       it('should throw if password empty', () => {
         return pactum
           .spec()
-          .post('/auth/signup')
+          .post('/auth/local/signup')
           .withBody({
             email: dto.email,
           })
           .expectStatus(400);
       });
       it('should throw if no body provided', () => {
-        return pactum.spec().post('/auth/signup').expectStatus(400);
+        return pactum.spec().post('/auth/local/signup').expectStatus(400);
       });
       it('should signup', () => {
-        return pactum
-          .spec()
-          .post('/auth/signup')
-          .withBody(dto)
-          .expectStatus(201);
+        return request(app.getHttpServer())
+          .post('/auth/local/signup')
+          .send(dto)
+          .expect(201)
+          .expect(({ body }: { body: Tokens }) => {
+            expect(body.access_token).toBeTruthy();
+            expect(body.refresh_token).toBeTruthy();
+          });
       });
     });
 
@@ -72,7 +78,7 @@ describe('App e2e', () => {
       it('should throw if email empty', () => {
         return pactum
           .spec()
-          .post('/auth/signin')
+          .post('/auth/local/signin')
           .withBody({
             password: dto.password,
           })
@@ -81,54 +87,82 @@ describe('App e2e', () => {
       it('should throw if password empty', () => {
         return pactum
           .spec()
-          .post('/auth/signin')
+          .post('/auth/local/signin')
           .withBody({
             email: dto.email,
           })
           .expectStatus(400);
       });
       it('should throw if no body provided', () => {
-        return pactum.spec().post('/auth/signin').expectStatus(400);
+        return pactum.spec().post('/auth/local/signin').expectStatus(400);
       });
       it('should signin', () => {
-        return pactum
-          .spec()
-          .post('/auth/signin')
-          .withBody(dto)
-          .expectStatus(200)
-          .stores('userAt', 'access_token');
+        return request(app.getHttpServer())
+          .post('/auth/local/signin')
+          .send(dto)
+          .expect(200)
+          .expect(({ body }: { body: Tokens }) => {
+            expect(body.access_token).toBeTruthy();
+            expect(body.refresh_token).toBeTruthy();
+
+            tokens = body;
+          });
       });
-    });
-  });
-  describe('User', () => {
-    describe('Get me', () => {
-      it('should get current user', () => {
+      it('should get current user from /users/me', () => {
         return pactum
           .spec()
           .get('/users/me')
           .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
+            Authorization: `Bearer ${tokens.access_token}`,
           })
           .expectStatus(200);
       });
-    });
-
-    describe('Edit user', () => {
       it('should edit user', () => {
         const dto: EditUserDto = {
           firstName: 'Aleksandr',
-          email: 'aleksandr@fakemail.com',
+          lastName: 'L',
+          email: 'aleksandrL@fakemail.com',
         };
         return pactum
           .spec()
           .patch('/users')
           .withHeaders({
-            Authorization: 'Bearer $S{userAt}',
+            Authorization: `Bearer ${tokens.access_token}`,
           })
           .withBody(dto)
           .expectStatus(200)
           .expectBodyContains(dto.firstName)
+          .expectBodyContains(dto.lastName)
           .expectBodyContains(dto.email);
+      });
+      it('should refresh tokens', async () => {
+        // wait for 1 second
+        await new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve(true);
+          }, 1000);
+        });
+        return request(app.getHttpServer())
+          .post('/auth/refresh')
+          .auth(tokens.refresh_token, {
+            type: 'bearer',
+          })
+          .expect(200)
+          .expect(({ body }: { body: Tokens }) => {
+            expect(body.access_token).toBeTruthy();
+            expect(body.refresh_token).toBeTruthy();
+            expect(body.refresh_token).not.toBe(tokens.access_token);
+            expect(body.refresh_token).not.toBe(tokens.refresh_token);
+            tokens = body;
+          });
+      });
+      it('should logout', () => {
+        return request(app.getHttpServer())
+          .post('/auth/logout')
+          .auth(tokens.access_token, {
+            type: 'bearer',
+          })
+          .expect(200);
       });
     });
   });

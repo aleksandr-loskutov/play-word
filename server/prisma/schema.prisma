@@ -8,69 +8,79 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  email     String   @unique
-  firstName String?
-  lastName  String?
-  hash      String
-  hashedRt  String?
+  id                 String       @id @default(uuid())
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  email              String       @unique
+  firstName          String?
+  lastName           String?
+  hash               String
+  hashedRt           String?
+  preferences        Json?
+  createdCollections Collection[] @relation("created")
+  collections        Collection[]
 
   @@map("users")
 }
 
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
-model collection {
-  id_collection Int
-  questionId    Int?
-  answerId      Int?
-
-  @@ignore
-}
-
-model collection_answers {
-  answerId      Int     @id(map: "_copy_2")
-  id_collection Int?
-  answer        String? @db.VarChar(255)
-}
-
-model collection_questions {
-  questionId    Int     @id(map: "_copy_3")
-  id_collection Int?
-  question      String? @db.VarChar(255)
-}
-
-model collections {
-  id        Int       @id
-  name      String?
-  createdAt DateTime? @db.Timestamp(6)
-  updatedAt DateTime? @db.Timestamp(6)
-  createdBy Int?
-  isPublic  Boolean?
-  isDeleted Boolean?
-  type      String?
+model Collection {
+  id   Int    @id @default(autoincrement())
+  name String
+  createdBy String
+  created   User   @relation("created", fields: [createdBy], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isPublic  Boolean  @default(false)
+  isDeleted Boolean? @default(false)
+  type      String   @default("classic")
+  users     User[]
+  @@map("collections")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
-model user_collection {
-  userId       Int
-  collectionId Int?
-  isActive     Boolean?
-  timeAdded    DateTime? @db.Timestamp(6)
-  updatedAt    DateTime? @db.Timestamp(6)
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
-model user_questions {
-  userId          Int
-  questionId      Int?
-  successCount    Int?
-  iteration       Int?
-  isLearned       Boolean?
-  lastSuccessTime DateTime? @db.Timestamp(6)
-
-  @@ignore
-}
+//model CollectionQA {
+//  id        Int @id @default(autoincrement())
+//  collectionId Int
+//  collection Collection @relation(fields: [collectionId], references: [id])
+//  questionId    Int
+//  answerId      Int
+//
+//  @@ignore
+//}
+//
+//model collection_answers {
+//  answerId      Int     @id(map: "_copy_2")
+//  id_collection Int?
+//  answer        String? @db.VarChar(255)
+//}
+//
+//model collection_questions {
+//  questionId    Int     @id(map: "_copy_3")
+//  id_collection Int?
+//  question      String? @db.VarChar(255)
+//}
+//
+//
+//
+///// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+//model user_collection {
+//  userId       Int
+//  collectionId Int?
+//  isActive     Boolean?
+//  timeAdded    DateTime? @db.Timestamp(6)
+//  updatedAt    DateTime? @db.Timestamp(6)
+//
+//  @@ignore
+//}
+//
+///// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+//model user_questions {
+//  userId          Int
+//  questionId      Int?
+//  successCount    Int?
+//  iteration       Int?
+//  isLearned       Boolean?
+//  lastSuccessTime DateTime? @db.Timestamp(6)
+//
+//  @@ignore
+//}

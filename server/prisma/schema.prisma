@@ -8,33 +8,49 @@ datasource db {
 }
 
 model User {
-  id                 String       @id @default(uuid())
-  createdAt          DateTime     @default(now())
-  updatedAt          DateTime     @updatedAt
-  email              String       @unique
+  id                 String          @id @default(uuid())
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  email              String          @unique
   firstName          String?
   lastName           String?
   hash               String
   hashedRt           String?
-  preferences        Json?
-  createdCollections Collection[] @relation("created")
+  preferences        UserPreference? @relation(fields: [userPreferenceId], references: [id])
+  userPreferenceId   String?         @unique
+  createdCollections Collection[]    @relation("created")
   collections        Collection[]
 
   @@map("users")
 }
 
 model Collection {
-  id   Int    @id @default(autoincrement())
-  name String
+  id        Int      @id @default(autoincrement())
+  name      String
   createdBy String
-  created   User   @relation("created", fields: [createdBy], references: [id])
+  created   User     @relation("created", fields: [createdBy], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isPublic  Boolean  @default(false)
   isDeleted Boolean? @default(false)
-  type      String   @default("classic")
+  playType  PlayType @default(classic)
   users     User[]
+
+  @@unique([name, createdBy])
   @@map("collections")
+}
+
+enum PlayType {
+  classic
+  q_and_a
+}
+
+model UserPreference {
+  id           String  @id @default(uuid())
+  emailUpdates Boolean @default(true)
+  user         User?
+
+  @@map("userPreferences")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.

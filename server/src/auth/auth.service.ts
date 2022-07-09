@@ -60,7 +60,7 @@ export class AuthService {
     return tokens;
   }
 
-  async logout(userId: number): Promise<boolean> {
+  async logout(userId: string): Promise<boolean> {
     await this.prisma.user.updateMany({
       where: {
         id: userId,
@@ -75,7 +75,7 @@ export class AuthService {
     return true;
   }
 
-  async refreshTokens(userId: number, rt: string): Promise<Tokens> {
+  async refreshTokens(userId: string, rt: string): Promise<Tokens> {
     const user = await this.prisma.user.findUnique({
       where: {
         id: userId,
@@ -92,7 +92,7 @@ export class AuthService {
     return tokens;
   }
 
-  async updateRtHash(userId: number, rt: string): Promise<void> {
+  async updateRtHash(userId: string, rt: string): Promise<void> {
     const hash = await argon.hash(rt);
     await this.prisma.user.update({
       where: {
@@ -104,16 +104,16 @@ export class AuthService {
     });
   }
 
-  async getTokens(userId: number, email: string): Promise<Tokens> {
+  async getTokens(userId: string, email: string): Promise<Tokens> {
     const jwtPayload: JwtPayload = {
-      sub: userId,
+      id: userId,
       email: email,
     };
-
+    //todo add expiry 15m to jwt
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
         secret: this.config.get<string>('AT_SECRET'),
-        expiresIn: '15m',
+        expiresIn: '1d',
       }),
       this.jwtService.signAsync(jwtPayload, {
         secret: this.config.get<string>('RT_SECRET'),

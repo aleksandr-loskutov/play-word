@@ -7,14 +7,25 @@ import { CollectionDto } from './dto';
 export class CollectionService {
   constructor(private prisma: PrismaService) {}
   async getUserCollections(userId: string): Promise<Collection[]> {
-    return await this.prisma.collection.findMany({});
+    //получаем коллекции пользователя
+    return await this.prisma.collection.findMany({
+      where: {
+        users: { some: { id: userId } },
+      },
+    });
   }
   async createCollection(
     newCollection: CollectionDto,
     userId: string,
   ): Promise<Collection> {
+    //создаем и назначаем коллекцию пользователю
     return await this.prisma.collection.create({
-      data: { createdBy: userId, ...newCollection },
+      data: {
+        createdBy: userId,
+        ...newCollection,
+        //назначаем коллекцию пользователю через связь многие ко многим
+        users: { connect: { id: userId } },
+      },
     });
   }
 }

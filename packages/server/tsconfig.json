@@ -1,0 +1,58 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "target": "es2019",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "removeComments": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": false,
+    "noUnusedParameters": true,
+    "noUnusedLocals": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": false,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "lib": ["es2019", "esnext.asynciterable"],
+    "types": ["node", "jest"],
+        "incremental": true,
+        "skipLibCheck": true,
+        "strictNullChecks": false,
+        "strictBindCallApply": false,
+        "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["types/*"]
+    },
+    "outDir": "dist"
+  }
+}
+
+//{
+//  "compilerOptions": {
+//    "module": "commonjs",
+//    "declaration": true,
+//    "removeComments": true,
+//    "emitDecoratorMetadata": true,
+//    "experimentalDecorators": true,
+//    "allowSyntheticDefaultImports": true,
+//    "target": "es2017",
+//    "sourceMap": true,
+//    "outDir": "./dist",
+//    "baseUrl": ".",
+//    "incremental": true,
+//    "skipLibCheck": true,
+//    "strictNullChecks": false,
+//    "noImplicitAny": false,
+//    "strictBindCallApply": false,
+//    "forceConsistentCasingInFileNames": false,
+//    "noFallthroughCasesInSwitch": false
+//  }
+//}

@@ -6,13 +6,14 @@ import {
   Post,
   UseGuards,
   Res,
+  Get,
 } from '@nestjs/common';
 
 import { Public, GetCurrentUserId, GetCurrentUser } from '../common/decorators';
 import { AtGuard, RtGuard } from '../common/guards';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto';
-import { Tokens } from './types';
+import { AuthDto, SignUpDto, AuthResponse } from './dto';
+import setCookieToken from './utils/setCookieToken';
 
 @Controller('auth')
 export class AuthController {
@@ -21,35 +22,56 @@ export class AuthController {
   @Public()
   @Post('/signup')
   @HttpCode(HttpStatus.CREATED)
-  signupLocal(@Body() dto: AuthDto): Promise<Tokens> {
-    return this.authService.signupLocal(dto);
+  async signupLocal(
+    @Res() response,
+    @Body() dto: SignUpDto,
+  ): Promise<AuthResponse> {
+    const { user, tokens } = await this.authService.signupLocal(dto);
+    setCookieToken(response, tokens);
+    response.json(user);
+    return response.end();
   }
 
   @Public()
   @Post('/signin')
   @HttpCode(HttpStatus.OK)
-  async signinLocal(@Res() res, @Body() dto: AuthDto): Promise<Tokens> {
-    const tokens = await this.authService.signinLocal(dto);
-    res.cookie('access_token', tokens.access_token, { httpOnly: true });
-    res.cookie('refresh_token', tokens.refresh_token, { httpOnly: true });
-    return tokens;
+  async signinLocal(
+    @Res() response,
+    @Body() dto: AuthDto,
+  ): Promise<AuthResponse> {
+    const { user, tokens } = await this.authService.signinLocal(dto);
+    setCookieToken(response, tokens);
+    response.json(user);
+    return response.end();
   }
 
   @UseGuards(AtGuard)
-  @Post('logout')
+  @Post('/logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrentUserId() userId: number): Promise<boolean> {
-    return this.authService.logout(userId);
+  async logout(
+    @Res() response,
+    @GetCurrentUserId() userId: number,
+  ): Promise<boolean> {
+    await this.authService.logout(userId);
+    setCookieToken(response, { access_token: '', refresh_token: '' });
+    return response.end();
   }
 
   @Public()
   @UseGuards(RtGuard)
-  @Post('refresh')
+  @Get('/refresh')
   @HttpCode(HttpStatus.OK)
-  refreshTokens(
+  async refreshTokens(
+    @Res() response,
     @GetCurrentUserId() userId: number,
     @GetCurrentUser('refreshToken') refreshToken: string,
-  ): Promise<Tokens> {
-    return this.authService.refreshTokens(userId, refreshToken);
+  ): Promise<AuthResponse> {
+    const { user, tokens } = await this.authService.refreshTokens(
+      userId,
+      refreshToken,
+    );
+    setCookieToken(response, tokens);
+    response.json(user);
+    return response.end();
   }
 }

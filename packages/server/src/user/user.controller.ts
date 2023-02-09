@@ -5,14 +5,19 @@ import { UserService } from './user.service';
 import { AtGuard } from '../common/guards';
 import { GetCurrentUser, GetCurrentUserId } from '../common/decorators';
 
-//protected route /auth/user
+//protected route /user
 @UseGuards(AtGuard)
-@Controller('auth')
+@Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
-  @Get('user')
-  getMe(@GetCurrentUser() user: User) {
-    return user;
+  @Get('')
+  getMe(@GetCurrentUser() { id, name, email, createdAt }: User) {
+    return {
+      id,
+      name,
+      email,
+      createdAt,
+    };
   }
 
   @Patch()

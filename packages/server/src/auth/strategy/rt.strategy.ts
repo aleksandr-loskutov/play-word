@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Request } from 'express';
+import { Request as RequestType, Request } from 'express';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, JwtPayloadWithRt } from '../types';
@@ -9,23 +9,34 @@ import { JwtPayload, JwtPayloadWithRt } from '../types';
 export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(config: ConfigService) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([RtStrategy.extractJWT]),
       secretOrKey: config.get<string>('RT_SECRET'),
       passReqToCallback: true,
     });
   }
 
-  validate(req: Request, payload: JwtPayload): JwtPayloadWithRt {
-    const refreshToken = req
-      ?.get('authorization')
-      ?.replace('Bearer', '')
-      .trim();
+  private static extractJWT(request: RequestType): string | null {
+    if (
+      request.cookies &&
+      'refresh_token' in request.cookies &&
+      request.cookies.refresh_token?.length > 0
+    ) {
+      return request.cookies.refresh_token;
+    }
+    return null;
+  }
 
-    if (!refreshToken) throw new ForbiddenException('Refresh token malformed');
-
-    return {
-      ...payload,
-      refreshToken,
-    };
+  validate(request: Request, payload: JwtPayload): JwtPayloadWithRt {
+    if (
+      request.cookies &&
+      'refresh_token' in request.cookies &&
+      request.cookies.refresh_token?.length > 0
+    ) {
+      return {
+        ...payload,
+        refreshToken: request.cookies.refresh_token,
+      };
+    }
+    throw new ForbiddenException('Refresh token malformed');
   }
 }

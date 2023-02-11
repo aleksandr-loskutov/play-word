@@ -1,5 +1,9 @@
 import BaseAPI from './base'
-import { Collection, RequestCollectionCreate } from '../types/collection'
+import {
+  Collection,
+  RequestCollectionCreate,
+  RequestCollectionUpdate,
+} from '../types/collection'
 
 class CollectionsAPI extends BaseAPI {
   constructor() {
@@ -10,8 +14,20 @@ class CollectionsAPI extends BaseAPI {
     return this.httpService.post<RequestCollectionCreate, Collection>('/', data)
   }
 
-  getAll() {
+  update(data: RequestCollectionUpdate) {
+    return this.httpService.put<RequestCollectionUpdate, Collection>('/', data)
+  }
+
+  delete(id: number) {
+    return this.httpService.delete(`/${id}`)
+  }
+
+  getUserCollections() {
     return this.httpService.get<Collection[]>('/')
+  }
+
+  getPublicCollections() {
+    return this.httpService.get<Collection[]>('/public')
   }
 }
 

@@ -27,6 +27,9 @@ model Collection {
   createdBy User             @relation(name: "UserCollections", references: [id], fields: [userId])
   words     CollectionWord[] @relation(name: "CollectionWords")
   userId    Int
+  description String?
+  image String?
+  isPublic Boolean? @default(true)
 
   @@map("collections")
 }

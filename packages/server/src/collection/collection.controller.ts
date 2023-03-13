@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Patch,
   Post,
   Put,
   UseGuards,
@@ -13,8 +14,13 @@ import {
 import { AtGuard } from '../common/guards';
 import { CollectionService } from './collection.service';
 import { GetCurrentUserId } from '../common/decorators';
-import { Collection } from '@prisma/client';
-import { RequestCollectionCreate, RequestCollectionUpdate } from './dto';
+import { Collection, UserWordProgress } from '@prisma/client';
+import {
+  CollectionWithWords,
+  RequestCollectionCreate,
+  RequestCollectionUpdate,
+  RequestLearnCollection,
+} from './dto';
 import { Response } from 'common';
 
 @UseGuards(AtGuard)
@@ -45,11 +51,37 @@ export class CollectionController {
     );
   }
 
+  @Post('/:collectionId')
+  @HttpCode(HttpStatus.OK)
+  trainCollectionWords(
+    @Body() payload: RequestLearnCollection,
+    @Param('collectionId') collectionId: string,
+    @GetCurrentUserId() userId: number,
+  ): Promise<Response<UserWordProgress[]>> {
+    return this.collectionService.addCollectionWordsToUserProgress(
+      parseInt(collectionId),
+      userId,
+      payload,
+    );
+  }
+
+  @Patch('/:collectionId')
+  @HttpCode(HttpStatus.OK)
+  unTrainCollectionWords(
+    @Param('collectionId') collectionId: string,
+    @GetCurrentUserId() userId: number,
+  ): Promise<Response<UserWordProgress[]>> {
+    return this.collectionService.deleteCollectionWordsFromUserProgress(
+      parseInt(collectionId),
+      userId,
+    );
+  }
+
   @Get('/')
   @HttpCode(HttpStatus.OK)
   getUserCollections(
     @GetCurrentUserId() userId: number,
-  ): Promise<Response<Collection[]>> {
+  ): Promise<Response<CollectionWithWords[]>> {
     return this.collectionService.getUserCollections(userId);
   }
 
@@ -67,7 +99,7 @@ export class CollectionController {
 
   @Get('/public')
   @HttpCode(HttpStatus.OK)
-  getPublicCollections(): Promise<Response<Collection[]>> {
+  getPublicCollections(): Promise<Response<CollectionWithWords[]>> {
     return this.collectionService.getPublicCollections();
   }
 }

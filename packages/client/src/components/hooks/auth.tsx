@@ -12,6 +12,7 @@ import { UserEntity } from '../../types/user'
 import { Nullable } from '../../types/common'
 import { getServiceIdFromProvider } from '../../pages/signIn/services/signin-service'
 import { SignInDTO, SignUpDTO } from '../../types/auth'
+import { getTraining } from '../../store/action-creators/training'
 
 type Props = {
   children: React.ReactNode
@@ -38,6 +39,9 @@ function useAuthProvider() {
   const { user, error, isLoading, isLoggedIn } = useAppSelector(
     state => state.user
   )
+  const { error: errorTraining, isLoading: isLoadingTraining } = useAppSelector(
+    state => state.training
+  )
 
   const signUp = (credentials: SignUpDTO): void => {
     dispatch(register(credentials))
@@ -63,6 +67,12 @@ function useAuthProvider() {
   }
 
   useEffect(() => {
+    if (user && !isLoadingTraining) {
+      dispatch(getTraining())
+    }
+  }, [user])
+
+  useEffect(() => {
     if (!user && !isLoading) {
       dispatch(fetchUser())
     }
@@ -78,6 +88,8 @@ function useAuthProvider() {
     isLoggedIn,
     signInWithProvider,
     getProviderServiceId,
+    errorTraining,
+    isLoadingTraining,
   }
 }
 

@@ -2,6 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit'
 import { Nullable } from '../../../types/common'
 import { UserEntity } from '../../../types/user'
 import { Collection } from '../../../types/collection'
+import { UserWordProgress } from '../../../types/training'
 
 export type LoadingState = {
   isLoading: boolean
@@ -15,6 +16,10 @@ export type UserState = LoadingState & {
 
 export type CollectionState = LoadingState & {
   collections: Collection[]
+}
+
+export type TrainingState = LoadingState & {
+  training: UserWordProgress[]
 }
 
 export type ActionPayload<T> = PayloadAction<T, string, any, any>

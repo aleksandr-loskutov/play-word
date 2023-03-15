@@ -4,6 +4,10 @@ import {
   RequestCollectionCreate,
   RequestCollectionUpdate,
 } from '../types/collection'
+import {
+  RequestUserWordProgressUpdate,
+  UserWordProgress,
+} from '../types/training'
 
 class CollectionsAPI extends BaseAPI {
   constructor() {
@@ -28,6 +32,25 @@ class CollectionsAPI extends BaseAPI {
 
   getPublicCollections() {
     return this.httpService.get<Collection[]>('/public')
+  }
+
+  addCollectionWordsToTraining(id: number) {
+    return this.httpService.post<string, UserWordProgress[]>(`/${id}`)
+  }
+
+  removeCollectionWordsFromTraining(id: number) {
+    return this.httpService.patch<string, UserWordProgress[]>(`/${id}`)
+  }
+
+  getTraining() {
+    return this.httpService.get<UserWordProgress[]>('/train')
+  }
+
+  updateTraining(data: RequestUserWordProgressUpdate) {
+    return this.httpService.patch<
+      RequestUserWordProgressUpdate,
+      UserWordProgress[]
+    >('/train', data)
   }
 }
 

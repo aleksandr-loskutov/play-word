@@ -100,6 +100,23 @@ class HttpService {
         status: error.response?.status || 500,
       }))
 
+  patch = <T, R>(
+    url: string,
+    data?: T,
+    headers?: Record<string, string>
+  ): ApiResponse<R> =>
+    createRequest<T>({
+      method: 'PATCH',
+      url: `${this.endPoint}${url}`,
+      data,
+      headers,
+    })
+      .then(response => ({ data: response.data, status: response.status }))
+      .catch(error => ({
+        error: `${error.response?.data?.message} ${error.message}`,
+        status: error.response?.status || 500,
+      }))
+
   delete = <T, R>(
     url: string,
     headers?: Record<string, string>

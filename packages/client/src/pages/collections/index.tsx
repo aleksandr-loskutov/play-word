@@ -12,6 +12,7 @@ import {
   Form,
   Radio,
 } from 'antd'
+import './styles.css'
 import Layout from '../../components/layout'
 import createCn from '../../utils/create-cn'
 import { useAppDispatch, useAppSelector } from '../../components/hooks/store'

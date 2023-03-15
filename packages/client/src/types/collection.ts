@@ -5,6 +5,17 @@ export type Collection = {
   image: string
   userId: number
   isPublic: boolean
+  words: WordForCollection[]
+}
+
+export type WordForCollection = {
+  word: string
+  translation: string
+}
+
+export type RequestAddWordsToCollection = {
+  collectionId: number
+  words: WordForCollection[]
 }
 
 export type RequestCollectionCreate = {

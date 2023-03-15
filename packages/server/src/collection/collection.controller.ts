@@ -14,12 +14,12 @@ import {
 import { AtGuard } from '../common/guards';
 import { CollectionService } from './collection.service';
 import { GetCurrentUserId } from '../common/decorators';
-import { Collection, UserWordProgress } from '@prisma/client';
+import { Collection } from '@prisma/client';
 import {
   CollectionWithWords,
   RequestCollectionCreate,
   RequestCollectionUpdate,
-  RequestLearnCollection,
+  UserWordProgressResponse,
 } from './dto';
 import { Response } from 'common';
 
@@ -51,17 +51,23 @@ export class CollectionController {
     );
   }
 
+  @Get('/train')
+  @HttpCode(HttpStatus.OK)
+  getUserTraining(
+    @GetCurrentUserId() userId: number,
+  ): Promise<Response<UserWordProgressResponse>> {
+    return this.collectionService.getUserTraining(userId);
+  }
+
   @Post('/:collectionId')
   @HttpCode(HttpStatus.OK)
   trainCollectionWords(
-    @Body() payload: RequestLearnCollection,
     @Param('collectionId') collectionId: string,
     @GetCurrentUserId() userId: number,
-  ): Promise<Response<UserWordProgress[]>> {
+  ): Promise<Response<UserWordProgressResponse>> {
     return this.collectionService.addCollectionWordsToUserProgress(
       parseInt(collectionId),
       userId,
-      payload,
     );
   }
 
@@ -70,7 +76,7 @@ export class CollectionController {
   unTrainCollectionWords(
     @Param('collectionId') collectionId: string,
     @GetCurrentUserId() userId: number,
-  ): Promise<Response<UserWordProgress[]>> {
+  ): Promise<Response<UserWordProgressResponse>> {
     return this.collectionService.deleteCollectionWordsFromUserProgress(
       parseInt(collectionId),
       userId,

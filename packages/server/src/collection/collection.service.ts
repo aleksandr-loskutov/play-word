@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Collection, UserWordProgress } from '@prisma/client';
+import { Collection } from '@prisma/client';
 
 import {
   CollectionWithWords,
   RequestCollectionCreate,
   RequestCollectionUpdate,
-  RequestLearnCollection,
+  UserWordProgressResponse,
 } from './dto';
 import { Response } from 'common';
 
@@ -121,11 +121,8 @@ export class CollectionService {
   async addCollectionWordsToUserProgress(
     collectionId: number,
     userId: number,
-    payload: RequestLearnCollection,
-  ): Promise<Response<UserWordProgress[]>> {
+  ): Promise<Response<UserWordProgressResponse>> {
     try {
-      // we can provide payload with learning options
-      console.log('payload', payload);
       const collection = await this.prisma.collection.findUnique({
         where: { id: collectionId },
         select: {
@@ -156,19 +153,19 @@ export class CollectionService {
       const userWordProgresses = await this.prisma.userWordProgress.findMany({
         where: {
           userId,
-          collectionWordId: {
+          wordId: {
             in: collectionWords.map((cw) => cw.wordId),
           },
         },
-        select: { collectionWordId: true },
+        select: { wordId: true },
       });
-      const existingIds = userWordProgresses.map((uwp) => uwp.collectionWordId);
+      const existingIds = userWordProgresses.map((uwp) => uwp.wordId);
 
       const newWordProgresses = collectionWords
         .filter((cw) => !existingIds.includes(cw.wordId))
         .map((cw) => ({
           userId,
-          collectionWordId: cw.wordId,
+          wordId: cw.wordId,
           nextReview: new Date(),
           stage: 0,
         }));
@@ -178,6 +175,7 @@ export class CollectionService {
       });
       const userProgress = await this.prisma.userWordProgress.findMany({
         where: { userId },
+        select: { userId: false, wordId: true, stage: true, nextReview: true },
       });
       return userProgress;
     } catch (error: any) {
@@ -190,7 +188,7 @@ export class CollectionService {
   async deleteCollectionWordsFromUserProgress(
     collectionId: number,
     userId: number,
-  ): Promise<Response<UserWordProgress[]>> {
+  ): Promise<Response<UserWordProgressResponse>> {
     try {
       const collection = await this.prisma.collection.findUnique({
         where: { id: collectionId },
@@ -220,7 +218,7 @@ export class CollectionService {
       await this.prisma.userWordProgress.deleteMany({
         where: {
           userId,
-          collectionWordId: {
+          wordId: {
             in: collection.words.map((cw) => cw.wordId),
           },
         },
@@ -228,11 +226,28 @@ export class CollectionService {
 
       const userProgress = await this.prisma.userWordProgress.findMany({
         where: { userId },
+        select: { userId: false, wordId: true, stage: true, nextReview: true },
       });
       return userProgress;
     } catch (error: any) {
       return {
         error: `Cannot update collection with id "${collectionId}". ${error.message}`,
+      };
+    }
+  }
+
+  async getUserTraining(
+    userId: number,
+  ): Promise<Response<UserWordProgressResponse>> {
+    try {
+      const userProgress = await this.prisma.userWordProgress.findMany({
+        where: { userId },
+        select: { userId: false, wordId: true, stage: true, nextReview: true },
+      });
+      return userProgress;
+    } catch (error: any) {
+      return {
+        error: `Cannot get user training. ${error.message}`,
       };
     }
   }

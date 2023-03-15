@@ -6,7 +6,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
-import { Collection, Word } from '@prisma/client';
+import { Collection, UserWordProgress, Word } from '@prisma/client';
 
 export class CollectionDto {
   @IsNotEmpty()
@@ -59,3 +59,5 @@ export class CollectionWordDto {
 }
 
 export type CollectionWithWords = Collection & { words: Word[] };
+
+export type UserWordProgressResponse = Omit<UserWordProgress, 'userId'>[];

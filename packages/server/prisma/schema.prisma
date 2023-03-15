@@ -59,13 +59,13 @@ model WordForCollection {
 }
 
 model UserWordProgress {
-  userId           Int
-  user             User     @relation(name: "UserWordProgress", fields: [userId], references: [id])
-  collectionWordId Int
-  nextReview       DateTime
-  stage            Int      @default(0)
+  userId     Int
+  user       User     @relation(name: "UserWordProgress", fields: [userId], references: [id])
+  wordId     Int
+  nextReview DateTime
+  stage      Int      @default(0)
 
-  @@id([userId, collectionWordId])
+  @@id([userId, wordId])
   @@map("userProgress")
 }
 

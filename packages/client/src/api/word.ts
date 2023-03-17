@@ -1,0 +1,24 @@
+import BaseAPI from './base'
+import { WordForCollection } from '../types/collection'
+import { Collection } from '../types/collection'
+
+class WordAPI extends BaseAPI {
+  constructor() {
+    super('/word')
+  }
+
+  getWordsByCollection(collectionId: string) {
+    return this.httpService.get<Collection>(`/${collectionId}`)
+  }
+
+  addWordsToCollection(collectionId: number, data: WordForCollection[]) {
+    return this.httpService.post<WordForCollection[], Collection>(
+      `/${collectionId}`,
+      data
+    )
+  }
+}
+
+const wordAPI = new WordAPI()
+
+export default wordAPI

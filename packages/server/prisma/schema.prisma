@@ -43,6 +43,7 @@ model Word {
   word            String
   translation     String
   collectionWords WordForCollection[] @relation(name: "WordCollection")
+  wordProgress    UserWordProgress[]  @relation(name: "WordProgress")
 
   @@unique([word, translation], name: "wordComposite")
   @@map("words")
@@ -62,6 +63,7 @@ model UserWordProgress {
   userId     Int
   user       User     @relation(name: "UserWordProgress", fields: [userId], references: [id])
   wordId     Int
+  word       Word     @relation(name: "WordProgress", fields: [wordId], references: [id])
   nextReview DateTime
   stage      Int      @default(0)
 

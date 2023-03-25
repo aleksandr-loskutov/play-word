@@ -175,7 +175,9 @@ export class CollectionService {
       });
       const userProgress = await this.prisma.userWordProgress.findMany({
         where: { userId },
-        select: { userId: false, wordId: true, stage: true, nextReview: true },
+        include: {
+          word: true,
+        },
       });
       return userProgress;
     } catch (error: any) {
@@ -226,7 +228,9 @@ export class CollectionService {
 
       const userProgress = await this.prisma.userWordProgress.findMany({
         where: { userId },
-        select: { userId: false, wordId: true, stage: true, nextReview: true },
+        include: {
+          word: true,
+        },
       });
       return userProgress;
     } catch (error: any) {
@@ -242,8 +246,9 @@ export class CollectionService {
     try {
       const userProgress = await this.prisma.userWordProgress.findMany({
         where: { userId },
-        select: { userId: false, wordId: true, stage: true, nextReview: true },
+        include: { word: true },
       });
+
       return userProgress;
     } catch (error: any) {
       return {

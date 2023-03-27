@@ -1,5 +1,20 @@
 .layout{
   min-height: 100vh;
+  background-color: black;
+
+  &__menu-container{
+    display: flex;
+    justify-content: center;
+    background-color: black;
+    width: 100%;
+  }
+
+  &__menu-content {
+    display: flex;
+    justify-content: center;
+    background-color: black;
+    width: 30%;
+  }
 
   &__content-container {
     display: flex;
@@ -10,6 +25,8 @@
     min-height: 50vh;
     min-width: 50vw;
   }
+
+
 }
 
 

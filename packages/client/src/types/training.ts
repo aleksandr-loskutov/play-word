@@ -8,7 +8,7 @@ export type UserWordProgress = {
   word: Word
 }
 
-export type Word = WordForCollection & EntityId
+export type Word = WordForCollection & EntityId & { sessionStage?: number }
 
 export type RequestUserWordProgressUpdate = {
   wordId: number

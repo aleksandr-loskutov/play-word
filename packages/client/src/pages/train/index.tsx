@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react'
+import './styles.css'
 import { Button, Input, InputRef, message, Typography } from 'antd'
 import { useAppDispatch } from '../../components/hooks/store'
 import Layout from '../../components/layout'
 import createCn from '../../utils/create-cn'
 import { useAuth } from '../../components/hooks/auth'
 import { UserWordProgress, Word } from '../../types/training'
-import { KEY_MAPPINGS } from '../../utils/training-settings'
+import { KEY_MAPPINGS, TRAINING_SETTINGS } from '../../utils/training-settings'
 const { Title, Paragraph } = Typography
+const { wordErrorLimit, successWordShowTime, errorLetterShowTime } =
+  TRAINING_SETTINGS
 
-//TODO завершение тренировки экран
-//TODO ввод на английской раскладке
+//TODO визуально подсвечивать инпут в зависимости от ответа
 //TODO минутный таймер
-//TODO эффект на не правильный ответ и верный ( + удаление первого не првильного символа
 //TODO отправлять результаты тренировки на сервер  ( опционаьно - порциями по 5 или менее (если осталось меньше 5))
 
 const cn = createCn('train-page')
@@ -95,7 +96,6 @@ const App = () => {
   const setNextWord = () => {
     //take first word from userWordProgress
     let word = userWordProgress[0].word
-    console.log('setNextWord word=', word)
     if (word.sessionStage > 2) {
       console.log(
         'тренировка завершена т.к достигли слова со статусом sessionStage 3'
@@ -104,11 +104,9 @@ const App = () => {
       return
     }
     if (word.sessionStage === 0) {
-      console.log('первая тренировка')
       setShowAnswer(true)
     }
     if (word.sessionStage === 2) {
-      console.log('russian - english тренировка')
       //reverse for russian - english
       word = reverseWordAndTranslation(word)
     }
@@ -155,46 +153,103 @@ const App = () => {
     setShowAnswer(true)
     setInputValue(translation)
     setLockInput(true)
+    setErrorsCount(0)
     setTimeout(() => {
       setLockInput(false)
       isUserAnswerCorrect(isCorrect)
-    }, 2000)
+    }, successWordShowTime)
   }
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = event.target.value
-    setInputValue(inputValue)
+  const correctAnswer = () => {
+    message.success('Correct!')
+    showAnswerWord(true)
+  }
 
+  const incorrectAnswer = () => {
+    message.error('Incorrect!')
+    if (errorsCount + 1 >= wordErrorLimit) {
+      showAnswerWord(false)
+    }
+  }
+
+  const validateInput = () => {
     if (inputValue === translation) {
-      showAnswerWord(true)
+      correctAnswer()
     } else if (inputValue.length >= translation.length / 2) {
       if (currentWord.translation.startsWith(inputValue)) {
-        message.success('Correct!')
-        showAnswerWord(true)
+        correctAnswer()
       } else {
-        message.error('Incorrect!')
-        setErrorsCount(errorsCount + 1)
-        setInputValue('')
-        if (errorsCount + 1 >= 2) {
-          showAnswerWord(false)
+        if (errorsCount >= wordErrorLimit) {
+          incorrectAnswer()
         }
       }
     }
   }
 
+  const setIncorrectTemporaryInputValue = (character: string) => {
+    setLockInput(true)
+    setInputValue(prevInputValue => {
+      const newInputValue = prevInputValue + character
+      setTimeout(() => {
+        restoreCorrectInputValue()
+      }, errorLetterShowTime)
+
+      return newInputValue
+    })
+  }
+
+  const restoreCorrectInputValue = () => {
+    setInputValue(prevInputValue => {
+      const correctInputValue = prevInputValue
+        .split('')
+        .filter((char, index) => {
+          const translationChar = translation.charAt(index)
+          return char === translationChar
+        })
+        .join('')
+
+      return correctInputValue
+    })
+    setLockInput(false)
+  }
+
+  const backspaceEmulation = () => {
+    setInputValue(prevInputValue => {
+      if (prevInputValue.length === 0) {
+        return prevInputValue
+      }
+
+      return prevInputValue.slice(0, -1)
+    })
+  }
+
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
+      if (lockInput) return
       const pressedKey = event.key.toLowerCase()
-      console.log('pressedKey=', event.code)
-      const translationChar = translation.charAt(inputValue.length)
-
-      if (
-        inputValue.length < translation.length &&
-        KEY_MAPPINGS.hasOwnProperty(pressedKey) &&
-        KEY_MAPPINGS[pressedKey].hasOwnProperty(translationChar) &&
-        KEY_MAPPINGS[pressedKey][translationChar] === translationChar
-      ) {
-        setInputValue(prevInputValue => prevInputValue + pressedKey)
+      if (pressedKey === 'backspace') {
+        backspaceEmulation()
+        return
+      }
+      const keyCode = event.code
+      console.log('pressedKey=', pressedKey)
+      if (KEY_MAPPINGS.hasOwnProperty(keyCode)) {
+        const keyMappings = Object.entries(KEY_MAPPINGS[keyCode])[0]
+        const translationChar = translation.charAt(inputValue.length)
+        if (
+          inputValue.length < translation.length &&
+          keyMappings.includes(translationChar)
+        ) {
+          setInputValue(prevInputValue => prevInputValue + translationChar)
+          validateInput()
+        } else {
+          //счетчик тихих ошибок (от подбора на клаве)
+          setErrorsCount(errorsCount + 1)
+          if (errorsCount >= wordErrorLimit) {
+            incorrectAnswer()
+          }
+          setIncorrectTemporaryInputValue(pressedKey)
+        }
       }
     }
 
@@ -208,6 +263,14 @@ const App = () => {
   const handleLearned = () => {
     isUserAnswerCorrect(true)
   }
+
+  const inputClassName = !lockInput
+    ? ''
+    : showAnswer && inputValue === translation
+    ? 'correct'
+    : 'incorrect'
+
+  console.log('inputClassName=', lockInput)
 
   return (
     <Layout>
@@ -227,9 +290,8 @@ const App = () => {
               <Input
                 placeholder="Enter translation"
                 value={inputValue}
-                onChange={handleInputChange}
                 disabled={lockInput}
-                className={cn('input')}
+                className={cn(`train-input ${inputClassName}`)}
                 ref={inputRef}
                 autoFocus
               />

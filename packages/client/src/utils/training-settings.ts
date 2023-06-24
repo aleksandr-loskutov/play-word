@@ -1,4 +1,9 @@
-export const KEY_MAPPINGS = {
+export type KeyMapping = {
+  [key: string]: {
+    [inputChar: string]: string
+  }
+}
+export const KEY_MAPPINGS: KeyMapping = {
   KeyA: { a: 'ф' },
   KeyB: { b: 'и' },
   KeyC: { c: 'с' },
@@ -37,6 +42,6 @@ export const TRAINING_SETTINGS = {
   wordErrorLimit: 5,
   wordFailsLimit: 3,
   wordErrorCounterBlockingTimeInSec: 1,
-  succesWordShowTime: 2000,
-  errorLetterShowTime: 500,
+  successWordShowTime: 2000,
+  errorLetterShowTime: 1000,
 }

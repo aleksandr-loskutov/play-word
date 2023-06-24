@@ -1,8 +1,7 @@
 .train-page {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+
   height: calc(100vh - 72px);
 
   &__text {
@@ -11,3 +10,22 @@
     margin: 0 0 30px;
   }
 }
+
+.correct {
+  border: 2px solid green;
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    transform: scale(1.05);
+  }
+}
+
+.incorrect {
+  border: 2px solid red;
+  transition: border-color 0.3s ease;
+
+  &:focus {
+    transform: scale(0.95);
+  }
+}
+

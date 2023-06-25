@@ -3,6 +3,12 @@
     "postcss-import": {},
     "postcss-url": {},
     "postcss-custom-properties": {},
-    "postcss-nested": {}
+    "postcss-mixins": {},
+    "postcss-nested": {},
+    "postcss-preset-env": {
+      "autoprefixer": {
+        "grid": true
+      }
+    }
   }
 }

@@ -1,31 +1,28 @@
+@import "./mixins.css";
+
 .train-page {
   display: flex;
   flex-direction: column;
-
   height: calc(100vh - 72px);
+  font-size: 2.5rem;
 
   &__text {
-    font-size: 22px;
+    font-size: 1.5rem;
     line-height: 25px;
     margin: 0 0 30px;
   }
+
+  &__train-input {
+    @mixin train-input-style #45f3ff;
+  }
+
 }
 
 .correct {
-  border: 2px solid green;
-  transition: border-color 0.3s ease;
-
-  &:focus {
-    transform: scale(1.05);
-  }
+  @mixin disabled-style springgreen;
 }
 
 .incorrect {
-  border: 2px solid red;
-  transition: border-color 0.3s ease;
-
-  &:focus {
-    transform: scale(0.95);
-  }
+  @mixin disabled-style red;
 }
 

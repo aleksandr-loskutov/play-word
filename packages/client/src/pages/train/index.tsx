@@ -207,10 +207,11 @@ const App = () => {
           return char === translationChar
         })
         .join('')
-
       return correctInputValue
     })
+
     setLockInput(false)
+    inputRef?.current?.focus()
   }
 
   const backspaceEmulation = () => {
@@ -247,12 +248,23 @@ const App = () => {
           setErrorsCount(errorsCount + 1)
           if (errorsCount >= wordErrorLimit) {
             incorrectAnswer()
+          } else {
+            let switchedIncorrectCharacterByLang = pressedKey
+            //подмена ввода ( для ошибочных букв  с неверной раскладкой)
+            if (keyMappings.includes(pressedKey)) {
+              if (currentWord.sessionStage === 1) {
+                switchedIncorrectCharacterByLang = keyMappings[1]
+              }
+              if (currentWord.sessionStage === 2) {
+                switchedIncorrectCharacterByLang = keyMappings[0]
+              }
+            }
+            setIncorrectTemporaryInputValue(switchedIncorrectCharacterByLang)
           }
-          setIncorrectTemporaryInputValue(pressedKey)
         }
       }
     }
-
+    inputRef?.current?.focus()
     document.addEventListener('keydown', handleKeyPress)
 
     return () => {
@@ -270,8 +282,6 @@ const App = () => {
     ? 'correct'
     : 'incorrect'
 
-  console.log('inputClassName=', lockInput)
-
   return (
     <Layout>
       <section className={cn('')}>
@@ -288,7 +298,7 @@ const App = () => {
                 </div>
               )}
               <Input
-                placeholder="Enter translation"
+                placeholder="введите перевод"
                 value={inputValue}
                 disabled={lockInput}
                 className={cn(`train-input ${inputClassName}`)}
@@ -299,7 +309,7 @@ const App = () => {
               <br />
               {showAnswer && currentWord.sessionStage === 0 ? (
                 <Button type="primary" onClick={handleLearned}>
-                  Запомнил
+                  Далее
                 </Button>
               ) : (
                 <Button

@@ -8,15 +8,16 @@ datasource db {
 }
 
 model User {
-  id           Int                @id @default(autoincrement())
-  name         String?
-  email        String             @unique
-  hash         String
-  hashedRt     String?
-  collections  Collection[]       @relation(name: "UserCollections")
-  wordProgress UserWordProgress[] @relation(name: "UserWordProgress")
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+  id               Int                   @id @default(autoincrement())
+  name             String?
+  email            String                @unique
+  hash             String
+  hashedRt         String?
+  collections      Collection[]          @relation(name: "UserCollections")
+  wordProgress     UserWordProgress[]    @relation(name: "UserWordProgress")
+  trainingSettings UserTrainingSettings?
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
 
   UserCollectionSettings UserCollectionSettings[]
   @@map("users")
@@ -34,6 +35,7 @@ model Collection {
   deleted     Boolean             @default(false)
 
   UserCollectionSettings UserCollectionSettings[]
+  UsersProgress          UserWordProgress[]       @relation(name: "UserWordProgressCollection")
   @@unique([name, userId])
   @@map("collections")
 }
@@ -41,48 +43,81 @@ model Collection {
 model Word {
   id              Int                 @id @default(autoincrement())
   word            String
-  translation     String
   collectionWords WordForCollection[] @relation(name: "WordCollection")
-  wordProgress    UserWordProgress[]  @relation(name: "WordProgress")
+  translations    Translation[]       @relation(name: "WordTranslation")
 
-  @@unique([word, translation], name: "wordComposite")
+  @@unique([word])
   @@map("words")
 }
 
-model WordForCollection {
-  collectionId Int
-  wordId       Int
-  collection   Collection @relation(name: "CollectionWords", fields: [collectionId], references: [id])
-  word         Word       @relation(name: "WordCollection", fields: [wordId], references: [id])
+model Translation {
+  id          Int                 @id @default(autoincrement())
+  wordId      Int
+  word        Word                @relation(name: "WordTranslation", fields: [wordId], references: [id], onDelete: Cascade)
+  collections WordForCollection[] @relation(name: "WordForCollectionTranslation")
+  stats       UserWordProgress[]  @relation(name: "UserWordProgressTranslation")
+  translation String
 
-  @@id([collectionId, wordId])
+  @@unique([wordId, translation])
+  @@map("translations")
+}
+
+model WordForCollection {
+  collectionId  Int
+  wordId        Int
+  translationId Int
+  collection    Collection  @relation(name: "CollectionWords", fields: [collectionId], references: [id], onDelete: Cascade)
+  word          Word        @relation(name: "WordCollection", fields: [wordId], references: [id], onDelete: Cascade)
+  translation   Translation @relation(name: "WordForCollectionTranslation", fields: [translationId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, wordId, translationId])
   @@map("collectionWords")
 }
 
 model UserWordProgress {
-  userId     Int
-  user       User     @relation(name: "UserWordProgress", fields: [userId], references: [id])
-  wordId     Int
-  word       Word     @relation(name: "WordProgress", fields: [wordId], references: [id])
-  nextReview DateTime
-  stage      Int      @default(0)
+  userId        Int
+  user          User        @relation(name: "UserWordProgress", fields: [userId], references: [id], onDelete: Cascade)
+  translationId Int
+  translation   Translation @relation(name: "UserWordProgressTranslation", fields: [translationId], references: [id], onDelete: Cascade)
+  collectionId  Int
+  collection    Collection  @relation(name: "UserWordProgressCollection", fields: [collectionId], references: [id])
+  nextReview    DateTime
+  mistakes      Int         @default(0)
+  stage         Int         @default(0)
 
-  @@id([userId, wordId])
+  @@id([userId, translationId])
   @@map("userProgress")
 }
 
+model UserTrainingSettings {
+  userId                 Int     @id
+  user                   User    @relation(fields: [userId], references: [id])
+  wordsPerSession        Int     @default(10)
+  stageOneInterval       Int     @default(1) // default 1 day, etc
+  stageTwoInterval       Int     @default(7)
+  stageThreeInterval     Int     @default(30)
+  stageFourInterval      Int     @default(90)
+  stageFiveInterval      Int     @default(180)
+  useCountdown           Boolean @default(true)
+  countdownTimeInSec     Int     @default(60)
+  strictMode             Boolean @default(false)
+  showCollectionNameHint Boolean @default(false)
+  wordErrorLimit         Int     @default(3)
+  wordMistypeLimit       Int     @default(5)
+
+  @@map("userTrainingSettings")
+}
+
 model UserCollectionSettings {
-  user                    User       @relation(fields: [userId], references: [id])
-  userId                  Int
-  collection              Collection @relation(fields: [collectionId], references: [id])
-  collectionId            Int
-  stageOneInterval        Int        @default(1) // default 1 day
-  stageTwoInterval        Int        @default(7) // default 7 days
-  stageThreeInterval      Int        @default(30) // default 30 days
-  stageFourInterval       Int        @default(90) // default 90 days
-  stageFiveInterval       Int        @default(180) // default 180 days
-  showAnswerAfterQuestion Boolean    @default(true)
-  difficultyLevel         Int        @default(1)
+  user               User       @relation(fields: [userId], references: [id])
+  userId             Int
+  collection         Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId       Int
+  stageOneInterval   Int        @default(1) // default 1 day, etc
+  stageTwoInterval   Int        @default(7)
+  stageThreeInterval Int        @default(30)
+  stageFourInterval  Int        @default(90)
+  stageFiveInterval  Int        @default(180)
 
   @@id([userId, collectionId])
   @@map("userCollectionSettings")

@@ -1,0 +1,56 @@
+@define-mixin train-input-style $color{
+    color: $color;
+    font-size: inherit;
+    font-weight: bold;
+    font-family: inherit;
+    text-transform: uppercase;
+    text-align: center;
+    @mixin border-style $color;
+    &:focus {
+        @mixin border-style $color;
+        box-shadow: none ;
+    }
+     &:hover {
+         @mixin border-style $color;
+     }
+
+    &::placeholder {
+        color: $color;
+        opacity: 0.2;
+        text-transform: uppercase;
+        text-align: center;
+        font-size: inherit;
+    }
+
+
+}
+
+@define-mixin border-style $color {
+    border-color: $color;
+    border-bottom: 1px solid $color;
+    border-radius: 0;
+    background-color: transparent;
+    border-top-style: none;
+    border-right-style: none;
+    border-left-style: none;
+
+    &:focus {
+        border-top-style: none;
+        border-right-style: none;
+        border-left-style: none;
+    }
+    &:hover {
+        border-color: $color;
+    }
+}
+
+
+@define-mixin disabled-style $color {
+    &:disabled {
+        font-size: inherit;
+        color: $color;
+        opacity: 0.6;
+        cursor: not-allowed;
+        @mixin border-style $color;
+    }
+}

@@ -7,24 +7,22 @@ import createCn from '../../utils/create-cn'
 import { useAuth } from '../../components/hooks/auth'
 import { UserWordProgress, Word } from '../../types/training'
 import { KEY_MAPPINGS, TRAINING_SETTINGS } from '../../utils/training-settings'
+import Countdown from './components/countdown'
+import { updateTraining } from '../../store/action-creators/training'
+import { transformUserProgressToUpdateRequest } from '../../utils/transform-user-progress'
+import PageLoader from '../../components/page-loader'
 const { Title, Paragraph } = Typography
-const { wordErrorLimit, successWordShowTime, errorLetterShowTime } =
+const { successWordShowTime, errorLetterShowTime, countdownVisualBlocksLimit } =
   TRAINING_SETTINGS
-
-//TODO визуально подсвечивать инпут в зависимости от ответа
-//TODO минутный таймер
-//TODO отправлять результаты тренировки на сервер  ( опционаьно - порциями по 5 или менее (если осталось меньше 5))
 
 const cn = createCn('train-page')
 
-const App = () => {
+const TrainPage = () => {
   const dispatch = useAppDispatch()
-  const { training } = useAuth()
+  const { user, isLoading, error, training, isLoadingTraining } = useAuth()
   const [userWordProgress, setUserWordProgress] = useState<UserWordProgress[]>(
     []
   )
-
-  console.log('userWordProgress', userWordProgress)
   const [currentWord, setCurrentWord] = useState<Word>(
     userWordProgress[0]?.word || {
       id: 0,
@@ -35,10 +33,52 @@ const App = () => {
   )
   const [translation, setTranslation] = useState<string>('')
   const [inputValue, setInputValue] = useState<string>('')
-  const [errorsCount, setErrorsCount] = useState<number>(0)
+  const [mistypeCount, setMistypeCount] = useState<number>(0)
   const [showAnswer, setShowAnswer] = useState<boolean>(false)
   const [lockInput, setLockInput] = useState<boolean>(false)
+  const [timerSeconds, setTimerSeconds] = useState(60)
+  const [resetKey, setResetKey] = useState(0)
   const inputRef = useRef<InputRef>(null)
+  const isLoaded = user && !isLoading && !isLoadingTraining
+
+  useEffect(() => {
+    if (isLoaded) setTimerSeconds(user.trainingSettings.countdownTimeInSec)
+  }, [isLoaded])
+
+  useEffect(() => {
+    if (userWordProgress.length > 0) nextWordTrain()
+  }, [userWordProgress])
+
+  const finishTraining = () => {
+    //отправляем результаты тренировки
+    setUserWordProgress([])
+    let actualUserWordProgress: UserWordProgress[] = []
+    dispatch(
+      updateTraining(transformUserProgressToUpdateRequest(userWordProgress))
+    )
+      .unwrap()
+      .then(userWordProgressFromServer => {
+        actualUserWordProgress = userWordProgressFromServer
+        console.log('freshUserWordProgress', userWordProgressFromServer)
+        message.success('Успешно сохранили тренировку!')
+      })
+      .catch((error: any) => {
+        message.error(
+          error.message || 'Не удалось сохранить прогресс тренировки'
+        )
+      })
+  }
+
+  const handleTimerComplete = () => {
+    clickNextButton()
+  }
+
+  const restartTimer = () => {
+    if (!user) return
+    setTimerSeconds(user.trainingSettings.countdownTimeInSec)
+    // Update resetKey to trigger Countdown component reset
+    setResetKey(prevKey => prevKey + 1)
+  }
 
   const prepareTrainingArray = (): UserWordProgress[] => {
     return training.map(wordProgress => ({
@@ -46,6 +86,7 @@ const App = () => {
       word: {
         ...wordProgress.word,
         sessionStage: wordProgress.stage === 0 ? 0 : 1,
+        errorCounter: 0,
       },
     }))
   }
@@ -60,58 +101,52 @@ const App = () => {
         const nextReviewA = new Date(a.nextReview)
         const nextReviewB = new Date(b.nextReview)
 
-        if (a.word.sessionStage === b.word.sessionStage) {
-          return nextReviewA.getTime() - nextReviewB.getTime()
-        }
-        return a.word.sessionStage - b.word.sessionStage
+        // if (a.word.sessionStage === b.word.sessionStage) {
+        return nextReviewA.getTime() - nextReviewB.getTime()
+        // }
+        // return a.word.sessionStage - b.word.sessionStage
       })
     } else {
-      //sort by sessionStage current progress for regular sorting after each answer
+      // regular sorting after each answer of current progress by sessionStage
       sortedProgressArray = progressArray.sort(
         (a, b) => a.word.sessionStage - b.word.sessionStage
       )
+      sortedProgressArray = progressArray
     }
     return sortedProgressArray
   }
 
-  useEffect(() => {
-    if (userWordProgress.length > 0) nextWordTrain()
-  }, [userWordProgress])
-
   const nextWordTrain = () => {
     setShowAnswer(false)
     setInputValue('')
-    setErrorsCount(0)
+    setMistypeCount(0)
     inputRef.current?.focus()
     setNextWord()
-  }
-  const setFinishTraining = () => {
-    //отправляем результаты тренировки
-    //скрываем стейты слов и инпут
-    setUserWordProgress([])
-    //показать статистику - новых слов изучено, ошибок сделано, времени прошло
-    //кнопка перезагрузки страницы
+    restartTimer()
   }
 
   const setNextWord = () => {
+    //проверить весь массив на стейдж - возможно тренировка закончилась
     //take first word from userWordProgress
     let word = userWordProgress[0].word
     if (word.sessionStage > 2) {
       console.log(
         'тренировка завершена т.к достигли слова со статусом sessionStage 3'
       )
-      setFinishTraining()
+      finishTraining()
       return
     }
     if (word.sessionStage === 0) {
       setShowAnswer(true)
+      setInputValue(word.translation)
     }
+    //reverse for russian - english
     if (word.sessionStage === 2) {
-      //reverse for russian - english
       word = reverseWordAndTranslation(word)
     }
     setCurrentWord(word)
     setTranslation(word.translation)
+    word.sessionStage === 0 ? setLockInput(true) : setLockInput(false)
   }
 
   const reverseWordAndTranslation = (word: Word): Word => {
@@ -119,10 +154,15 @@ const App = () => {
   }
 
   const handleStartTraining = () => {
-    setUserWordProgress(sortUserWordProgress())
+    if (!user) return
+    const sortedAndSlicedProgress = sortUserWordProgress().slice(
+      0,
+      user.trainingSettings.wordsPerSession
+    )
+    setUserWordProgress(sortedAndSlicedProgress)
   }
 
-  const isUserAnswerCorrect = (isCorrect: boolean): void => {
+  const processUserAnswer = (isCorrect: boolean): void => {
     if (isCorrect) {
       //moving first element to the end of the training queue and making + 1 to the stage
       setUserWordProgress(prevUserWordProgress => {
@@ -140,10 +180,28 @@ const App = () => {
         return sortUserWordProgress(updatedProgress)
       })
     } else {
-      //moving first element to the end of the training queue
+      //user made a mistake
       setUserWordProgress(prevUserWordProgress => {
-        const [firstWordProgress, ...restWordProgress] = prevUserWordProgress
-        const updatedProgress = [...restWordProgress, firstWordProgress]
+        const [currentWordProgress, ...restWordProgress] = prevUserWordProgress
+        const { sessionStage: currentSessionStage, errorCounter } =
+          currentWordProgress.word
+        const wordErrors = errorCounter + 1
+        //if we already reached user error limit, we set word stage to 3 (finished) so it will never show again in this session coz of regular sortUserWordProgress
+        const sessionStage =
+          wordErrors >= user.trainingSettings.wordErrorLimit
+            ? 3
+            : currentSessionStage
+        const updatedProgress = [
+          ...restWordProgress,
+          {
+            ...currentWordProgress,
+            word: {
+              ...currentWordProgress.word,
+              sessionStage,
+              errorCounter: wordErrors,
+            },
+          },
+        ]
         return sortUserWordProgress(updatedProgress)
       })
     }
@@ -153,10 +211,10 @@ const App = () => {
     setShowAnswer(true)
     setInputValue(translation)
     setLockInput(true)
-    setErrorsCount(0)
+    setMistypeCount(0)
     setTimeout(() => {
       setLockInput(false)
-      isUserAnswerCorrect(isCorrect)
+      processUserAnswer(isCorrect)
     }, successWordShowTime)
   }
 
@@ -167,7 +225,7 @@ const App = () => {
 
   const incorrectAnswer = () => {
     message.error('Incorrect!')
-    if (errorsCount + 1 >= wordErrorLimit) {
+    if (user && mistypeCount + 1 >= user.trainingSettings.wordMistypeLimit) {
       showAnswerWord(false)
     }
   }
@@ -179,7 +237,7 @@ const App = () => {
       if (currentWord.translation.startsWith(inputValue)) {
         correctAnswer()
       } else {
-        if (errorsCount >= wordErrorLimit) {
+        if (user && mistypeCount >= user.trainingSettings.wordMistypeLimit) {
           incorrectAnswer()
         }
       }
@@ -224,16 +282,31 @@ const App = () => {
     })
   }
 
+  const clickNextButton = () => {
+    userWordProgress.length === 0
+      ? handleStartTraining()
+      : currentWord.sessionStage === 0
+      ? handleLearned()
+      : showAnswerWord(false)
+  }
+
   useEffect(() => {
+    if (!isLoaded) return
+
     const handleKeyPress = (event: KeyboardEvent) => {
-      if (lockInput) return
       const pressedKey = event.key.toLowerCase()
-      if (pressedKey === 'backspace') {
+      const keyCode = event.code
+      if (keyCode === 'Backspace') {
         backspaceEmulation()
         return
       }
-      const keyCode = event.code
-      console.log('pressedKey=', pressedKey)
+      if (keyCode === 'Enter' || keyCode === 'Space') {
+        clickNextButton()
+        return
+      }
+      if (lockInput) return
+      console.log('pressedKey=', keyCode)
+
       if (KEY_MAPPINGS.hasOwnProperty(keyCode)) {
         const keyMappings = Object.entries(KEY_MAPPINGS[keyCode])[0]
         const translationChar = translation.charAt(inputValue.length)
@@ -245,8 +318,8 @@ const App = () => {
           validateInput()
         } else {
           //счетчик тихих ошибок (от подбора на клаве)
-          setErrorsCount(errorsCount + 1)
-          if (errorsCount >= wordErrorLimit) {
+          setMistypeCount(mistypeCount + 1)
+          if (mistypeCount >= user.trainingSettings.wordMistypeLimit) {
             incorrectAnswer()
           } else {
             let switchedIncorrectCharacterByLang = pressedKey
@@ -273,7 +346,8 @@ const App = () => {
   }, [inputValue, translation])
 
   const handleLearned = () => {
-    isUserAnswerCorrect(true)
+    message.success('Learned!')
+    processUserAnswer(true)
   }
 
   const inputClassName = !lockInput
@@ -282,66 +356,76 @@ const App = () => {
     ? 'correct'
     : 'incorrect'
 
+  const useCountDown = user && user.trainingSettings.useCountdown
+
   return (
     <Layout>
       <section className={cn('')}>
-        <div style={{ textAlign: 'center', marginTop: 20 }}>
-          <Title level={2}>Flashcard Training</Title>
-          {userWordProgress.length > 0 && currentWord.word ? (
-            <div>
-              <Paragraph>Translate the word:</Paragraph>
-              <Title level={3}>{currentWord.word}</Title>
-              {showAnswer && (
-                <div>
-                  <Paragraph>The correct translation is:</Paragraph>
-                  <Title level={3}>{currentWord.translation}</Title>
-                </div>
-              )}
-              <Input
-                placeholder="введите перевод"
-                value={inputValue}
-                disabled={lockInput}
-                className={cn(`train-input ${inputClassName}`)}
-                ref={inputRef}
-                autoFocus
-              />
-              <br />
-              <br />
-              {showAnswer && currentWord.sessionStage === 0 ? (
-                <Button type="primary" onClick={handleLearned}>
-                  Далее
-                </Button>
-              ) : (
-                <Button
-                  type="primary"
-                  onClick={() => showAnswerWord(false)}
-                  disabled={showAnswer}>
-                  Показать перевод
-                </Button>
-              )}{' '}
-              <br />
-              <br />
-              <Paragraph>Errors count: {errorsCount}</Paragraph>
-              <Paragraph>Words left: {userWordProgress.length}</Paragraph>
-            </div>
-          ) : (
-            <div>
-              <Paragraph>
-                {training.length > 0
-                  ? `You have ${training.length} words to train, let's start!`
-                  : 'You have no words to train yet. Add some in the dashboard!'}
-              </Paragraph>
-              {training.length > 0 && (
-                <Button type="primary" onClick={handleStartTraining}>
-                  Start Training
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
+        {/*<Title level={3}>Тренировка</Title>*/}
+        {isLoaded ? (
+          <div style={{ textAlign: 'center', marginTop: 5 }}>
+            {userWordProgress.length > 0 && currentWord.word ? (
+              <div style={{ marginTop: 60 }}>
+                <Title level={1}>{currentWord.word.toUpperCase()}</Title>
+                <Input
+                  placeholder="перевод"
+                  value={inputValue}
+                  disabled={lockInput}
+                  className={cn(`train-input ${inputClassName}`)}
+                  ref={inputRef}
+                  autoFocus
+                />
+                {useCountDown && (
+                  <Countdown
+                    key={resetKey}
+                    seconds={timerSeconds}
+                    onComplete={handleTimerComplete}
+                    maxBlocks={countdownVisualBlocksLimit}
+                  />
+                )}
+                <br />
+                <br />
+                {showAnswer && currentWord.sessionStage === 0 ? (
+                  <Button type="primary" onClick={handleLearned}>
+                    Далее
+                  </Button>
+                ) : (
+                  <Button
+                    type="primary"
+                    onClick={() => showAnswerWord(false)}
+                    disabled={showAnswer}>
+                    Показать перевод
+                  </Button>
+                )}{' '}
+                <br />
+                <br />
+                <Paragraph>Ошибок: {mistypeCount}</Paragraph>
+                <Paragraph>Слов: {userWordProgress.length}</Paragraph>
+              </div>
+            ) : (
+              <div>
+                <Paragraph>
+                  {training.length > 0
+                    ? `У вас ${training.length} слов для повторения, давайте начнем!`
+                    : 'У вас нет слов для повторения. Добавьте новые из коллекций или подождите пока текущие не "созреют".'}
+                </Paragraph>
+                {training.length > 0 && (
+                  <Button
+                    type="primary"
+                    onClick={handleStartTraining}
+                    autoFocus>
+                    Начать
+                  </Button>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <PageLoader />
+        )}
       </section>
     </Layout>
   )
 }
 
-export default App
+export default TrainPage

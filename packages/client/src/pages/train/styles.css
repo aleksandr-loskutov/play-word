@@ -26,3 +26,33 @@
   @mixin disabled-style red;
 }
 
+
+.countdown {
+  display: flex;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.block {
+  width: 10px;
+  height: 10px;
+  margin-right: 5px;
+  background-color: transparent;
+  border-radius: 2px;
+}
+
+.active-color {
+  background-color: #45f3ff;
+  opacity: 0.5;
+}
+
+.inactive-color {
+  background-color: grey;
+}
+
+
+
+
+
+
+

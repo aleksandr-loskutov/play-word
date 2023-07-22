@@ -8,7 +8,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto, SignUpDto, AuthResponse } from './dto';
 import { JwtPayload, Tokens } from './types';
 import excludeFields from './utils/exludeFields';
-import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -39,11 +38,25 @@ export class AuthService {
         }
         throw error;
       });
+    //we create default training settings for the user
+    await this.prisma.userTrainingSettings.create({
+      data: {
+        userId: user.id,
+      },
+    });
 
-    const tokens = await this.createTokens(user);
+    const userWithSettings = await this.prisma.user.findUnique({
+      where: {
+        id: user.id,
+      },
+      include: {
+        trainingSettings: true,
+      },
+    });
+    const tokens = await this.createTokens(userWithSettings);
     await this.updateRtHash(user.id, tokens.refresh_token);
-    excludeFields(user, ['hash', 'hashedRt', 'updatedAt']);
-    return { user, tokens };
+    excludeFields(userWithSettings, ['hash', 'hashedRt', 'updatedAt']);
+    return { user: userWithSettings, tokens };
   }
 
   async signinLocal(dto: AuthDto): Promise<AuthResponse> {
@@ -51,6 +64,9 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({
       where: {
         email: dto.email,
+      },
+      include: {
+        trainingSettings: true,
       },
     });
     //if user does not exist throw error
@@ -86,6 +102,9 @@ export class AuthService {
       where: {
         id: userId,
       },
+      include: {
+        trainingSettings: true,
+      },
     });
     if (!user || !user.hashedRt) throw new ForbiddenException('Access Denied');
 
@@ -110,12 +129,19 @@ export class AuthService {
     });
   }
 
-  async createTokens({ id, email, name, createdAt }: User): Promise<Tokens> {
+  async createTokens({
+    id,
+    email,
+    name,
+    createdAt,
+    trainingSettings,
+  }): Promise<Tokens> {
     const jwtPayload: JwtPayload = {
       id,
       name,
       email,
       createdAt,
+      trainingSettings,
     };
     // expiry 60m for access token
     const [at, rt] = await Promise.all([

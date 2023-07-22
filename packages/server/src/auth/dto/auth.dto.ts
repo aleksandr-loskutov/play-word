@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { UserTrainingSettings } from '@prisma/client';
 import { Tokens } from '../types';
 
 export class AuthDto {
@@ -30,6 +31,7 @@ export type UserDto = {
   email: string;
   name: string;
   createdAt: Date;
+  trainingSettings: UserTrainingSettings;
 };
 
 export type AuthResponse = {

@@ -5,12 +5,14 @@ import { useAppDispatch } from '../../components/hooks/store'
 import Layout from '../../components/layout'
 import createCn from '../../utils/create-cn'
 import { useAuth } from '../../components/hooks/auth'
-import { UserWordProgress, Word } from '../../types/training'
+import { UserWordProgress, Word, WordInTraining } from '../../types/training'
 import { KEY_MAPPINGS, TRAINING_SETTINGS } from '../../utils/training-settings'
 import Countdown from './components/countdown'
 import { updateTraining } from '../../store/action-creators/training'
 import { transformUserProgressToUpdateRequest } from '../../utils/transform-user-progress'
 import PageLoader from '../../components/page-loader'
+import { sortUserWordProgressByDate } from './utils'
+import useQueue from './components/queue'
 const { Title, Paragraph } = Typography
 const { successWordShowTime, errorLetterShowTime, countdownVisualBlocksLimit } =
   TRAINING_SETTINGS
@@ -20,17 +22,23 @@ const cn = createCn('train-page')
 const TrainPage = () => {
   const dispatch = useAppDispatch()
   const { user, isLoading, error, training, isLoadingTraining } = useAuth()
-  const [userWordProgress, setUserWordProgress] = useState<UserWordProgress[]>(
-    []
-  )
-  const [currentWord, setCurrentWord] = useState<Word>(
-    userWordProgress[0]?.word || {
-      id: 0,
-      word: '',
-      translation: '',
-      sessionStage: 0,
-    }
-  )
+
+  const {
+    queue,
+    setQueue,
+    resultingProgress,
+    peekQueue,
+    isEmptyQueue,
+    clearQueue,
+    processQueueByAnswer,
+  } = useQueue()
+  const [currentWord, setCurrentWord] = useState<WordInTraining>({
+    id: 0,
+    word: '',
+    translation: '',
+    errorCounter: 0,
+    sessionStage: 0,
+  })
   const [translation, setTranslation] = useState<string>('')
   const [inputValue, setInputValue] = useState<string>('')
   const [mistypeCount, setMistypeCount] = useState<number>(0)
@@ -42,19 +50,25 @@ const TrainPage = () => {
   const isLoaded = user && !isLoading && !isLoadingTraining
 
   useEffect(() => {
-    if (isLoaded) setTimerSeconds(user.trainingSettings.countdownTimeInSec)
+    if (isLoaded) {
+      setTimerSeconds(user.trainingSettings.countdownTimeInSec)
+    }
   }, [isLoaded])
 
   useEffect(() => {
-    if (userWordProgress.length > 0) nextWordTrain()
-  }, [userWordProgress])
+    if (!isEmptyQueue()) {
+      nextWordTrain()
+    } else {
+      if (resultingProgress.length > 0) {
+        finishTraining()
+      }
+    }
+  }, [queue])
 
   const finishTraining = () => {
-    //отправляем результаты тренировки
-    setUserWordProgress([])
     let actualUserWordProgress: UserWordProgress[] = []
     dispatch(
-      updateTraining(transformUserProgressToUpdateRequest(userWordProgress))
+      updateTraining(transformUserProgressToUpdateRequest(resultingProgress))
     )
       .unwrap()
       .then(userWordProgressFromServer => {
@@ -67,6 +81,7 @@ const TrainPage = () => {
           error.message || 'Не удалось сохранить прогресс тренировки'
         )
       })
+      .finally(() => clearQueue())
   }
 
   const handleTimerComplete = () => {
@@ -80,42 +95,6 @@ const TrainPage = () => {
     setResetKey(prevKey => prevKey + 1)
   }
 
-  const prepareTrainingArray = (): UserWordProgress[] => {
-    return training.map(wordProgress => ({
-      ...wordProgress,
-      word: {
-        ...wordProgress.word,
-        sessionStage: wordProgress.stage === 0 ? 0 : 1,
-        errorCounter: 0,
-      },
-    }))
-  }
-
-  const sortUserWordProgress = (
-    progressArray: UserWordProgress[] = []
-  ): UserWordProgress[] => {
-    let sortedProgressArray = []
-    //sort for initial only (pushed start training button)
-    if (progressArray.length === 0) {
-      sortedProgressArray = prepareTrainingArray().sort((a, b) => {
-        const nextReviewA = new Date(a.nextReview)
-        const nextReviewB = new Date(b.nextReview)
-
-        // if (a.word.sessionStage === b.word.sessionStage) {
-        return nextReviewA.getTime() - nextReviewB.getTime()
-        // }
-        // return a.word.sessionStage - b.word.sessionStage
-      })
-    } else {
-      // regular sorting after each answer of current progress by sessionStage
-      sortedProgressArray = progressArray.sort(
-        (a, b) => a.word.sessionStage - b.word.sessionStage
-      )
-      sortedProgressArray = progressArray
-    }
-    return sortedProgressArray
-  }
-
   const nextWordTrain = () => {
     setShowAnswer(false)
     setInputValue('')
@@ -126,16 +105,10 @@ const TrainPage = () => {
   }
 
   const setNextWord = () => {
-    //проверить весь массив на стейдж - возможно тренировка закончилась
-    //take first word from userWordProgress
-    let word = userWordProgress[0].word
-    if (word.sessionStage > 2) {
-      console.log(
-        'тренировка завершена т.к достигли слова со статусом sessionStage 3'
-      )
-      finishTraining()
-      return
-    }
+    //take first word
+    let word = peekQueue()?.word
+    console.log('setNextWord', word)
+
     if (word.sessionStage === 0) {
       setShowAnswer(true)
       setInputValue(word.translation)
@@ -155,56 +128,15 @@ const TrainPage = () => {
 
   const handleStartTraining = () => {
     if (!user) return
-    const sortedAndSlicedProgress = sortUserWordProgress().slice(
+    const sortedAndSlicedProgress = sortUserWordProgressByDate(training).slice(
       0,
       user.trainingSettings.wordsPerSession
     )
-    setUserWordProgress(sortedAndSlicedProgress)
+    setQueue(sortedAndSlicedProgress)
   }
 
   const processUserAnswer = (isCorrect: boolean): void => {
-    if (isCorrect) {
-      //moving first element to the end of the training queue and making + 1 to the stage
-      setUserWordProgress(prevUserWordProgress => {
-        const [firstWordProgress, ...restWordProgress] = prevUserWordProgress
-        const updatedProgress = [
-          ...restWordProgress,
-          {
-            ...firstWordProgress,
-            word: {
-              ...firstWordProgress.word,
-              sessionStage: firstWordProgress.word.sessionStage + 1,
-            },
-          },
-        ]
-        return sortUserWordProgress(updatedProgress)
-      })
-    } else {
-      //user made a mistake
-      setUserWordProgress(prevUserWordProgress => {
-        const [currentWordProgress, ...restWordProgress] = prevUserWordProgress
-        const { sessionStage: currentSessionStage, errorCounter } =
-          currentWordProgress.word
-        const wordErrors = errorCounter + 1
-        //if we already reached user error limit, we set word stage to 3 (finished) so it will never show again in this session coz of regular sortUserWordProgress
-        const sessionStage =
-          wordErrors >= user.trainingSettings.wordErrorLimit
-            ? 3
-            : currentSessionStage
-        const updatedProgress = [
-          ...restWordProgress,
-          {
-            ...currentWordProgress,
-            word: {
-              ...currentWordProgress.word,
-              sessionStage,
-              errorCounter: wordErrors,
-            },
-          },
-        ]
-        return sortUserWordProgress(updatedProgress)
-      })
-    }
+    processQueueByAnswer(isCorrect, user.trainingSettings.wordErrorLimit)
   }
 
   const showAnswerWord = (isCorrect: boolean) => {
@@ -283,7 +215,7 @@ const TrainPage = () => {
   }
 
   const clickNextButton = () => {
-    userWordProgress.length === 0
+    isEmptyQueue()
       ? handleStartTraining()
       : currentWord.sessionStage === 0
       ? handleLearned()
@@ -364,7 +296,7 @@ const TrainPage = () => {
         {/*<Title level={3}>Тренировка</Title>*/}
         {isLoaded ? (
           <div style={{ textAlign: 'center', marginTop: 5 }}>
-            {userWordProgress.length > 0 && currentWord.word ? (
+            {!isEmptyQueue() && currentWord.word ? (
               <div style={{ marginTop: 60 }}>
                 <Title level={1}>{currentWord.word.toUpperCase()}</Title>
                 <Input
@@ -400,13 +332,21 @@ const TrainPage = () => {
                 <br />
                 <br />
                 <Paragraph>Ошибок: {mistypeCount}</Paragraph>
-                <Paragraph>Слов: {userWordProgress.length}</Paragraph>
+                <Paragraph>Слов: {queue.length}</Paragraph>
               </div>
             ) : (
               <div>
                 <Paragraph>
                   {training.length > 0
-                    ? `У вас ${training.length} слов для повторения, давайте начнем!`
+                    ? `У вас ${
+                        training.length
+                      } слов для повторения, давайте начнем! \r\n Вы тренируете ${
+                        user.trainingSettings.wordsPerSession
+                      }  слов за подход ${
+                        user.trainingSettings.useCountdown
+                          ? 'с таймеромой'
+                          : 'без таймера'
+                      }`
                     : 'У вас нет слов для повторения. Добавьте новые из коллекций или подождите пока текущие не "созреют".'}
                 </Paragraph>
                 {training.length > 0 && (

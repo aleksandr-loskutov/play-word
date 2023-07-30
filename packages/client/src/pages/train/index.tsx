@@ -1,52 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import './styles.css'
-import { Button, Input, InputRef, message, Typography } from 'antd'
+import { Button, message, Typography } from 'antd'
 import { useAppDispatch } from '../../components/hooks/store'
 import Layout from '../../components/layout'
 import createCn from '../../utils/create-cn'
 import { useAuth } from '../../components/hooks/auth'
-import { UserWordProgress, Word, WordInTraining } from '../../types/training'
-import { KEY_MAPPINGS, TRAINING_SETTINGS } from '../../utils/training-settings'
+import { TRAINING_SETTINGS } from '../../utils/training-settings'
 import Countdown from './components/countdown'
 import { updateTraining } from '../../store/action-creators/training'
 import { transformUserProgressToUpdateRequest } from '../../utils/transform-user-progress'
 import PageLoader from '../../components/page-loader'
 import { sortUserWordProgressByDate } from './utils'
 import useQueue from './components/queue'
+import TrainingInput from './components/trainingInput'
 const { Title, Paragraph } = Typography
-const { successWordShowTime, errorLetterShowTime, countdownVisualBlocksLimit } =
-  TRAINING_SETTINGS
+const { countdownVisualBlocksLimit } = TRAINING_SETTINGS
 
 const cn = createCn('train-page')
 
 const TrainPage = () => {
   const dispatch = useAppDispatch()
-  const { user, isLoading, error, training, isLoadingTraining } = useAuth()
+  const { user, isLoading, training, isLoadingTraining } = useAuth()
 
   const {
     queue,
     setQueue,
     resultingProgress,
-    peekQueue,
+    word,
     isEmptyQueue,
     clearQueue,
     processQueueByAnswer,
   } = useQueue()
-  const [currentWord, setCurrentWord] = useState<WordInTraining>({
-    id: 0,
-    word: '',
-    translation: '',
-    errorCounter: 0,
-    sessionStage: 0,
-  })
-  const [translation, setTranslation] = useState<string>('')
-  const [inputValue, setInputValue] = useState<string>('')
-  const [mistypeCount, setMistypeCount] = useState<number>(0)
+
   const [showAnswer, setShowAnswer] = useState<boolean>(false)
-  const [lockInput, setLockInput] = useState<boolean>(false)
   const [timerSeconds, setTimerSeconds] = useState(60)
   const [resetKey, setResetKey] = useState(0)
-  const inputRef = useRef<InputRef>(null)
+  const [nextButton, setNextButton] = useState(false)
   const isLoaded = user && !isLoading && !isLoadingTraining
 
   useEffect(() => {
@@ -56,24 +45,16 @@ const TrainPage = () => {
   }, [isLoaded])
 
   useEffect(() => {
-    if (!isEmptyQueue()) {
-      nextWordTrain()
-    } else {
-      if (resultingProgress.length > 0) {
-        finishTraining()
-      }
-    }
+    if (isEmptyQueue() && resultingProgress.length > 0) handleFinishTraining()
   }, [queue])
 
-  const finishTraining = () => {
-    let actualUserWordProgress: UserWordProgress[] = []
+  const handleFinishTraining = () => {
+    if (resultingProgress.length === 0) return
     dispatch(
       updateTraining(transformUserProgressToUpdateRequest(resultingProgress))
     )
       .unwrap()
-      .then(userWordProgressFromServer => {
-        actualUserWordProgress = userWordProgressFromServer
-        console.log('freshUserWordProgress', userWordProgressFromServer)
+      .then(() => {
         message.success('Успешно сохранили тренировку!')
       })
       .catch((error: any) => {
@@ -85,7 +66,11 @@ const TrainPage = () => {
   }
 
   const handleTimerComplete = () => {
-    clickNextButton()
+    setNextButton(true)
+  }
+
+  const handleNextButtonClick = () => {
+    setNextButton(true)
   }
 
   const restartTimer = () => {
@@ -95,39 +80,8 @@ const TrainPage = () => {
     setResetKey(prevKey => prevKey + 1)
   }
 
-  const nextWordTrain = () => {
-    setShowAnswer(false)
-    setInputValue('')
-    setMistypeCount(0)
-    inputRef.current?.focus()
-    setNextWord()
-    restartTimer()
-  }
-
-  const setNextWord = () => {
-    //take first word
-    let word = peekQueue()?.word
-    console.log('setNextWord', word)
-
-    if (word.sessionStage === 0) {
-      setShowAnswer(true)
-      setInputValue(word.translation)
-    }
-    //reverse for russian - english
-    if (word.sessionStage === 2) {
-      word = reverseWordAndTranslation(word)
-    }
-    setCurrentWord(word)
-    setTranslation(word.translation)
-    word.sessionStage === 0 ? setLockInput(true) : setLockInput(false)
-  }
-
-  const reverseWordAndTranslation = (word: Word): Word => {
-    return { ...word, word: word.translation, translation: word.word }
-  }
-
   const handleStartTraining = () => {
-    if (!user) return
+    if (!user || training.length === 0) return
     const sortedAndSlicedProgress = sortUserWordProgressByDate(training).slice(
       0,
       user.trainingSettings.wordsPerSession
@@ -135,160 +89,22 @@ const TrainPage = () => {
     setQueue(sortedAndSlicedProgress)
   }
 
-  const processUserAnswer = (isCorrect: boolean): void => {
-    processQueueByAnswer(isCorrect, user.trainingSettings.wordErrorLimit)
+  const handleAnswer = (isCorrect: boolean) => {
+    isCorrect ? message.success('Ok!') : message.error('Incorrect!')
+    const { wordErrorLimit } = user?.trainingSettings ?? { wordErrorLimit: 3 }
+    processQueueByAnswer(isCorrect, wordErrorLimit)
+
+    if (useCountDown) restartTimer()
+    setNextButton(false)
   }
-
-  const showAnswerWord = (isCorrect: boolean) => {
-    setShowAnswer(true)
-    setInputValue(translation)
-    setLockInput(true)
-    setMistypeCount(0)
-    setTimeout(() => {
-      setLockInput(false)
-      processUserAnswer(isCorrect)
-    }, successWordShowTime)
-  }
-
-  const correctAnswer = () => {
-    message.success('Correct!')
-    showAnswerWord(true)
-  }
-
-  const incorrectAnswer = () => {
-    message.error('Incorrect!')
-    if (user && mistypeCount + 1 >= user.trainingSettings.wordMistypeLimit) {
-      showAnswerWord(false)
-    }
-  }
-
-  const validateInput = () => {
-    if (inputValue === translation) {
-      correctAnswer()
-    } else if (inputValue.length >= translation.length / 2) {
-      if (currentWord.translation.startsWith(inputValue)) {
-        correctAnswer()
-      } else {
-        if (user && mistypeCount >= user.trainingSettings.wordMistypeLimit) {
-          incorrectAnswer()
-        }
-      }
-    }
-  }
-
-  const setIncorrectTemporaryInputValue = (character: string) => {
-    setLockInput(true)
-    setInputValue(prevInputValue => {
-      const newInputValue = prevInputValue + character
-      setTimeout(() => {
-        restoreCorrectInputValue()
-      }, errorLetterShowTime)
-
-      return newInputValue
-    })
-  }
-
-  const restoreCorrectInputValue = () => {
-    setInputValue(prevInputValue => {
-      const correctInputValue = prevInputValue
-        .split('')
-        .filter((char, index) => {
-          const translationChar = translation.charAt(index)
-          return char === translationChar
-        })
-        .join('')
-      return correctInputValue
-    })
-
-    setLockInput(false)
-    inputRef?.current?.focus()
-  }
-
-  const backspaceEmulation = () => {
-    setInputValue(prevInputValue => {
-      if (prevInputValue.length === 0) {
-        return prevInputValue
-      }
-
-      return prevInputValue.slice(0, -1)
-    })
-  }
-
-  const clickNextButton = () => {
-    isEmptyQueue()
-      ? handleStartTraining()
-      : currentWord.sessionStage === 0
-      ? handleLearned()
-      : showAnswerWord(false)
-  }
-
-  useEffect(() => {
-    if (!isLoaded) return
-
-    const handleKeyPress = (event: KeyboardEvent) => {
-      const pressedKey = event.key.toLowerCase()
-      const keyCode = event.code
-      if (keyCode === 'Backspace') {
-        backspaceEmulation()
-        return
-      }
-      if (keyCode === 'Enter' || keyCode === 'Space') {
-        clickNextButton()
-        return
-      }
-      if (lockInput) return
-      console.log('pressedKey=', keyCode)
-
-      if (KEY_MAPPINGS.hasOwnProperty(keyCode)) {
-        const keyMappings = Object.entries(KEY_MAPPINGS[keyCode])[0]
-        const translationChar = translation.charAt(inputValue.length)
-        if (
-          inputValue.length < translation.length &&
-          keyMappings.includes(translationChar)
-        ) {
-          setInputValue(prevInputValue => prevInputValue + translationChar)
-          validateInput()
-        } else {
-          //счетчик тихих ошибок (от подбора на клаве)
-          setMistypeCount(mistypeCount + 1)
-          if (mistypeCount >= user.trainingSettings.wordMistypeLimit) {
-            incorrectAnswer()
-          } else {
-            let switchedIncorrectCharacterByLang = pressedKey
-            //подмена ввода ( для ошибочных букв  с неверной раскладкой)
-            if (keyMappings.includes(pressedKey)) {
-              if (currentWord.sessionStage === 1) {
-                switchedIncorrectCharacterByLang = keyMappings[1]
-              }
-              if (currentWord.sessionStage === 2) {
-                switchedIncorrectCharacterByLang = keyMappings[0]
-              }
-            }
-            setIncorrectTemporaryInputValue(switchedIncorrectCharacterByLang)
-          }
-        }
-      }
-    }
-    inputRef?.current?.focus()
-    document.addEventListener('keydown', handleKeyPress)
-
-    return () => {
-      document.removeEventListener('keydown', handleKeyPress)
-    }
-  }, [inputValue, translation])
 
   const handleLearned = () => {
-    message.success('Learned!')
-    processUserAnswer(true)
+    handleAnswer(true)
+    setShowAnswer(false)
   }
 
-  const inputClassName = !lockInput
-    ? ''
-    : showAnswer && inputValue === translation
-    ? 'correct'
-    : 'incorrect'
-
-  const useCountDown = user && user.trainingSettings.useCountdown
+  const useCountDown =
+    user && user.trainingSettings.useCountdown && word?.sessionStage !== 0
 
   return (
     <Layout>
@@ -296,16 +112,15 @@ const TrainPage = () => {
         {/*<Title level={3}>Тренировка</Title>*/}
         {isLoaded ? (
           <div style={{ textAlign: 'center', marginTop: 5 }}>
-            {!isEmptyQueue() && currentWord.word ? (
+            {!isEmptyQueue() && word ? (
               <div style={{ marginTop: 60 }}>
-                <Title level={1}>{currentWord.word.toUpperCase()}</Title>
-                <Input
-                  placeholder="перевод"
-                  value={inputValue}
-                  disabled={lockInput}
-                  className={cn(`train-input ${inputClassName}`)}
-                  ref={inputRef}
-                  autoFocus
+                <Title level={1}>{word.word.toUpperCase()}</Title>
+                <TrainingInput
+                  currentWord={word}
+                  onAnswer={handleAnswer}
+                  showAnswer={showAnswer}
+                  setShowAnswer={setShowAnswer}
+                  isNextButtonClicked={nextButton}
                 />
                 {useCountDown && (
                   <Countdown
@@ -317,22 +132,22 @@ const TrainPage = () => {
                 )}
                 <br />
                 <br />
-                {showAnswer && currentWord.sessionStage === 0 ? (
+                {word.sessionStage === 0 ? (
                   <Button type="primary" onClick={handleLearned}>
-                    Далее
+                    Запомнил!
                   </Button>
                 ) : (
                   <Button
                     type="primary"
-                    onClick={() => showAnswerWord(false)}
+                    onClick={handleNextButtonClick}
                     disabled={showAnswer}>
                     Показать перевод
                   </Button>
                 )}{' '}
                 <br />
                 <br />
-                <Paragraph>Ошибок: {mistypeCount}</Paragraph>
-                <Paragraph>Слов: {queue.length}</Paragraph>
+                <Paragraph>Ошибок: {word.errorCounter}</Paragraph>
+                <Paragraph>Слов в очереди: {queue.length}</Paragraph>
               </div>
             ) : (
               <div>
@@ -344,7 +159,7 @@ const TrainPage = () => {
                         user.trainingSettings.wordsPerSession
                       }  слов за подход ${
                         user.trainingSettings.useCountdown
-                          ? 'с таймеромой'
+                          ? 'с таймером'
                           : 'без таймера'
                       }`
                     : 'У вас нет слов для повторения. Добавьте новые из коллекций или подождите пока текущие не "созреют".'}

@@ -1,11 +1,17 @@
-import { useState } from 'react'
-import { UserWordProgress } from '../../../types/training'
+import { useEffect, useRef, useState } from 'react'
+import { UserWordProgress, WordInTraining } from '../../../types/training'
+import { reverseWordAndTranslation } from '../utils'
 
 const useQueue = (initialQueue: UserWordProgress[] = []) => {
   const [queue, setQueue] = useState<UserWordProgress[]>(initialQueue)
   const [resultingProgress, setResultingProgress] = useState<
     UserWordProgress[]
   >([])
+  const [timeSpent, setTimeSpent] = useState<Map<number, number>>(new Map())
+  const currentWordTimeStampRef = useRef<{
+    wordId: number
+    timeStamp: Date
+  } | null>(null)
 
   const enqueue = (wordProgress: UserWordProgress) => {
     setQueue(prevQueue => [...prevQueue, wordProgress])
@@ -19,8 +25,57 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
     return currentProgress
   }
 
+  useEffect(() => {
+    if (queue.length > 0) {
+      const firstElement = queue[0]
+      const currentWordId = firstElement.wordId
+
+      if (!currentWordTimeStampRef.current) {
+        currentWordTimeStampRef.current = {
+          wordId: currentWordId,
+          timeStamp: new Date(),
+        }
+      } else {
+        const { wordId, timeStamp } = currentWordTimeStampRef.current
+        const spentTime = new Date().getTime() - timeStamp.getTime()
+        const totalTime = (timeSpent.get(wordId) || 0) + spentTime
+        setTimeSpent(prevTimeSpent =>
+          new Map(prevTimeSpent).set(wordId, totalTime)
+        )
+        currentWordTimeStampRef.current = {
+          wordId: currentWordId,
+          timeStamp: new Date(),
+        }
+      }
+    } else {
+      currentWordTimeStampRef.current = null
+    }
+  }, [queue])
+
   const saveToResultingArray = (progressToSave: UserWordProgress) => {
-    setResultingProgress(prevState => [...prevState, progressToSave])
+    let totalTime = timeSpent.get(progressToSave.wordId) || 0
+    if (
+      currentWordTimeStampRef.current &&
+      currentWordTimeStampRef.current.wordId === progressToSave.wordId
+    ) {
+      const spentTime =
+        new Date().getTime() -
+        currentWordTimeStampRef.current.timeStamp.getTime()
+      totalTime += spentTime
+      currentWordTimeStampRef.current = null
+    }
+
+    const totalTimeInMinutes = parseFloat((totalTime / 60000).toFixed(1))
+    const updatedProgressToSave = {
+      ...progressToSave,
+      timeSpent: totalTimeInMinutes,
+    }
+    setResultingProgress(prevState => [...prevState, updatedProgressToSave])
+    setTimeSpent(prevTimeSpent => {
+      const newTimeSpent = new Map(prevTimeSpent)
+      newTimeSpent.delete(progressToSave.wordId)
+      return newTimeSpent
+    })
   }
 
   const processQueueByAnswer = (isCorrect: boolean, maxErrorLimit: number) => {
@@ -28,17 +83,22 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
     const [currentProgress, ...remainingProgress] = queue
 
     if (isCorrect) {
-      const updatedProgress: UserWordProgress = {
+      const updatedSessionStage = currentProgress.word.sessionStage + 1
+
+      let updatedProgress: UserWordProgress = {
         ...currentProgress,
         word: {
           ...currentProgress.word,
-          sessionStage: currentProgress.word.sessionStage + 1,
+          sessionStage: updatedSessionStage,
         },
+      }
+      if (updatedSessionStage === 2) {
+        updatedProgress = reverseWordAndTranslation(updatedProgress)
       }
 
       if (updatedProgress.word.sessionStage > 2) {
-        saveToResultingArray(updatedProgress)
         setQueue(remainingProgress)
+        saveToResultingArray(updatedProgress)
       } else {
         setQueue([...remainingProgress, updatedProgress])
       }
@@ -58,8 +118,8 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
       }
 
       if (sessionStage > 2) {
-        saveToResultingArray(updatedProgress)
         setQueue(remainingProgress)
+        saveToResultingArray(updatedProgress)
       } else {
         setQueue([...remainingProgress, updatedProgress])
       }
@@ -73,6 +133,8 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
   const peek = (): UserWordProgress | undefined => {
     return queue.length > 0 ? queue[0] : undefined
   }
+
+  const word: WordInTraining | undefined = peek()?.word
 
   const isEmpty = (): boolean => {
     return queue.length === 0
@@ -91,6 +153,7 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
     queue,
     enqueue,
     dequeue,
+    word,
     resultingProgress,
     processQueueByAnswer,
     setQueue: setQueueItems,

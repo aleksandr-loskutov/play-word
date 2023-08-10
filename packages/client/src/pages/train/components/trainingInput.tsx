@@ -119,8 +119,10 @@ const TrainingInput: React.FC<InputProps> = ({
         backspaceEmulation()
         return
       }
-      if (keyCode === 'Enter' || keyCode === 'Space') {
+      if (keyCode === 'Space') {
         event.preventDefault()
+      }
+      if (keyCode === 'Enter') {
         processAnswer(inputValue === currentWord.translation)
         return
       }

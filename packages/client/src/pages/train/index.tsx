@@ -1,20 +1,27 @@
 import React, { useState, useEffect } from 'react'
 import './styles.css'
-import { Button, message, Typography } from 'antd'
+import { message } from 'antd'
 import { useAppDispatch } from '../../components/hooks/store'
 import Layout from '../../components/layout'
 import createCn from '../../utils/create-cn'
 import { useAuth } from '../../components/hooks/auth'
 import { TRAINING_SETTINGS } from '../../utils/training-settings'
-import Countdown from './components/countdown'
 import { updateTraining } from '../../store/action-creators/training'
 import { transformUserProgressToUpdateRequest } from '../../utils/transform-user-progress'
 import PageLoader from '../../components/page-loader'
-import { sortUserWordProgressByDate } from './utils'
-import useQueue from './components/queue'
-import TrainingInput from './components/trainingInput'
-const { Title, Paragraph } = Typography
+import { getWordStats, sortUserWordProgressByDate } from './utils'
+import { WordStats } from '../../types/training'
 const { countdownVisualBlocksLimit } = TRAINING_SETTINGS
+import {
+  WordWithTooltip,
+  TrainingInput,
+  Countdown,
+  useQueue,
+  ActionButtons,
+  TrainingStats,
+  TrainingStart,
+  TrainingStatus,
+} from './components'
 
 const cn = createCn('train-page')
 
@@ -25,6 +32,7 @@ const TrainPage = () => {
   const {
     queue,
     setQueue,
+    peekQueue,
     resultingProgress,
     word,
     isEmptyQueue,
@@ -36,6 +44,7 @@ const TrainPage = () => {
   const [timerSeconds, setTimerSeconds] = useState(60)
   const [resetKey, setResetKey] = useState(0)
   const [nextButton, setNextButton] = useState(false)
+  const [trainingStats, setTrainingStats] = useState<WordStats[]>([])
   const isLoaded = user && !isLoading && !isLoadingTraining
 
   useEffect(() => {
@@ -62,7 +71,13 @@ const TrainPage = () => {
           error.message || 'Не удалось сохранить прогресс тренировки'
         )
       })
-      .finally(() => clearQueue())
+      .finally(() => {
+        if (resultingProgress.length > 0) {
+          const trainingStats = getTrainingStats()
+          setTrainingStats(trainingStats)
+        }
+        clearQueue()
+      })
   }
 
   const handleTimerComplete = () => {
@@ -103,18 +118,42 @@ const TrainPage = () => {
     setShowAnswer(false)
   }
 
+  const getTrainingStats = (): WordStats[] => {
+    if (!user || resultingProgress.length === 0) return []
+    return getWordStats(resultingProgress, user.trainingSettings)
+  }
+
+  const getTotalErrorsCount = (): number => {
+    const errorsFromResultingProgress = getTrainingStats().reduce(
+      (accumulator, word) => accumulator + word.errorCounter,
+      0
+    )
+    const errorsFromQueue = queue.reduce(
+      (accumulator, word) => accumulator + word.word.errorCounter,
+      0
+    )
+    return errorsFromResultingProgress + errorsFromQueue
+  }
+
   const useCountDown =
     user && user.trainingSettings.useCountdown && word?.sessionStage !== 0
+  const totalErrorsCount =
+    user && resultingProgress.length === 0 ? getTotalErrorsCount() : 0
 
   return (
     <Layout>
       <section className={cn('')}>
-        {/*<Title level={3}>Тренировка</Title>*/}
         {isLoaded ? (
           <div style={{ textAlign: 'center', marginTop: 5 }}>
             {!isEmptyQueue() && word ? (
               <div style={{ marginTop: 60 }}>
-                <Title level={1}>{word.word.toUpperCase()}</Title>
+                <WordWithTooltip
+                  word={word.word.toUpperCase()}
+                  collectionName={peekQueue()?.collectionName}
+                  showCollectionNameHint={
+                    user.trainingSettings.showCollectionNameHint
+                  }
+                />
                 <TrainingInput
                   currentWord={word}
                   onAnswer={handleAnswer}
@@ -131,48 +170,28 @@ const TrainPage = () => {
                   />
                 )}
                 <br />
+                <ActionButtons
+                  word={word}
+                  handleLearned={handleLearned}
+                  handleNextButtonClick={handleNextButtonClick}
+                  showAnswer={showAnswer}
+                  resultingProgress={resultingProgress}
+                  handleFinishTraining={handleFinishTraining}
+                />
+                <br /> <br />
+                <TrainingStatus
+                  resultingProgress={resultingProgress}
+                  queue={queue}
+                  word={word}
+                  totalErrorsCount={totalErrorsCount}
+                />
                 <br />
-                {word.sessionStage === 0 ? (
-                  <Button type="primary" onClick={handleLearned}>
-                    Запомнил!
-                  </Button>
-                ) : (
-                  <Button
-                    type="primary"
-                    onClick={handleNextButtonClick}
-                    disabled={showAnswer}>
-                    Показать перевод
-                  </Button>
-                )}{' '}
-                <br />
-                <br />
-                <Paragraph>Ошибок: {word.errorCounter}</Paragraph>
-                <Paragraph>Слов в очереди: {queue.length}</Paragraph>
               </div>
             ) : (
-              <div>
-                <Paragraph>
-                  {training.length > 0
-                    ? `У вас ${
-                        training.length
-                      } слов для повторения, давайте начнем! \r\n Вы тренируете ${
-                        user.trainingSettings.wordsPerSession
-                      }  слов за подход ${
-                        user.trainingSettings.useCountdown
-                          ? 'с таймером'
-                          : 'без таймера'
-                      }`
-                    : 'У вас нет слов для повторения. Добавьте новые из коллекций или подождите пока текущие не "созреют".'}
-                </Paragraph>
-                {training.length > 0 && (
-                  <Button
-                    type="primary"
-                    onClick={handleStartTraining}
-                    autoFocus>
-                    Начать
-                  </Button>
-                )}
-              </div>
+              <>
+                <TrainingStats trainingStats={trainingStats} />
+                <TrainingStart handleStartTraining={handleStartTraining} />
+              </>
             )}
           </div>
         ) : (

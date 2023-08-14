@@ -1,9 +1,21 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
-import { User } from '@prisma/client';
-import { EditUserDto } from './dto';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Patch,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import { EditUserDto, UserDto } from './dto';
 import { UserService } from './user.service';
-import { AtGuard } from '../common/guards';
-import { GetCurrentUser, GetCurrentUserId } from '../common/decorators';
+import { AtGuard, RtGuard } from '../common/guards';
+import { GetCurrentUser } from '../common/decorators';
+import setCookieToken from '../auth/utils/setCookieToken';
+import { UserWithTrainingSettings } from 'user';
+import { JwtPayloadWithRt } from '../auth/types';
+import { Response } from 'express';
 
 //protected route /user
 @UseGuards(AtGuard)
@@ -11,17 +23,29 @@ import { GetCurrentUser, GetCurrentUserId } from '../common/decorators';
 export class UserController {
   constructor(private userService: UserService) {}
   @Get('')
-  getMe(@GetCurrentUser() { id, name, email, createdAt }: User) {
-    return {
-      id,
-      name,
-      email,
-      createdAt,
-    };
+  @HttpCode(HttpStatus.OK)
+  getMe(
+    @GetCurrentUser()
+    { id, name, email, createdAt, trainingSettings }: UserWithTrainingSettings,
+  ): UserDto {
+    return { id, name, email, createdAt, trainingSettings };
   }
 
   @Patch()
-  editUser(@GetCurrentUserId() userId: number, @Body() dto: EditUserDto) {
-    return this.userService.editUser(userId, dto);
+  @UseGuards(RtGuard)
+  @HttpCode(HttpStatus.OK)
+  async updateUser(
+    @Res() response: Response,
+    @Body() payload: EditUserDto,
+    @GetCurrentUser() { id: userId, refreshToken }: JwtPayloadWithRt,
+  ) {
+    const { user, tokens } = await this.userService.updateUser(
+      userId,
+      payload,
+      refreshToken,
+    );
+    if (tokens) setCookieToken(response, tokens);
+    response.json(user);
+    return response.end();
   }
 }

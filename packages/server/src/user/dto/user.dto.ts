@@ -57,6 +57,12 @@ class TrainingSettingsDto {
   @Min(1)
   @Max(100)
   wordsPerSession;
+
+  @IsBoolean()
+  synthVoiceAutoStart: boolean;
+
+  @IsBoolean()
+  speechRecognizerAutoStart: boolean;
 }
 
 export class UserDto {

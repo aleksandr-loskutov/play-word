@@ -90,20 +90,22 @@ model UserWordProgress {
 }
 
 model UserTrainingSettings {
-  userId                 Int     @id
-  user                   User    @relation(fields: [userId], references: [id])
-  wordsPerSession        Int     @default(10)
-  stageOneInterval       Int     @default(1) // default 1 day, etc
-  stageTwoInterval       Int     @default(7)
-  stageThreeInterval     Int     @default(30)
-  stageFourInterval      Int     @default(90)
-  stageFiveInterval      Int     @default(180)
-  useCountdown           Boolean @default(true)
-  countdownTimeInSec     Int     @default(60)
-  strictMode             Boolean @default(false)
-  showCollectionNameHint Boolean @default(false)
-  wordErrorLimit         Int     @default(3)
-  wordMistypeLimit       Int     @default(5)
+  userId                    Int     @id
+  user                      User    @relation(fields: [userId], references: [id])
+  wordsPerSession           Int     @default(10)
+  stageOneInterval          Int     @default(1) // default 1 day, etc
+  stageTwoInterval          Int     @default(7)
+  stageThreeInterval        Int     @default(30)
+  stageFourInterval         Int     @default(90)
+  stageFiveInterval         Int     @default(180)
+  useCountdown              Boolean @default(true)
+  countdownTimeInSec        Int     @default(60)
+  strictMode                Boolean @default(false)
+  showCollectionNameHint    Boolean @default(false)
+  wordErrorLimit            Int     @default(3)
+  wordMistypeLimit          Int     @default(5)
+  synthVoiceAutoStart       Boolean @default(true)
+  speechRecognizerAutoStart Boolean @default(false)
 
   @@map("userTrainingSettings")
 }

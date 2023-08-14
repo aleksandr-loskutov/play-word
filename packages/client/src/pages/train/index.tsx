@@ -22,6 +22,7 @@ import {
   TrainingStart,
   TrainingStatus,
 } from './components'
+import WithAuth from '../../components/hoc/withAuth'
 
 const cn = createCn('train-page')
 
@@ -80,19 +81,8 @@ const TrainPage = () => {
       })
   }
 
-  const handleTimerComplete = () => {
-    setNextButton(true)
-  }
-
   const handleNextButtonClick = () => {
     setNextButton(true)
-  }
-
-  const restartTimer = () => {
-    if (!user) return
-    setTimerSeconds(user.trainingSettings.countdownTimeInSec)
-    // Update resetKey to trigger Countdown component reset
-    setResetKey(prevKey => prevKey + 1)
   }
 
   const handleStartTraining = () => {
@@ -109,7 +99,7 @@ const TrainPage = () => {
     const { wordErrorLimit } = user?.trainingSettings ?? { wordErrorLimit: 3 }
     processQueueByAnswer(isCorrect, wordErrorLimit)
 
-    if (useCountDown) restartTimer()
+    // if (useCountDown) restartTimer()
     setNextButton(false)
   }
 
@@ -135,71 +125,55 @@ const TrainPage = () => {
     return errorsFromResultingProgress + errorsFromQueue
   }
 
-  const useCountDown =
-    user && user.trainingSettings.useCountdown && word?.sessionStage !== 0
   const totalErrorsCount =
     user && resultingProgress.length === 0 ? getTotalErrorsCount() : 0
 
   return (
-    <Layout>
-      <section className={cn('')}>
-        {isLoaded ? (
-          <div style={{ textAlign: 'center', marginTop: 5 }}>
-            {!isEmptyQueue() && word ? (
-              <div style={{ marginTop: 60 }}>
-                <WordWithTooltip
-                  word={word.word.toUpperCase()}
-                  collectionName={peekQueue()?.collectionName}
-                  showCollectionNameHint={
-                    user.trainingSettings.showCollectionNameHint
-                  }
-                />
-                <TrainingInput
-                  currentWord={word}
-                  onAnswer={handleAnswer}
-                  showAnswer={showAnswer}
-                  setShowAnswer={setShowAnswer}
-                  isNextButtonClicked={nextButton}
-                />
-                {useCountDown && (
-                  <Countdown
-                    key={resetKey}
-                    seconds={timerSeconds}
-                    onComplete={handleTimerComplete}
-                    maxBlocks={countdownVisualBlocksLimit}
-                  />
-                )}
-                <br />
-                <ActionButtons
-                  word={word}
-                  handleLearned={handleLearned}
-                  handleNextButtonClick={handleNextButtonClick}
-                  showAnswer={showAnswer}
-                  resultingProgress={resultingProgress}
-                  handleFinishTraining={handleFinishTraining}
-                />
-                <br /> <br />
-                <TrainingStatus
-                  resultingProgress={resultingProgress}
-                  queue={queue}
-                  word={word}
-                  totalErrorsCount={totalErrorsCount}
-                />
-                <br />
-              </div>
-            ) : (
-              <>
-                <TrainingStats trainingStats={trainingStats} />
-                <TrainingStart handleStartTraining={handleStartTraining} />
-              </>
-            )}
+    <section className={cn('')}>
+      <div style={{ textAlign: 'center', marginTop: 5 }}>
+        {!isEmptyQueue() && word ? (
+          <div style={{ marginTop: 60 }}>
+            <WordWithTooltip
+              word={word.word.toUpperCase()}
+              collectionName={peekQueue()?.collectionName}
+              showCollectionNameHint={
+                user.trainingSettings.showCollectionNameHint
+              }
+            />
+            <TrainingInput
+              currentWord={word}
+              onAnswer={handleAnswer}
+              showAnswer={showAnswer}
+              setShowAnswer={setShowAnswer}
+              isNextButtonClicked={nextButton}
+            />
+            <br />
+            <ActionButtons
+              word={word}
+              handleLearned={handleLearned}
+              handleNextButtonClick={handleNextButtonClick}
+              showAnswer={showAnswer}
+              resultingProgress={resultingProgress}
+              handleFinishTraining={handleFinishTraining}
+            />
+            <br /> <br />
+            <TrainingStatus
+              resultingProgress={resultingProgress}
+              queue={queue}
+              word={word}
+              totalErrorsCount={totalErrorsCount}
+            />
+            <br />
           </div>
         ) : (
-          <PageLoader />
+          <>
+            <TrainingStats trainingStats={trainingStats} />
+            <TrainingStart handleStartTraining={handleStartTraining} />
+          </>
         )}
-      </section>
-    </Layout>
+      </div>
+    </section>
   )
 }
 
-export default TrainPage
+export default WithAuth(TrainPage)

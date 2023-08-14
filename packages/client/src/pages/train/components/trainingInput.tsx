@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { Input, InputRef } from 'antd'
+import { Input, InputRef, Space } from 'antd'
 import { WordInTraining } from '../../../types/training'
 import {
   KEY_MAPPINGS,
@@ -7,7 +7,11 @@ import {
 } from '../../../utils/training-settings'
 import createCn from '../../../utils/create-cn'
 import { useAuth } from '../../../components/hooks/auth'
-const { successWordShowTime, errorLetterShowTime } = TRAINING_SETTINGS
+import SpeechRecognizer from './speechRecognizer'
+import WordPlayer from './wordPlayer'
+import { Countdown } from './index'
+const { successWordShowTime, errorLetterShowTime, countdownVisualBlocksLimit } =
+  TRAINING_SETTINGS
 
 type InputProps = {
   currentWord: WordInTraining
@@ -29,15 +33,25 @@ const TrainingInput: React.FC<InputProps> = ({
   const [inputValue, setInputValue] = useState<string>('')
   const [lockInput, setLockInput] = useState<boolean>(false)
   const [mistypeCount, setMistypeCount] = useState<number>(0)
+  const [resetKey, setResetKey] = useState(0)
+  const [timerSeconds, setTimerSeconds] = useState(60)
   const inputRef = useRef<InputRef>(null)
-  const { user } = useAuth()
+  const isSpeechRecognizerSetInput = useRef<boolean>(false)
+  const { user, isLoading, training, isLoadingTraining } = useAuth()
   const isZeroStage = currentWord.sessionStage === 0
+  const isLoaded = user && !isLoading && !isLoadingTraining
 
   useEffect(() => {
     if (currentWord) {
       trainWord()
     }
   }, [currentWord])
+
+  useEffect(() => {
+    if (isLoaded) {
+      setTimerSeconds(user.trainingSettings.countdownTimeInSec)
+    }
+  }, [isLoaded])
 
   useEffect(() => {
     if (isNextButtonClicked) {
@@ -65,6 +79,7 @@ const TrainingInput: React.FC<InputProps> = ({
     setTimeout(() => {
       setLockInput(false)
       setShowAnswer(false)
+      if (useCountDown) restartTimer()
       onAnswer(isCorrect)
     }, timeout)
   }
@@ -97,6 +112,12 @@ const TrainingInput: React.FC<InputProps> = ({
     inputRef?.current?.focus()
   }
 
+  const handleSpeech = (text: string) => {
+    console.log('speech', text)
+    isSpeechRecognizerSetInput.current = true
+    setInputValue(text.toLowerCase())
+  }
+
   const validateInput = () => {
     if (inputValue === currentWord.translation) {
       processAnswer(true)
@@ -104,17 +125,29 @@ const TrainingInput: React.FC<InputProps> = ({
       if (currentWord.translation.startsWith(inputValue)) {
         processAnswer(true)
       } else {
-        if (user && mistypeCount >= user.trainingSettings.wordMistypeLimit) {
-          processAnswer(false)
-        }
+        //incorrect input from speech recognizer
+        processIncorrectInput()
       }
     }
   }
 
+  const processIncorrectInput = () => {
+    if (user && mistypeCount >= user.trainingSettings.wordMistypeLimit) {
+      processAnswer(false)
+    } else if (isSpeechRecognizerSetInput.current) {
+      setMistypeCount(prevState => prevState + 1)
+      setIncorrectTemporaryInputValue('')
+    }
+  }
+
   useEffect(() => {
+    if (isSpeechRecognizerSetInput.current) {
+      validateInput()
+    }
     const handleKeyPress = (event: KeyboardEvent) => {
       const pressedKey = event.key.toLowerCase()
       const keyCode = event.code
+
       if (keyCode === 'Backspace' && !lockInput) {
         backspaceEmulation()
         return
@@ -123,15 +156,18 @@ const TrainingInput: React.FC<InputProps> = ({
         event.preventDefault()
       }
       if (keyCode === 'Enter') {
-        processAnswer(inputValue === currentWord.translation)
+        validateInput()
         return
       }
+
       if (lockInput) return
+
       if (KEY_MAPPINGS.hasOwnProperty(keyCode)) {
         const keyMappings = Object.entries(KEY_MAPPINGS[keyCode])[0]
         const translationChar = currentWord.translation.charAt(
           inputValue.length
         )
+
         if (
           inputValue.length < currentWord.translation.length &&
           keyMappings.includes(translationChar)
@@ -139,29 +175,26 @@ const TrainingInput: React.FC<InputProps> = ({
           setInputValue(prevInputValue => prevInputValue + translationChar)
           validateInput()
         } else {
-          //счетчик опечаток
           setMistypeCount(prevMistypeCount => prevMistypeCount + 1)
-          if (user && mistypeCount >= user.trainingSettings.wordMistypeLimit) {
-            processAnswer(false)
-          } else {
-            let switchedIncorrectCharacterByLang = pressedKey
-            //подмена ввода ( для ошибочных букв  с неверной раскладкой)
-            if (keyMappings.includes(pressedKey)) {
-              if (currentWord.sessionStage === 1) {
-                switchedIncorrectCharacterByLang = keyMappings[1]
-              }
-              if (currentWord.sessionStage === 2) {
-                switchedIncorrectCharacterByLang = keyMappings[0]
-              }
+          processIncorrectInput()
+
+          let switchedIncorrectCharacterByLang = pressedKey
+          //подмена ввода ( для ошибочных букв  с неверной раскладкой)
+          if (keyMappings.includes(pressedKey)) {
+            if (currentWord.sessionStage === 1) {
+              switchedIncorrectCharacterByLang = keyMappings[1]
             }
-            setIncorrectTemporaryInputValue(switchedIncorrectCharacterByLang)
+            if (currentWord.sessionStage === 2) {
+              switchedIncorrectCharacterByLang = keyMappings[0]
+            }
           }
+          setIncorrectTemporaryInputValue(switchedIncorrectCharacterByLang)
         }
       }
     }
     inputRef?.current?.focus()
     document.addEventListener('keydown', handleKeyPress)
-
+    isSpeechRecognizerSetInput.current = false
     return () => {
       document.removeEventListener('keydown', handleKeyPress)
     }
@@ -177,21 +210,66 @@ const TrainingInput: React.FC<InputProps> = ({
     })
   }
 
+  const handleTimerComplete = () => {
+    processAnswer(false)
+  }
+
+  const restartTimer = () => {
+    if (!user) return
+    setTimerSeconds(user.trainingSettings.countdownTimeInSec)
+    // Update resetKey to trigger Countdown component reset
+    setResetKey(prevKey => prevKey + 1)
+  }
+
+  const userSpeechLang = currentWord.sessionStage === 1 ? 'ru-RU' : 'en-US'
+  const synthSpeechLang = currentWord.sessionStage === 1 ? 'en-US' : 'ru-RU'
+
   const inputClassName = !lockInput
     ? ''
     : showAnswer && inputValue === currentWord.translation
     ? 'correct'
     : 'incorrect'
 
+  const useCountDown = !!(
+    user &&
+    user.trainingSettings.useCountdown &&
+    currentWord?.sessionStage !== 0
+  )
+
   return (
-    <Input
-      placeholder="перевод"
-      value={inputValue}
-      disabled={lockInput}
-      className={cn(`train-input ${inputClassName}`)}
-      ref={inputRef}
-      autoFocus
-    />
+    isLoaded && (
+      <>
+        <Input
+          placeholder="перевод"
+          value={inputValue}
+          disabled={lockInput}
+          className={cn(`train-input ${inputClassName}`)}
+          ref={inputRef}
+          autoFocus
+        />
+        {useCountDown && (
+          <Countdown
+            key={resetKey}
+            seconds={timerSeconds}
+            onComplete={handleTimerComplete}
+            maxBlocks={countdownVisualBlocksLimit}
+          />
+        )}
+        <Space direction="horizontal" size={10}>
+          <WordPlayer
+            word={currentWord.word}
+            lang={synthSpeechLang}
+            autoPlay={user.trainingSettings.synthVoiceAutoStart}
+            play={false}
+          />
+          <SpeechRecognizer
+            onResult={handleSpeech}
+            lang={userSpeechLang}
+            autoStart={user.trainingSettings.speechRecognizerAutoStart}
+          />
+        </Space>
+      </>
+    )
   )
 }
 

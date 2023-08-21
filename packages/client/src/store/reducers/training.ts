@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 import {
   getTraining,
   updateTraining,
@@ -6,7 +6,12 @@ import {
   removeCollectionWordsFromTraining,
 } from '../action-creators/training'
 
-import { setFulfilled, setPending, setRejected, TrainingState } from './common'
+import {
+  setFulfilledTraining,
+  setPending,
+  setRejected,
+  TrainingState,
+} from './common'
 import { UserWordProgress } from '../../types/training'
 
 const initialState: TrainingState = {
@@ -22,11 +27,7 @@ const trainingSlice = createSlice({
   extraReducers: builder => {
     builder.addCase(
       getTraining.fulfilled.type,
-      (state: TrainingState, action: PayloadAction<UserWordProgress[]>) => {
-        state.training = action.payload
-        state.isLoading = false
-        state.error = null
-      }
+      setFulfilledTraining<TrainingState, UserWordProgress[]>
     )
     builder.addCase(getTraining.pending.type, setPending<TrainingState>)
     builder.addCase(
@@ -36,9 +37,7 @@ const trainingSlice = createSlice({
 
     builder.addCase(
       addCollectionWordsForTraining.fulfilled.type,
-      (state, action: PayloadAction<UserWordProgress[]>) => {
-        state.training = action.payload
-      }
+      setFulfilledTraining<TrainingState, UserWordProgress[]>
     )
     builder.addCase(
       addCollectionWordsForTraining.pending.type,
@@ -51,9 +50,7 @@ const trainingSlice = createSlice({
 
     builder.addCase(
       removeCollectionWordsFromTraining.fulfilled.type,
-      (state, action: PayloadAction<UserWordProgress[]>) => {
-        state.training = action.payload
-      }
+      setFulfilledTraining<TrainingState, UserWordProgress[]>
     )
     builder.addCase(
       removeCollectionWordsFromTraining.pending.type,
@@ -66,14 +63,7 @@ const trainingSlice = createSlice({
 
     builder.addCase(
       updateTraining.fulfilled.type,
-      (state: TrainingState, action: PayloadAction<UserWordProgress[]>) => {
-        state.training = state.training.map(item => {
-          const newItem = action.payload.find(i => i.wordId === item.wordId)
-          return newItem ? newItem : item
-        })
-        state.isLoading = false
-        state.error = null
-      }
+      setFulfilledTraining<TrainingState, UserWordProgress[]>
     )
     builder.addCase(updateTraining.pending.type, setPending<TrainingState>)
     builder.addCase(

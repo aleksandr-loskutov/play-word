@@ -1,10 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { UserEntity } from '../../types/user'
-import {
-  updateProfile,
-  updateProfileAvatar,
-  updateTheme,
-} from '../action-creators/profile'
+import { User } from '../../types/user'
+import { updateProfile, updateProfileAvatar } from '../action-creators/profile'
 import {
   fetchUser,
   signIn,
@@ -16,9 +12,10 @@ import { setFulfilled, setPending, setRejected, UserState } from './common'
 
 const initialState: UserState = {
   user: null,
-  isLoading: false,
+  isLoading: null,
   isLoggedIn: false,
   error: null,
+  isInitialized: false,
 }
 
 const userSlice = createSlice({
@@ -28,7 +25,7 @@ const userSlice = createSlice({
     setLoadingStatus(state: UserState, action: PayloadAction<boolean>) {
       state.isLoading = action.payload
     },
-    setUser(state: UserState, action: PayloadAction<UserEntity>) {
+    setUser(state: UserState, action: PayloadAction<User>) {
       state.user = action.payload
       state.isLoggedIn = true
     },
@@ -36,32 +33,28 @@ const userSlice = createSlice({
       state.user = null
       state.isLoggedIn = false
     },
-    updateUser(state: UserState, action: PayloadAction<Partial<UserEntity>>) {
+    updateUser(state: UserState, action: PayloadAction<Partial<User>>) {
       if (!state.user) return
-
       state.user = { ...state.user, ...action.payload }
+    },
+    setUserInitialized(state: UserState) {
+      state.isInitialized = true
     },
   },
   extraReducers: builder => {
-    builder.addCase(
-      fetchUser.fulfilled.type,
-      setFulfilled<UserState, UserEntity>
-    )
+    builder.addCase(fetchUser.fulfilled.type, setFulfilled<UserState, User>)
     builder.addCase(fetchUser.pending.type, setPending<UserState>)
     builder.addCase(fetchUser.rejected.type, setRejected<UserState, string>)
 
-    builder.addCase(signIn.fulfilled.type, setFulfilled<UserState, UserEntity>)
+    builder.addCase(signIn.fulfilled.type, setFulfilled<UserState, User>)
     builder.addCase(signIn.pending.type, setPending<UserState>)
     builder.addCase(signIn.rejected.type, setRejected<UserState, string>)
 
-    builder.addCase(
-      signInOAuth.fulfilled.type,
-      setFulfilled<UserState, UserEntity>
-    )
+    builder.addCase(signInOAuth.fulfilled.type, setFulfilled<UserState, User>)
     builder.addCase(signInOAuth.pending.type, setPending<UserState>)
     builder.addCase(signInOAuth.rejected.type, setRejected<UserState, string>)
 
-    builder.addCase(signUp.fulfilled.type, setFulfilled<UserState, UserEntity>)
+    builder.addCase(signUp.fulfilled.type, setFulfilled<UserState, User>)
     builder.addCase(signUp.pending.type, setPending<UserState>)
     builder.addCase(signUp.rejected.type, setRejected<UserState, string>)
 
@@ -74,38 +67,28 @@ const userSlice = createSlice({
       state.isLoggedIn = false
     })
 
-    builder.addCase(
-      updateProfile.fulfilled.type,
-      setFulfilled<UserState, UserEntity>
-    )
+    builder.addCase(updateProfile.fulfilled.type, setFulfilled<UserState, User>)
     builder.addCase(updateProfile.pending.type, setPending<UserState>)
     builder.addCase(updateProfile.rejected.type, setRejected<UserState, string>)
 
     builder.addCase(
       updateProfileAvatar.fulfilled.type,
-      setFulfilled<UserState, UserEntity>
+      setFulfilled<UserState, User>
     )
     builder.addCase(updateProfileAvatar.pending.type, setPending<UserState>)
     builder.addCase(
       updateProfileAvatar.rejected.type,
       setRejected<UserState, string>
     )
-
-    builder.addCase(
-      updateTheme.fulfilled.type,
-      (state: UserState, action: PayloadAction<string>) => {
-        if (!state.user) return
-        state.user = { ...state.user, theme: action.payload || 'default' }
-        state.isLoading = false
-        state.error = null
-      }
-    )
-    builder.addCase(updateTheme.pending.type, setPending<UserState>)
-    builder.addCase(updateTheme.rejected.type, setRejected<UserState, string>)
   },
 })
 
-export const { setLoadingStatus, setUser, removeUser, updateUser } =
-  userSlice.actions
+export const {
+  setLoadingStatus,
+  setUser,
+  removeUser,
+  updateUser,
+  setUserInitialized,
+} = userSlice.actions
 
 export default userSlice.reducer

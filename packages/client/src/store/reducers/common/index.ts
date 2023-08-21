@@ -1,17 +1,18 @@
 import { PayloadAction } from '@reduxjs/toolkit'
 import { Nullable } from '../../../types/common'
-import { UserEntity } from '../../../types/user'
+import { User } from '../../../types/user'
 import { Collection } from '../../../types/collection'
 import { UserWordProgress } from '../../../types/training'
 
 export type LoadingState = {
-  isLoading: boolean
+  isLoading: Nullable<boolean>
   error: Nullable<string>
 }
 
 export type UserState = LoadingState & {
-  user: Nullable<UserEntity>
+  user: Nullable<User>
   isLoggedIn: boolean
+  isInitialized: boolean
 }
 
 export type CollectionState = LoadingState & {
@@ -37,7 +38,7 @@ export const setRejected = <T extends LoadingState, A extends Nullable<string>>(
   state.error = action.payload
 }
 
-export const setFulfilled = <T extends UserState, A extends UserEntity>(
+export const setFulfilled = <T extends UserState, A extends User>(
   state: T,
   action: ActionPayload<A>
 ) => {
@@ -45,4 +46,16 @@ export const setFulfilled = <T extends UserState, A extends UserEntity>(
   state.error = null
   state.user = action.payload
   state.isLoggedIn = true
+}
+
+export const setFulfilledTraining = <
+  T extends TrainingState,
+  A extends UserWordProgress[]
+>(
+  state: T,
+  action: ActionPayload<A>
+) => {
+  state.training = action.payload
+  state.isLoading = false
+  state.error = null
 }

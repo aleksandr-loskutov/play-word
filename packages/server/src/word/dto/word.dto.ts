@@ -1,11 +1,14 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class WordDto {
-  id?: number;
+  @IsNumber()
+  @IsOptional()
+  id?;
 
+  @IsString()
   @IsNotEmpty()
-  word: string;
+  word;
 
-  @IsNotEmpty()
-  translation: string;
+  @IsString()
+  translation;
 }

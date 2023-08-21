@@ -1,6 +1,14 @@
-import { Controller, Get, Param, Post, Body, UsePipes, ValidationPipe } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Param,
+  Post,
+  Body,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
 import { WordService } from './word.service';
-import { WordDto } from "./dto";
+import { WordDto } from './dto';
 
 @Controller('word')
 export class WordController {
@@ -8,21 +16,30 @@ export class WordController {
 
   @Get(':collectionId')
   async getWordsByCollection(@Param('collectionId') collectionId: string) {
-    const result = await this.wordService.getWordsByCollection(parseInt(collectionId));
+    const result = await this.wordService.getWordsByCollection(
+      parseInt(collectionId),
+    );
     return result;
   }
 
   @Post()
   @UsePipes(new ValidationPipe())
   async addWords(@Body() words: WordDto[]) {
+    //todo ValidationPipe tests
     const result = await this.wordService.addWords(words);
     return result;
   }
 
   @Post(':collectionId')
   @UsePipes(new ValidationPipe())
-  async addWordsToCollection(@Body() words: WordDto[], @Param('collectionId') collectionId: string) {
-    const result = await this.wordService.addWordsToCollection(parseInt(collectionId), words );
+  async addWordsToCollection(
+    @Body() words: WordDto[],
+    @Param('collectionId') collectionId: string,
+  ) {
+    const result = await this.wordService.addWordsToCollection(
+      parseInt(collectionId),
+      words,
+    );
     return result;
   }
 }

@@ -20,6 +20,7 @@ import {
   RequestCollectionCreate,
   RequestCollectionUpdate,
   UserWordProgressResponse,
+  RequestUserTrainingUpdate,
 } from './dto';
 import { Response } from 'common';
 
@@ -33,7 +34,7 @@ export class CollectionController {
   createCollection(
     @Body() payload: RequestCollectionCreate,
     @GetCurrentUserId() userId: number,
-  ): Promise<Response<Collection>> {
+  ): Promise<Response<CollectionWithWords>> {
     return this.collectionService.createCollection(payload, userId);
   }
 
@@ -57,6 +58,15 @@ export class CollectionController {
     @GetCurrentUserId() userId: number,
   ): Promise<Response<UserWordProgressResponse>> {
     return this.collectionService.getUserTraining(userId);
+  }
+
+  @Patch('/train')
+  @HttpCode(HttpStatus.OK)
+  updateUserTraining(
+    @Body() payload: RequestUserTrainingUpdate[],
+    @GetCurrentUserId() userId: number,
+  ): Promise<Response<UserWordProgressResponse>> {
+    return this.collectionService.updateUserTraining(payload, userId);
   }
 
   @Post('/:collectionId')

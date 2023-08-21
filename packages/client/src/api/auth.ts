@@ -1,6 +1,6 @@
 import BaseAPI from './base'
 import { SignUpDTO, SignInDTO } from '../types/auth'
-import { UserEntity } from '../types/user'
+import { User } from '../types/user'
 import { ApiResponse } from '../types/api'
 
 class AuthAPI extends BaseAPI {
@@ -8,14 +8,14 @@ class AuthAPI extends BaseAPI {
     super('/auth')
   }
 
-  public signIn(data: SignInDTO): ApiResponse<UserEntity> {
-    return this.httpService.post<SignInDTO, UserEntity>('/signin', data)
+  public signIn(data: SignInDTO): ApiResponse<User> {
+    return this.httpService.post<SignInDTO, User>('/signin', data)
   }
 
-  public signUp(data: SignUpDTO): ApiResponse<UserEntity> {
-    return this.httpService.post<SignUpDTO, UserEntity>('/signup', data)
+  public signUp(data: SignUpDTO): ApiResponse<User> {
+    return this.httpService.post<SignUpDTO, User>('/signup', data)
   }
-  public refreshToken(): ApiResponse<UserEntity> {
+  public refreshToken(): ApiResponse<User> {
     return this.httpService.get('/refresh')
   }
 

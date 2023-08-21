@@ -8,18 +8,21 @@ import {
   signOut as logout,
   signUp as register,
 } from '../../store/action-creators/auth'
-import { UserEntity } from '../../types/user'
+import { User } from '../../types/user'
 import { Nullable } from '../../types/common'
 import { getServiceIdFromProvider } from '../../pages/signIn/services/signin-service'
 import { SignInDTO, SignUpDTO } from '../../types/auth'
 import { getTraining } from '../../store/action-creators/training'
+import { UserWordProgress } from '../../types/training'
+import { Response } from '../../types/api'
+import { setUserInitialized } from '../../store/reducers/user'
 
 type Props = {
   children: React.ReactNode
 }
 
 type AuthContextProps = {
-  user: Nullable<UserEntity>
+  user: Nullable<User>
   signUp: (credentials: SignUpDTO) => any
   signIn: (credentials: SignInDTO) => any
   signOut: () => any
@@ -28,6 +31,8 @@ type AuthContextProps = {
   isLoggedIn: boolean
   getProviderServiceId: (providerName: string) => any
   signInWithProvider: (code: string, navigate: NavigateFunction) => any
+  isLoadingTraining: boolean
+  training: UserWordProgress[]
 }
 
 const authContext = createContext<AuthContextProps>({} as AuthContextProps)
@@ -39,20 +44,22 @@ function useAuthProvider() {
   const { user, error, isLoading, isLoggedIn } = useAppSelector(
     state => state.user
   )
-  const { error: errorTraining, isLoading: isLoadingTraining } = useAppSelector(
-    state => state.training
-  )
+  const {
+    error: errorTraining,
+    isLoading: isLoadingTraining,
+    training,
+  } = useAppSelector(state => state.training)
 
-  const signUp = (credentials: SignUpDTO): void => {
-    dispatch(register(credentials))
+  const signUp = (credentials: SignUpDTO) => {
+    return dispatch(register(credentials))
   }
 
-  const signIn = (credentials: SignInDTO): void => {
-    dispatch(login(credentials))
+  const signIn = (credentials: SignInDTO) => {
+    return dispatch(login(credentials))
   }
 
-  const signOut = (): void => {
-    dispatch(logout())
+  const signOut = () => {
+    return dispatch(logout())
   }
 
   const getProviderServiceId = async (providerName: string) => {
@@ -63,7 +70,7 @@ function useAuthProvider() {
     code: string,
     navigate: NavigateFunction
   ): void => {
-    dispatch(signInOAuth({ code, navigate }))
+    return dispatch(signInOAuth({ code, navigate }))
   }
 
   useEffect(() => {
@@ -73,8 +80,12 @@ function useAuthProvider() {
   }, [user])
 
   useEffect(() => {
-    if (!user && !isLoading) {
-      dispatch(fetchUser())
+    if (!user && isLoading === null) {
+      dispatch(fetchUser()).finally(() => {
+        dispatch(setUserInitialized())
+      })
+    } else {
+      dispatch(setUserInitialized())
     }
   }, [])
 
@@ -88,6 +99,7 @@ function useAuthProvider() {
     isLoggedIn,
     signInWithProvider,
     getProviderServiceId,
+    training,
     errorTraining,
     isLoadingTraining,
   }

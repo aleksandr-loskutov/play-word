@@ -6,12 +6,14 @@ interface SpeechRecognitionProps {
   lang: string
   onResult: (text: string) => void
   autoStart?: boolean
+  word: string
 }
 
 const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
   lang,
   onResult,
   autoStart,
+  word,
 }) => {
   const [isListening, setIsListening] = useState<boolean>(false)
   const [transcript, setTranscript] = useState<string>('')
@@ -23,7 +25,6 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
       message.error('Your browser does not support the Web Speech API')
       return
     }
-
     recognitionRef.current = new window.webkitSpeechRecognition()
     recognitionRef.current.continuous = true
     recognitionRef.current.interimResults = true
@@ -49,16 +50,12 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
     }
 
     recognitionRef.current.onerror = (event: { error: any }) => {
-      // message.error(`Error: ${event.error}`)
       setIsListening(false)
-      setTimeout(() => {
-        startListening()
-      }, 1000)
     }
 
     const startListening = () => {
-      setIsListening(true)
       recognitionRef.current.start()
+      setIsListening(true)
     }
 
     if (autoStart) {
@@ -68,7 +65,7 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
     return () => {
       recognitionRef.current.stop()
     }
-  }, [autoStart, onResult])
+  }, [word])
 
   const handleToggle = () => {
     if (recognitionRef.current) {

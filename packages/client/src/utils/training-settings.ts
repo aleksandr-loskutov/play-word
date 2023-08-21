@@ -36,6 +36,7 @@ export const KEY_MAPPINGS: KeyMapping = {
   Semicolon: { '': 'ж' },
   Period: { '': 'ю' },
   Comma: { '': 'б' },
+  Space: { '': ' ' },
 }
 
 export const TRAINING_SETTINGS = {
@@ -44,4 +45,6 @@ export const TRAINING_SETTINGS = {
   wordErrorCounterBlockingTimeInSec: 1,
   successWordShowTime: 2000,
   errorLetterShowTime: 1000,
+  countdownTimeInSec: 60,
+  countdownVisualBlocksLimit: 10,
 }

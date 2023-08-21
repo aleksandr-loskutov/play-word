@@ -6,6 +6,7 @@ import {
 import { UserTrainingSettings } from '../../types/user'
 
 function getWordsReadyForTraining(training: UserWordProgress[]): number {
+  if (training.length === 0) return 0
   const now = new Date()
   const wordsReadyForTraining = training.filter(
     word => new Date(word.nextReview) <= now
@@ -112,6 +113,10 @@ function calculateNextTrainingDate(
   return new Date(Date.now() + interval * 24 * 3600 * 1000)
 }
 
+const getTotalTimeSpent = (words: WordStats[]): number => {
+  return words.reduce((total, word) => total + word.timeSpent, 0)
+}
+
 export {
   getWordsReadyForTraining,
   sortUserWordProgressByDate,
@@ -120,4 +125,5 @@ export {
   reverseWordAndTranslation,
   getWordStats,
   calculateNextTrainingDate,
+  getTotalTimeSpent,
 }

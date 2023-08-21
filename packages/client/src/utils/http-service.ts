@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { ApiResponse } from '../types/api'
 import CONSTS from '../utils/consts'
-import { UserEntity } from '../types/user'
+import { User } from '../types/user'
 
 type RequestOptions<T> = {
   method: string
@@ -28,7 +28,7 @@ axiosInstance.interceptors.response.use(
     ) {
       originalRequest._isRetry = true
       try {
-        await axios.get<UserEntity>(
+        await axios.get<User>(
           `${CONSTS.APP_URL}${CONSTS.API_PATH}/auth/refresh`,
           { withCredentials: true }
         )

@@ -19,7 +19,13 @@ export const transformUserProgressResponse = (
         stage,
         collectionId,
         collectionName: collection.name,
-        word: { ...word, translation },
+        timeSpent: 0,
+        word: {
+          ...word,
+          translation,
+          sessionStage: stage === 0 ? 0 : 1,
+          errorCounter: 0,
+        },
       }
     })
   }

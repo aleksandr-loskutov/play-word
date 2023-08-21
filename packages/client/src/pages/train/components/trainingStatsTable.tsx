@@ -1,14 +1,35 @@
 import React from 'react'
-import { Table, Typography } from 'antd'
-import { WordStats } from '../../../types/training'
-
+import { Col, Progress, Row, Table, Typography } from 'antd'
+import { TrainingStats, WordStats } from '../../../types/training'
+import createCn from '../../../utils/create-cn'
 const { Paragraph } = Typography
 
-const TrainingStatsTable = ({
-  trainingStats,
-}: {
-  trainingStats: WordStats[]
-}) => {
+const cn = createCn('train-page')
+
+const TrainingStatsTable = ({ trainingStats, extraStats }: TrainingStats) => {
+  const renderExtraHeader = () => (
+    <Row gutter={24}>
+      <Col span={6}>
+        <Paragraph className={cn('paragraph')}>
+          Итого время: {extraStats.totalTimeSpent} минут
+        </Paragraph>
+      </Col>
+      <Col span={5}>
+        <Paragraph className={cn('paragraph')}>
+          Остаток: {extraStats.moreToLearn} слов
+        </Paragraph>
+      </Col>
+      <Col span={13}>
+        <span className={cn('paragraph')}>Прогресс: </span>
+        <Progress
+          status="active"
+          percent={extraStats.currentDayProgress}
+          className={cn('progress')}
+          strokeColor={{ from: '#1b8aab', to: '#45f3ff' }}
+        />
+      </Col>
+    </Row>
+  )
   const columns = [
     {
       title: 'Слово',
@@ -57,8 +78,6 @@ const TrainingStatsTable = ({
     },
   ]
 
-  console.log('trainingStats', trainingStats)
-
   return (
     <>
       {trainingStats.length > 0 && (
@@ -67,6 +86,7 @@ const TrainingStatsTable = ({
           columns={columns}
           pagination={false}
           rowKey={record => record.word}
+          caption={renderExtraHeader()}
         />
       )}
     </>

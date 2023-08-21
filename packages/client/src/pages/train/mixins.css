@@ -1,18 +1,26 @@
-@define-mixin train-input-style $color{
+@define-mixin train-input-style $color {
     color: $color;
+    display: block;
     font-size: inherit;
-    font-weight: bold;
     font-family: inherit;
     text-transform: uppercase;
     text-align: center;
+    background: linear-gradient(to right, #45f3ff, #1b8aab);
+    -webkit-background-clip: text;
+
     @mixin border-style $color;
+    box-shadow: 0 0 10px #45f3ff, 0 0 1px #45f3ff; /* Add glow */
+
     &:focus {
         @mixin border-style $color;
-        box-shadow: none ;
+        box-shadow: 0 0 10px #45f3ff, 0 0 1px #45f3ff;
+        /* box-shadow: 0 0 15px #45f3ff, 0 0 0px #45f3ff;  */ /* Enhanced glow on focus */
     }
-     &:hover {
-         @mixin border-style $color;
-     }
+    &:hover {
+        @mixin border-style $color;
+        box-shadow: 0 0 10px #45f3ff, 0 0 1px #45f3ff;
+        /* box-shadow: 0 0 12px #45f3ff, 0 0 0px #45f3ff;  */ /* Medium glow on hover */
+    }
 
     &::placeholder {
         color: $color;
@@ -21,15 +29,13 @@
         text-align: center;
         font-size: inherit;
     }
-
-
 }
 
 @define-mixin border-style $color {
     border-color: $color;
-    border-bottom: 1px solid $color;
+    border-bottom: 0px solid $color; /* Make bottom border slightly thicker for that cyberpunk look */
     border-radius: 0;
-    background-color: transparent;
+    background-color: #1f1f1f;
     border-top-style: none;
     border-right-style: none;
     border-left-style: none;
@@ -44,13 +50,13 @@
     }
 }
 
-
 @define-mixin disabled-style $color {
     &:disabled {
         font-size: inherit;
         color: $color;
-        opacity: 0.6;
+        opacity: 0.7;
         cursor: not-allowed;
         @mixin border-style $color;
+        box-shadow: 0 0 10px #45f3ff, 0 0 1px #45f3ff; /* Add glow */
     }
 }

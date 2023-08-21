@@ -1,6 +1,5 @@
 .profile {
   min-height: 100%;
-  padding: 10px 0;
 
   &__avatar {
     margin: 0 auto 64px;

@@ -1,0 +1,102 @@
+@define-mixin box-style $width, $height {
+    position: relative;
+    width: $width;
+    height: $height;
+    border-radius: 8px;
+    overflow: hidden;
+    max-width: $width;
+
+    &::before, &::after {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(0deg, transparent, #45f3ff, #45f3ff);
+        transform-origin: bottom right;
+        animation: animate 6s linear infinite;
+    }
+
+    &::before {
+        animation-delay: -3s;
+    }
+
+
+}
+
+@keyframes animate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+@define-mixin form-style {
+    &__form {
+        position: absolute;
+        inset: 2px;
+        border-radius: 8px;
+        z-index: 10;
+        background: #1f1f1f;
+        padding: 40px 40px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    &__form-title {
+        font-size: 20px;
+        margin-top: 0;
+        text-align: center;
+    }
+
+    &__form-item {
+        margin: 0;
+    }
+
+    &__form-item + &__form-item {
+        margin-top: 14px;
+    }
+
+    &__form-alert {
+        margin: 15px 0 15px;
+    }
+
+    &__form-items {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: baseline;
+        width: 100%;
+        column-gap: 10px;
+        row-gap: 1px;
+    }
+
+    &__form-divider {
+        grid-column: span 2;
+    }
+
+    &__form-item {
+        margin: 0;
+    }
+
+
+    &__form-item-input-number {
+        width: 100%;
+    }
+
+    &__form-alert {
+        margin: 15px 0;
+    }
+
+    &__form-submit-button {
+        margin: 32px 0 0;
+        width: 100%;
+    }
+}
+
+
+

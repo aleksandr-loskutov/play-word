@@ -12,14 +12,34 @@
     margin: 0 0 30px;
   }
 
+  &__word {
+    color:white;
+    font-size: 3rem;
+  }
+
   &__train-input {
-    @mixin train-input-style #45f3ff;
+    @mixin train-input-style #fff;
+  }
+
+  &__paragraph {
+    color: #b0b0b0;
+    text-align: center;
+  }
+
+  &__progress-wrapper {
+    display: flex;
+    justify-content: center;
+  }
+
+  &__progress {
+   display: inline-block;
+    width: 75%;
   }
 
 }
 
 .correct {
-  @mixin disabled-style springgreen;
+  @mixin disabled-style #45f3ff;
 }
 
 .incorrect {

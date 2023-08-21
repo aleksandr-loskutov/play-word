@@ -1,80 +1,8 @@
+@import "../../components/layout/mixins.css";
+
 .sign-in {
-
   &__box {
-    position: relative;
-    width: 380px;
-    height: 420px;
-    border-radius: 8px;
-    overflow: hidden;
-    max-width: 340px;
+    @mixin box-style 380px, 450px;
   }
-
-  &__box::before {
-    content: "";
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 380px;
-    height: 420px;
-    background: linear-gradient(0deg, transparent, #45f3ff, #45f3ff);
-    transform-origin: bottom right;
-    animation: animate 6s linear infinite;
-  }
-
-  &__box::after {
-    content: "";
-    position: absolute;
-    top: -20%;
-    right: -20%;
-    width: 420px;
-    height: 420px;
-    background: linear-gradient(90deg, transparent, #45f3ff, #45f3ff);
-    transform-origin: top left;
-    animation: animate 6s linear infinite;
-  }
-
-  &__form {
-    position: absolute;
-    inset: 2px;
-    border-radius: 8px;
-    z-index: 10;
-    background: #28292d;
-    padding: 50px 40px;
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-  }
-
-  &__form-title {
-    font-size: 20px;
-    margin-top: 0;
-    text-align: center;
-  }
-
-  &__form-item {
-    margin: 0;
-    text-align: center;
-  }
-
-  &__form-item + &__form-item {
-    margin-top: 24px;
-  }
-
-  &__form-alert {
-    margin: 15px 0 15px;
-  }
-
-
-
-
-  @keyframes animate {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
-  }
+  @mixin form-style;
 }
-
-

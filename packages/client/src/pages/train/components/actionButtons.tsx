@@ -1,25 +1,41 @@
-import React from 'react'
-import { Button, Space, Modal, Popconfirm } from 'antd'
+import React, { useCallback, useEffect } from 'react'
+import { Button, Space, Popconfirm } from 'antd'
 import { UserWordProgress, WordInTraining } from '../../../types/training'
-import Icon from '@ant-design/icons'
 
 type ActionButtonsProps = {
   word: WordInTraining
-  handleLearned: () => void
-  handleNextButtonClick: () => void
+  onLearnedButtonClick: () => void
+  onNextButtonClick: () => void
   showAnswer: boolean
   resultingProgress: UserWordProgress[]
-  handleFinishTraining: () => void
+  onFinishTraining: () => void
 }
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
   word,
-  handleLearned,
-  handleNextButtonClick,
+  onLearnedButtonClick,
+  onNextButtonClick,
   showAnswer,
   resultingProgress,
-  handleFinishTraining,
+  onFinishTraining,
 }) => {
+  const handleKeyPress = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        onNextButtonClick()
+      }
+    },
+    [onNextButtonClick]
+  )
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleKeyPress)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [handleKeyPress])
+
   return (
     <Space>
       {resultingProgress.length > 0 && (
@@ -27,20 +43,25 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           title="Завершить тренировку?"
           okText="Да"
           cancelText="Нет"
-          onConfirm={handleFinishTraining}
-          icon={<Icon type="exclamation-circle" style={{ color: 'red' }} />}
+          onConfirm={onFinishTraining}
           zIndex={2000}>
           <Button type="dashed">завершить</Button>
         </Popconfirm>
       )}
       {word.sessionStage === 0 ? (
-        <Button type="primary" onClick={handleLearned}>
+        <Button type="primary" onClick={onLearnedButtonClick}>
           Запомнил!
         </Button>
       ) : (
         <Button
           type="primary"
-          onClick={handleNextButtonClick}
+          onClick={onNextButtonClick}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+              onNextButtonClick()
+            }
+          }}
+          tabIndex={0}
           disabled={showAnswer}>
           не помню
         </Button>

@@ -1,48 +1,99 @@
-import React, { useEffect, useState } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 
-type CountdownProps = {
+interface CountdownProps {
   seconds: number
-  maxBlocks: number
   onComplete: () => void
 }
 
-const Countdown = ({ seconds, maxBlocks, onComplete }: CountdownProps) => {
+const Countdown: React.FC<CountdownProps> = ({ seconds, onComplete }) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [remainingSeconds, setRemainingSeconds] = useState(seconds)
+  const [dimensions, setDimensions] = useState<{
+    width: number
+    height: number
+  }>({ width: 0, height: 0 })
 
   useEffect(() => {
-    setRemainingSeconds(seconds) // Reset remainingSeconds when seconds prop changes
+    setRemainingSeconds(seconds)
   }, [seconds])
 
   useEffect(() => {
-    if (remainingSeconds > 0) {
-      const timer = setInterval(() => {
-        setRemainingSeconds(prevSeconds => prevSeconds - 1)
-      }, 1000)
+    const canvas = canvasRef.current
+    if (!canvas) return
 
-      return () => {
-        clearInterval(timer)
-      }
-    } else {
+    const parentContainer = canvas.parentNode as HTMLElement
+    const rect = parentContainer.getBoundingClientRect()
+
+    setDimensions({
+      width: rect.width,
+      height: rect.height,
+    })
+  }, [])
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas || remainingSeconds <= 0) return
+
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height)
+    gradient.addColorStop(0, '#1b8aab')
+    gradient.addColorStop(1, '#45f3ff')
+
+    ctx.strokeStyle = gradient
+    ctx.lineWidth = 5
+
+    const draw = () => {
+      const progress = 1 - remainingSeconds / seconds
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.globalAlpha = 0.1
+
+      const currentWidth = canvas.width * progress
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, currentWidth, canvas.height)
+    }
+
+    draw()
+    const timer = setInterval(() => {
+      setRemainingSeconds(prev => {
+        const newTime = prev - 0.1
+        if (newTime <= 0.1) {
+          clearInterval(timer)
+          return 0
+        } else {
+          draw()
+          return newTime
+        }
+      })
+    }, 100)
+
+    return () => {
+      clearInterval(timer)
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+    }
+  }, [remainingSeconds])
+
+  useEffect(() => {
+    if (remainingSeconds === 0) {
       onComplete()
     }
   }, [remainingSeconds])
 
-  const renderBlocks = () => {
-    const blocks = []
-    const ratio = remainingSeconds / seconds
-    const numBlocks = Math.min(Math.round(maxBlocks * ratio), maxBlocks)
-
-    for (let i = maxBlocks - 1; i >= 0; i--) {
-      const isActive = i < maxBlocks - numBlocks
-      const blockColor = isActive ? 'active-color' : 'inactive-color'
-
-      blocks.unshift(<div key={i} className={`block ${blockColor}`} />)
-    }
-
-    return blocks
-  }
-
-  return <div className="countdown">{renderBlocks()}</div>
+  return (
+    <canvas
+      ref={canvasRef}
+      width={dimensions.width}
+      height={dimensions.height}
+      style={{
+        position: 'absolute',
+        top: '0',
+        left: '0',
+        pointerEvents: 'none',
+      }}
+    />
+  )
 }
 
 export default Countdown

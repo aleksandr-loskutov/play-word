@@ -23,6 +23,82 @@ export enum Locals {
   OAUTH_PROVIDER = 'oauth-provider',
 }
 
+const PALETTE = {
+  primary: '#45f3ff',
+  secondary: '#1b8aab',
+  background: '#121212',
+  surface: '#1f1f1f',
+  error: '#f44336',
+  success: '#4caf50',
+  warning: '#ffc107',
+  info: '#2196f3',
+  onPrimary: '#000000',
+  onSecondary: '#ffffff',
+  onBackground: '#b0b0b0',
+  onSurface: '#b0b0b0',
+  onError: '#ffffff',
+  onSuccess: '#ffffff',
+  onWarning: '#000000',
+  onInfo: '#ffffff',
+}
+
+// theme customization
+const THEME_CUSTOM_CSS_PROPS = {
+  colorPrimary: PALETTE.secondary,
+  colorPrimaryHover: PALETTE.primary,
+  colorBgContainer: PALETTE.background,
+  colorLink: PALETTE.secondary,
+  colorLinkHover: PALETTE.primary,
+  colorLinkActive: PALETTE.primary,
+  colorItemBgSelected: PALETTE.background,
+  colorBgHeader: PALETTE.background,
+  colorItemTextSelected: PALETTE.primary,
+  colorItemTextSelectedHorizontal: PALETTE.primary,
+  colorItemTextHoverHorizontal: PALETTE.primary,
+  colorItemText: PALETTE.onBackground,
+  colorItemTextHover: PALETTE.primary,
+  colorTextHeading: PALETTE.onBackground,
+  colorText: PALETTE.onBackground,
+}
+
+const NOTIFICATION_SHADOWS = {
+  success: `0 0 10px ${PALETTE.primary}, 0 0 1px ${PALETTE.primary}`,
+  error: `0 0 10px ${PALETTE.error}, 0 0 1px ${PALETTE.error}`,
+  warning: `0 0 10px ${PALETTE.warning}, 0 0 1px ${PALETTE.warning}`,
+  info: `0 0 10px ${PALETTE.info}, 0 0 1px ${PALETTE.info}`,
+}
+
+// const THEME_CUSTOM_CSS_PROPS = {
+//   colorPrimary: '#1b8aab',
+//   colorPrimaryHover: '#33a0c4',
+//   colorBgContainer: '#121212',
+//   colorLink: '#1b8aab',
+//   colorLinkHover: '#33a0c4',
+//   colorLinkActive: '#33a0c4',
+//   colorItemBgSelected: '#121212',
+//   colorBgHeader: '#121212',
+//   colorItemTextSelected: '#45f3ff',
+//   colorItemTextSelectedHorizontal: '#45f3ff',
+//   colorItemTextHoverHorizontal: '#45f3ff',
+//   colorItemText: '#fff',
+//   colorItemTextHover: '#45f3ff',
+//   colorTextHeading: '#fff',
+//   colorText: '#fff',
+// }
+
+const THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS: string[] = [
+  'Button',
+  'Input',
+  'InputNumber',
+  'Select',
+  'Switch',
+  'Radio',
+  'Upload',
+  'Menu',
+  'Layout',
+  'Typography',
+]
+
 export default {
   APP_URL,
   API_PATH,
@@ -31,4 +107,8 @@ export default {
   PROD_URL,
   DEV_URL,
   AVATAR_PLACEHOLDER,
+  THEME_CUSTOM_CSS_PROPS,
+  THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS,
+  PALETTE,
+  NOTIFICATION_SHADOWS,
 }

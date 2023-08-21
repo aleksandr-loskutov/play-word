@@ -1,18 +1,26 @@
+import React from 'react'
 import { ConfigProvider, theme } from 'antd'
 import AppRouter from './router/router'
 import { AuthProvider } from './components/hooks/auth'
-const { defaultAlgorithm, darkAlgorithm } = theme
+import CONSTS from '../src/utils/consts'
+import generateThemeConfig from './utils/generate-theme-config'
+import AppInitializer from './components/app-initializer/appInitializer'
 
-function App() {
+const { darkAlgorithm } = theme
+
+const App: React.FC = () => {
   return (
     <div className="App">
       <ConfigProvider
         theme={{
           algorithm: darkAlgorithm,
-        }}
-      >
+          components: generateThemeConfig(
+            CONSTS.THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS,
+            CONSTS.THEME_CUSTOM_CSS_PROPS
+          ),
+        }}>
         <AuthProvider>
-          <AppRouter />
+          <AppInitializer />
         </AuthProvider>
       </ConfigProvider>
     </div>

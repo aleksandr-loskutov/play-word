@@ -1,53 +1,10 @@
-.profile-form {
-  &__form {
-    display: flex;
-    flex-flow: column;
-    align-items: center;
-    padding: 48px 24px;
-    border-radius: 12px;
-    box-shadow: 0 0 6px var(--ant-primary-color);
-    flex-grow: 1;
+@import "../../../../components/layout/mixins.css";
+.profile {
 
-    &-divider {
-      grid-column: span 2;
-    }
-
-    &-item {
-      margin: 0;
-    }
-
-    &-item-input {
-      background: var(--ant-primary-1);
-      border-radius: 8px;
-
-    }
-
-    &-item-input-number {
-      background: var(--ant-primary-1);
-      width: 100%;
-    }
-
-    &-alert {
-      margin: 15px 0;
-    }
-
-    &-items {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      align-items: baseline;
-      width: 100%;
-      column-gap: 16px;
-      row-gap: 16px;
-    }
-
-    &-submit-button {
-      margin: 32px 0 0;
-      width: 100%;
-    }
-
-
-
+  &__box {
+    @mixin box-style 550px, 1050px;
   }
 
+  @mixin form-style;
 
 }

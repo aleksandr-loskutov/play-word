@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Collection } from '@prisma/client';
+import { calculateNextTrainingDate } from './utils/calculateNextTrainingDate';
 
 import {
   CollectionWithWords,
   RequestCollectionCreate,
   RequestCollectionUpdate,
+  RequestUserTrainingUpdate,
+  UserWordProgressExtended,
   UserWordProgressResponse,
 } from './dto';
 import { Response } from 'common';
@@ -24,14 +27,17 @@ export class CollectionService {
           words: {
             select: {
               word: true,
+              translation: true,
             },
           },
         },
       });
       const collectionsWithWords = data.map((collection) => ({
         ...collection,
-        words: collection.words.map(({ word }) => ({
+        words: collection.words.map(({ word, translation }) => ({
           ...word,
+          translation: translation.translation,
+          translationId: translation.id,
         })),
       }));
       return collectionsWithWords || { error: `Cannot get user collections` };
@@ -43,7 +49,7 @@ export class CollectionService {
   async createCollection(
     collection: RequestCollectionCreate,
     userId: number,
-  ): Promise<Response<Collection>> {
+  ): Promise<Response<CollectionWithWords>> {
     try {
       const data = await this.prisma.collection.create({
         data: {
@@ -51,7 +57,7 @@ export class CollectionService {
           createdBy: { connect: { id: userId } },
         },
       });
-      return data || { error: `Cannot create collection` };
+      return { ...data, words: [] } || { error: `Cannot create collection` };
     } catch (error: any) {
       return { error: `Cannot create collection. ${error.message}` };
     }
@@ -65,14 +71,18 @@ export class CollectionService {
           words: {
             select: {
               word: true,
+              translation: true,
             },
           },
         },
       });
+
       const collectionsWithWords = data.map((collection) => ({
         ...collection,
-        words: collection.words.map(({ word }) => ({
+        words: collection.words.map(({ word, translation }) => ({
           ...word,
+          translation: translation.translation,
+          translationId: translation.id,
         })),
       }));
       return collectionsWithWords || { error: `Cannot get public collections` };
@@ -91,7 +101,6 @@ export class CollectionService {
         where: { id: collectionId },
         select: { id: true, userId: true, isPublic: true },
       });
-      console.log('collection', collection);
       if (!collection)
         return {
           error: `No collection found with id: ${collectionId}`,
@@ -148,24 +157,29 @@ export class CollectionService {
         };
       }
 
-      const collectionWords = collection.words;
-
+      const collectionWords = await this.prisma.wordForCollection.findMany({
+        where: { collectionId },
+        // include: {
+        //   word: true,
+        // },
+      });
       const userWordProgresses = await this.prisma.userWordProgress.findMany({
         where: {
           userId,
-          wordId: {
-            in: collectionWords.map((cw) => cw.wordId),
+          translationId: {
+            in: collectionWords.map((cw) => cw.translationId),
           },
         },
-        select: { wordId: true },
+        select: { translationId: true },
       });
-      const existingIds = userWordProgresses.map((uwp) => uwp.wordId);
+      const existingIds = userWordProgresses.map((uwp) => uwp.translationId);
 
       const newWordProgresses = collectionWords
-        .filter((cw) => !existingIds.includes(cw.wordId))
-        .map((cw) => ({
+        .filter((cw) => !existingIds.includes(cw.translationId))
+        .map(({ translationId, collectionId }) => ({
           userId,
-          wordId: cw.wordId,
+          translationId,
+          collectionId,
           nextReview: new Date(),
           stage: 0,
         }));
@@ -173,12 +187,7 @@ export class CollectionService {
       await this.prisma.userWordProgress.createMany({
         data: newWordProgresses,
       });
-      const userProgress = await this.prisma.userWordProgress.findMany({
-        where: { userId },
-        include: {
-          word: true,
-        },
-      });
+      const userProgress = await this.getUserProgress(userId);
       return userProgress;
     } catch (error: any) {
       return {
@@ -197,7 +206,7 @@ export class CollectionService {
         select: {
           userId: true,
           isPublic: true,
-          words: { select: { wordId: true } },
+          words: { select: { translationId: true } },
         },
       });
       if (!collection) {
@@ -210,7 +219,6 @@ export class CollectionService {
           error: `Collection with id "${collectionId}" is empty.`,
         };
       }
-      // Check if user owns the collection or it's public
       if (collection.userId !== userId && !collection.isPublic) {
         return {
           error: `User is not authorized to this collection.`,
@@ -220,18 +228,13 @@ export class CollectionService {
       await this.prisma.userWordProgress.deleteMany({
         where: {
           userId,
-          wordId: {
-            in: collection.words.map((cw) => cw.wordId),
+          translationId: {
+            in: collection.words.map((cw) => cw.translationId),
           },
         },
       });
 
-      const userProgress = await this.prisma.userWordProgress.findMany({
-        where: { userId },
-        include: {
-          word: true,
-        },
-      });
+      const userProgress = await this.getUserProgress(userId);
       return userProgress;
     } catch (error: any) {
       return {
@@ -244,15 +247,71 @@ export class CollectionService {
     userId: number,
   ): Promise<Response<UserWordProgressResponse>> {
     try {
-      const userProgress = await this.prisma.userWordProgress.findMany({
-        where: { userId },
-        include: { word: true },
-      });
+      const userProgress = await this.getUserProgress(userId);
 
       return userProgress;
     } catch (error: any) {
       return {
-        error: `Cannot get user training. ${error.message}`,
+        error: `Cannot get user training progress. ${error.message}`,
+      };
+    }
+  }
+
+  async updateUserTraining(
+    trainingToUpdate: RequestUserTrainingUpdate[],
+    userId: number,
+  ): Promise<Response<UserWordProgressExtended[]>> {
+    try {
+      const userSettings = await this.prisma.userTrainingSettings.findUnique({
+        where: { userId },
+      });
+      if (!userSettings || trainingToUpdate.length === 0) return [];
+
+      const userProgress = await this.getUserProgress(userId);
+      for (const trainingItem of trainingToUpdate) {
+        const { wordId, translationId, sessionMistakes } = trainingItem;
+
+        const progressToUpdate = userProgress.find(
+          (progress) =>
+            progress.translation.id === translationId &&
+            progress.translation.wordId === wordId,
+        );
+
+        if (progressToUpdate) {
+          const { stage, mistakes } = progressToUpdate;
+          const nextStage =
+            stage === 0 ? 1 : sessionMistakes === 0 ? stage + 1 : stage;
+          const updatedMistakes = mistakes + sessionMistakes;
+          const oneDayFromNow = new Date(Date.now() + 24 * 3600 * 1000);
+          const nextReview =
+            sessionMistakes === 0
+              ? calculateNextTrainingDate(nextStage, userSettings)
+              : oneDayFromNow;
+
+          try {
+            const updatedProgress = await this.prisma.userWordProgress.update({
+              where: { userId_translationId: { userId, translationId } },
+              data: {
+                mistakes: updatedMistakes,
+                stage: nextStage,
+                nextReview,
+              },
+            });
+            if (updatedProgress) {
+              userProgress.splice(userProgress.indexOf(progressToUpdate), 1);
+            }
+          } catch (error: any) {
+            return {
+              error: `Cannot update user progress. ${error.message}`,
+            };
+          }
+        }
+      }
+
+      return userProgress;
+    } catch (error: any) {
+      return {
+        error: `Cannot update user progress. ${error.message}`,
       };
     }
   }
@@ -283,16 +342,20 @@ export class CollectionService {
           words: {
             select: {
               word: true,
+              translation: true,
             },
           },
         },
       });
       const collectionWithWords = {
         ...data,
-        words: data.words.map(({ word }) => ({
+        words: data.words.map(({ word, translation }) => ({
           ...word,
+          translation: translation.translation,
+          translationId: translation.id,
         })),
       };
+
       return (
         collectionWithWords || {
           error: `Cannot update collection with id "${collectionId}"`,
@@ -302,6 +365,37 @@ export class CollectionService {
       return {
         error: `Cannot update collection with id "${collectionId}". ${error.message}`,
       };
+    }
+  }
+
+  async getUserProgress(userId: number): Promise<UserWordProgressExtended[]> {
+    try {
+      const currentDate = new Date();
+      const userProgress = await this.prisma.userWordProgress.findMany({
+        where: {
+          userId,
+          stage: { lt: 6 }, // Filter records where the stage is less than 6 (training finished)
+          nextReview: {
+            lt: currentDate, // Filter records where the nextReview date is less than the current date
+          },
+        },
+        include: {
+          translation: {
+            include: {
+              word: true,
+            },
+          },
+          collection: { select: { name: true } },
+        },
+      });
+
+      if (!userProgress || userProgress.length === 0) {
+        return [];
+      }
+
+      return userProgress;
+    } catch (error: any) {
+      return [];
     }
   }
 }

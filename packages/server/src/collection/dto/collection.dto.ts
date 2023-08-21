@@ -7,6 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 import { Collection, UserWordProgress, Word } from '@prisma/client';
+import { TranslationWithWord } from 'word';
 
 export class CollectionDto {
   @IsNotEmpty()
@@ -61,3 +62,22 @@ export class CollectionWordDto {
 export type CollectionWithWords = Collection & { words: Word[] };
 
 export type UserWordProgressResponse = Omit<UserWordProgress, 'userId'>[];
+
+export type UserWordProgressExtended = UserWordProgress & {
+  translation: TranslationWithWord;
+  collection: { name: string };
+};
+
+export class RequestUserTrainingUpdate {
+  @IsNotEmpty()
+  @IsNumber()
+  wordId;
+
+  @IsNotEmpty()
+  @IsNumber()
+  translationId;
+
+  @IsNotEmpty()
+  @IsNumber()
+  sessionMistakes;
+}

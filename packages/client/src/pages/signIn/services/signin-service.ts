@@ -1,13 +1,13 @@
 import AuthAPI from '../../../api/auth'
 import { OAuthServiceIdDTO, SignInDTO } from '../../../types/auth'
 import { ApiResponse } from '../../../types/api'
-import { UserEntity } from '../../../types/user'
+import { User } from '../../../types/user'
 import OAuthYandexAPI from '../../../api/OAuth'
 import getOAuthProvider from '../../../utils/get-OAuth-provider'
 import LocalStorageService from '../../../utils/localstorage-service'
 import { OAUTH_PROVIDERS } from '../../../utils/consts'
 
-const signIn = async (payload: SignInDTO): ApiResponse<UserEntity> => {
+const signInService = async (payload: SignInDTO): ApiResponse<User> => {
   const response = await AuthAPI.signIn(payload)
 
   if (response.error || !response.data) {
@@ -16,9 +16,7 @@ const signIn = async (payload: SignInDTO): ApiResponse<UserEntity> => {
   return { data: response.data }
 }
 
-export const signInWithProvider = async (
-  code: string
-): ApiResponse<UserEntity> => {
+export const signInWithProvider = async (code: string): ApiResponse<User> => {
   const providerName = LocalStorageService.getOAuthProvider()
   if (!providerName) {
     return { error: 'Не удалось получить провайдера' }
@@ -59,4 +57,4 @@ export const getServiceIdFromProvider = async (
   return { data: response.data }
 }
 
-export default signIn
+export default signInService

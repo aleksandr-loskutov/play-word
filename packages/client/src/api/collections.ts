@@ -7,6 +7,7 @@ import {
 import {
   RequestUserWordProgressUpdate,
   UserWordProgress,
+  UserWordProgressResponse,
 } from '../types/training'
 
 class CollectionsAPI extends BaseAPI {
@@ -35,21 +36,21 @@ class CollectionsAPI extends BaseAPI {
   }
 
   addCollectionWordsToTraining(id: number) {
-    return this.httpService.post<string, UserWordProgress[]>(`/${id}`)
+    return this.httpService.post<string, UserWordProgressResponse[]>(`/${id}`)
   }
 
   removeCollectionWordsFromTraining(id: number) {
-    return this.httpService.patch<string, UserWordProgress[]>(`/${id}`)
+    return this.httpService.patch<string, UserWordProgressResponse[]>(`/${id}`)
   }
 
   getTraining() {
-    return this.httpService.get<UserWordProgress[]>('/train')
+    return this.httpService.get<UserWordProgressResponse[]>('/train')
   }
 
-  updateTraining(data: RequestUserWordProgressUpdate) {
+  updateTraining(data: RequestUserWordProgressUpdate[]) {
     return this.httpService.patch<
-      RequestUserWordProgressUpdate,
-      UserWordProgress[]
+      RequestUserWordProgressUpdate[],
+      UserWordProgressResponse[]
     >('/train', data)
   }
 }

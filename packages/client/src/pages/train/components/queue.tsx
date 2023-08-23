@@ -130,11 +130,11 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
     setQueue(queueToSet)
   }
 
-  const peek = (): UserWordProgress | undefined => {
-    return queue.length > 0 ? queue[0] : undefined
+  const peek = (): UserWordProgress => {
+    return queue[0]
   }
 
-  const word: WordInTraining | undefined = peek()?.word
+  const word: WordInTraining = peek()?.word
 
   const isEmpty = (): boolean => {
     return queue.length === 0

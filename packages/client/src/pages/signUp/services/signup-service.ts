@@ -1,11 +1,10 @@
 import AuthAPI from '../../../api/auth'
 import { SignUpDTO } from '../../../types/auth'
 import { ApiResponse } from '../../../types/api'
-import { UserEntity } from '../../../types/user'
+import { User } from '../../../types/user'
 
-const signUp = async (payload: SignUpDTO): ApiResponse<UserEntity> => {
+const signUp = async (payload: SignUpDTO): ApiResponse<User> => {
   const response = await AuthAPI.signUp(payload)
-  console.log('response', response)
 
   if (response.error || !response.data) {
     return { error: 'Не удалось получить пользователя' }

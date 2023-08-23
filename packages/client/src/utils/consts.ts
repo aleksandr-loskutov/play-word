@@ -68,24 +68,6 @@ const NOTIFICATION_SHADOWS = {
   info: `0 0 10px ${PALETTE.info}, 0 0 1px ${PALETTE.info}`,
 }
 
-// const THEME_CUSTOM_CSS_PROPS = {
-//   colorPrimary: '#1b8aab',
-//   colorPrimaryHover: '#33a0c4',
-//   colorBgContainer: '#121212',
-//   colorLink: '#1b8aab',
-//   colorLinkHover: '#33a0c4',
-//   colorLinkActive: '#33a0c4',
-//   colorItemBgSelected: '#121212',
-//   colorBgHeader: '#121212',
-//   colorItemTextSelected: '#45f3ff',
-//   colorItemTextSelectedHorizontal: '#45f3ff',
-//   colorItemTextHoverHorizontal: '#45f3ff',
-//   colorItemText: '#fff',
-//   colorItemTextHover: '#45f3ff',
-//   colorTextHeading: '#fff',
-//   colorText: '#fff',
-// }
-
 const THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS: string[] = [
   'Button',
   'Input',
@@ -97,6 +79,7 @@ const THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS: string[] = [
   'Menu',
   'Layout',
   'Typography',
+  'Card',
 ]
 
 export default {

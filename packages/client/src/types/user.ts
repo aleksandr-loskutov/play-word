@@ -29,4 +29,6 @@ export type UserTrainingSettings = {
   showCollectionNameHint: boolean
   wordErrorLimit: number
   wordMistypeLimit: number
+  synthVoiceAutoStart: boolean
+  speechRecognizerAutoStart: boolean
 }

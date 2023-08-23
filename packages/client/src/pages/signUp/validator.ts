@@ -1,7 +1,9 @@
+import { Indexable } from '../../types/common'
+import { Rule } from 'antd/lib/form'
+
 const CIRILLIC_OR_LATIN_REGEXP = /^[a-zA-Zа-яА-ЯёЁ][a-zA-Zа-яА-ЯёЁ-]*$/g
 const CHECK_NUMBER_REGEXP = /(?=.*\d)/
-
-const signUpRules = {
+const signUpRules: Indexable<Rule[]> = {
   email: [
     {
       type: 'email',
@@ -12,7 +14,7 @@ const signUpRules = {
       message: 'Введите почту',
     },
   ],
-  firstName: [
+  name: [
     { required: true, message: 'Введите имя' },
     {
       pattern: CIRILLIC_OR_LATIN_REGEXP,
@@ -22,7 +24,7 @@ const signUpRules = {
 
   password: [
     {
-      required: true,
+      required: false,
       message: 'Введите пароль',
     },
     { min: 8, message: 'Не менее 8 символов' },

@@ -1,21 +1,20 @@
-import React from 'react';
-import {Typography} from 'antd';
+import React from 'react'
+import { Button, Typography } from 'antd'
+import createCn from '../../utils/create-cn'
+import './error.css'
+import { Link } from 'react-router-dom'
 
-import Layout from '../../components/layout';
-import createCn from '../../utils/create-cn';
-
-import './error.css';
-
-const cn = createCn('error-page');
+const cn = createCn('error-page')
 
 function ErrorPage() {
   return (
-    <Layout>
-      <section className={cn()}>
-        <Typography.Title>Что-то пошло не так</Typography.Title>
-      </section>
-    </Layout>
+    <section className={cn()}>
+      <Typography.Title>Что-то пошло не так</Typography.Title>
+      <Link to="/">
+        <Button type="primary">На главную</Button>
+      </Link>
+    </section>
   )
 }
 
-export default ErrorPage;
+export default ErrorPage

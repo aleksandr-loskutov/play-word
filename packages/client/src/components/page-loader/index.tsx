@@ -1,14 +1,14 @@
-import React from 'react';
-import { Space, Spin } from 'antd';
+import React from 'react'
+import { Col, Row } from 'antd'
 
 function PageLoader() {
   return (
-    <Space
-      direction="horizontal"
-      style={{ width: '100%', height: '100vh', justifyContent: 'center' }}>
-      <Spin size="large" />
-    </Space>
-  );
+    <Row justify="center" align="middle" style={{ minHeight: '50vh' }}>
+      <Col>
+        <div className={'spinner'}></div>
+      </Col>
+    </Row>
+  )
 }
 
-export default PageLoader;
+export default PageLoader

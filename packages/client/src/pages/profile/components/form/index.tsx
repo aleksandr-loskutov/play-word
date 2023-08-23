@@ -10,7 +10,6 @@ import {
   Select,
 } from 'antd'
 const { Option } = Select
-import { Rule } from 'antd/lib/form'
 import signUpRules from '../../../signUp/validator'
 import createCn from '../../../../utils/create-cn'
 import { RequestUserDataUpdate, User } from '../../../../types/user'
@@ -29,7 +28,7 @@ type ProfileFormProps = {
   user: Nullable<User>
   onSubmit: (data: RequestUserDataUpdate) => void
 }
-const cn = createCn('profile')
+const cn = createCn('profile-form')
 
 function ProfileForm({ user, error, onSubmit }: ProfileFormProps) {
   const [form] = Form.useForm()

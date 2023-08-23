@@ -1,7 +1,8 @@
 @import "../../../../components/layout/mixins.css";
-.profile {
+.profile-form {
 
   &__box {
+    margin: 0 auto;
     @mixin box-style 550px, 1050px;
   }
 

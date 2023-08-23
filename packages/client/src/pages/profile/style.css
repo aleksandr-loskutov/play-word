@@ -1,7 +1,4 @@
-.profile {
-  min-height: 100%;
-
-  &__avatar {
-    margin: 0 auto 64px;
-  }
+.profile-page h2 {
+    color: #b0b0b0;
 }
+

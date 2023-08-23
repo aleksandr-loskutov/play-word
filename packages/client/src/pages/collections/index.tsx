@@ -31,9 +31,9 @@ import Paragraph from 'antd/lib/typography/Paragraph'
 import WithAuth from '../../components/hoc/withAuth'
 import { Collection } from '../../types/collection'
 import { Response } from '../../types/api'
-import CollectionCreateForm from './collection/modal/collectionCreateForm'
 import { customNotification } from '../../components/custom-notification/customNotification'
 import { PlusOutlined } from '@ant-design/icons'
+import CollectionCreateForm from './modal'
 
 const { Title } = Typography
 const cn = createCn('collections-page')

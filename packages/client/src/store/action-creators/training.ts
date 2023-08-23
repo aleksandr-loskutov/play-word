@@ -1,8 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
 import CollectionsAPI from '../../api/collections'
-import { message } from 'antd'
-
 import { RequestUserWordProgressUpdate } from '../../types/training'
+import { transformUserProgressResponse } from '../../utils/transform-user-progress'
 
 export const getTraining = createAsyncThunk(
   'training/get',
@@ -18,7 +17,7 @@ export const getTraining = createAsyncThunk(
           return thunkAPI.rejectWithValue(error)
         }
       }
-      return data
+      return transformUserProgressResponse(data)
     } catch (e: any) {
       return thunkAPI.rejectWithValue(
         `Не удалось получить тренировку. ${e.message}`
@@ -41,7 +40,7 @@ export const addCollectionWordsForTraining = createAsyncThunk(
           return thunkAPI.rejectWithValue(error)
         }
       }
-      return data
+      return transformUserProgressResponse(data)
     } catch (e: any) {
       return thunkAPI.rejectWithValue(
         `Не удалось добавить слова в тренировку. ${e.message}`
@@ -64,7 +63,7 @@ export const removeCollectionWordsFromTraining = createAsyncThunk(
           return thunkAPI.rejectWithValue(error)
         }
       }
-      return data
+      return transformUserProgressResponse(data)
     } catch (e: any) {
       return thunkAPI.rejectWithValue(
         `Не удалось удалить слова из тренировки. ${e.message}`
@@ -75,13 +74,13 @@ export const removeCollectionWordsFromTraining = createAsyncThunk(
 
 export const updateTraining = createAsyncThunk(
   'training/update',
-  async (payload: RequestUserWordProgressUpdate, thunkAPI) => {
+  async (payload: RequestUserWordProgressUpdate[], thunkAPI) => {
     try {
       const { data, error } = await CollectionsAPI.updateTraining(payload)
       if (error) {
         return thunkAPI.rejectWithValue(error)
       }
-      return data
+      return transformUserProgressResponse(data)
     } catch (e: any) {
       return thunkAPI.rejectWithValue(
         `Не удалось обновить тренировку. ${e.message}`

@@ -1,20 +1,31 @@
-.collections-page {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
+@import '../../components/layout/mixins.css';
 
-  &__title {
-    margin-bottom: 32px;
-    text-align: center;
+.collections-page {
+
+  &__box {
+    @mixin box-style calc(100% - 4px), calc(100% - 4px);
+    @mixin box-shadow;
+    &:hover {
+      box-shadow: none;
+    }
+
   }
+
 
   &__card {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 400px;
+    background: #1f1f1f;
+    z-index: 10;
+
+    &:hover {
+      inset: 2px;
+      border-radius: 8px;
+      z-index: 11;
+      max-width: calc(100% - 4px);
+      max-height: calc(100% - 4px);
+    }
 
     &-title {
       margin-top: 16px;

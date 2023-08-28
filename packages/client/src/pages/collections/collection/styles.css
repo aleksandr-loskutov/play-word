@@ -2,10 +2,21 @@
 
 .collection-page {
 
+    &__title{
+        cursor: pointer;
+    }
+
     &__card {
         @mixin box-shadow;
         max-width: 350px;
         margin: 0 auto;
+
+        &-image {
+            display: block;
+            max-width: 50%;
+            margin: 10px auto;
+            border-radius: 8px;
+        }
     }
 
 

@@ -1,8 +1,8 @@
-@define-mixin box-style $width, $height {
+@define-mixin box-style $width, $height, $border-radius: 8px {
     position: relative;
     width: $width;
     height: $height;
-    border-radius: 8px;
+    border-radius: $border-radius;
     overflow: hidden;
     max-width: $width;
 
@@ -22,6 +22,19 @@
         animation-delay: -3s;
     }
 
+
+}
+
+@define-mixin spinner $width, $height {
+    @mixin box-style $width, $height, 50%;
+
+    &::before, &::after {
+        animation: animate 2s linear infinite;
+    }
+
+    &::before {
+        animation-delay: -1s;
+    }
 
 }
 
@@ -98,5 +111,7 @@
     }
 }
 
-
-
+@define-mixin box-shadow {
+    box-shadow: 0 0 4px #45f3ff, 0 0 1px #45f3ff;
+    transition: box-shadow 1s ease-out;
+}

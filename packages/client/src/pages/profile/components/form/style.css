@@ -3,7 +3,7 @@
 
   &__box {
     margin: 0 auto;
-    @mixin box-style 550px, 1050px;
+    @mixin box-style 550px, 1080px;
   }
 
   @mixin form-style;

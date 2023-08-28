@@ -1,32 +1,170 @@
-.layout{
+@import "./mixins.css";
+
+.layout {
   min-height: 100vh;
-  background-color: black;
+   background-color: #121212;
+  font-family: 'Arial', sans-serif;
 
-  &__menu-container{
-    display: flex;
-    justify-content: center;
-    background-color: black;
-    width: 100%;
+  &__menu-container {
+    position: relative;
+      &::before,
+      &::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 4px;
+          background: linear-gradient(0deg, rgba(69, 243, 255, 0.5), rgba(69, 243, 255, 0.5), transparent);
+          z-index: 0;
+      }
+
+      &::before {
+          left: -30px;
+          transform: skewX(45deg);
+      }
+
+      &::after {
+          right: -30px;
+          transform: skewX(-45deg);
+      }
+
   }
 
-  &__menu-content {
-    display: flex;
-    justify-content: center;
-    background-color: black;
-    width: 30%;
+  &__badge{
+    /*  temporary important coz Badge component with inline css is not setting this prop to span wrapper*/
+    margin-inline-start: 0px !important;
   }
 
-  &__content-container {
-    display: flex;
-    flex-direction: column;
+  &__menu {
     justify-content: center;
-    align-items: center;
-    padding: 50px;
-    min-height: 50vh;
-    min-width: 50vw;
-  }
+    border-bottom: 2px solid rgba(69, 243, 255, 0.5);
+    border-radius: 5px;
+    background-color:#121212;
+ & > li::after {
+     display: none;
+ }
 
+ & > li > span:hover  {
+   color: #45f3ff;
+ }
+
+ & > li > span > a > span:hover  {
+   color: #45f3ff;
+ }
 
 }
 
 
+&__content-container {
+    position: relative;
+    width: 100%;
+    max-width: 1024px;
+    display: flex;
+    flex-direction: column;
+    margin: 40px auto;
+    padding: 40px 20px;
+    border-top: 2px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-image: linear-gradient(90deg, transparent, rgba(69, 243, 255, 0.6), transparent) 1;
+
+    &::before,
+    &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(40deg, transparent, rgba(69, 243, 255, 0.6), transparent);
+  }
+
+
+  &::before {
+    left: 0;
+  }
+  &::after {
+    right: 0;
+  }
+
+
+
+
+
+    @media screen and (min-width: 1024px) {
+        padding: 40px;
+
+    }
+
+    @media screen and (max-width: 1023px) {
+        padding: 30px;
+    }
+
+    @media screen and (max-width: 767px) {
+        padding: 20px;
+    }
+
+    @media screen and (max-width: 480px) {
+        padding: 10px;
+    }
+
+
+}
+
+&__footer{
+    position: relative;
+    width: 750px;
+    border-top: 2px solid rgba(69, 243, 255, 0.5);
+    border-radius: 5px;
+    margin: 0 auto;
+    background-color: #121212;
+
+    &::before,
+    &::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: linear-gradient(180deg, rgba(69, 243, 255, 0.5), rgba(69, 243, 255, 0.5), transparent); /* Change the direction of the gradient */
+        z-index: 0;
+    }
+
+    &::before {
+        right: -30px; /* Swap left and right */
+        transform: skewX(45deg); /* Change the skew direction */
+    }
+
+    &::after {
+        left: -30px; /* Swap left and right */
+        transform: skewX(-45deg); /* Change the skew direction */
+    }
+}
+
+}
+
+
+
+.title {
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.spinner {
+   @mixin spinner 120px, 120px;
+}
+
+.text-center {
+text-align: center;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    text-transform: uppercase;
+    color: #b0b0b0;
+}
+
+label {
+    color: #b0b0b0;
+}
+
+.layout__footer.footer {
+    background-color: #121212;
+}

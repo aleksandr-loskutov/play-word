@@ -1,8 +1,9 @@
 @import "./mixins.css";
+@import 'variables.css';
 
 .layout {
   min-height: 100vh;
-   background-color: #121212;
+   background-color: var(--background);
   font-family: 'Arial', sans-serif;
 
   &__menu-container {
@@ -39,17 +40,17 @@
     justify-content: center;
     border-bottom: 2px solid rgba(69, 243, 255, 0.5);
     border-radius: 5px;
-    background-color:#121212;
+    background-color:var(--background);
  & > li::after {
      display: none;
  }
 
  & > li > span:hover  {
-   color: #45f3ff;
+   color: var(--primary);
  }
 
  & > li > span > a > span:hover  {
-   color: #45f3ff;
+   color: var(--primary);
  }
 
 }
@@ -115,7 +116,7 @@
     border-top: 2px solid rgba(69, 243, 255, 0.5);
     border-radius: 5px;
     margin: 0 auto;
-    background-color: #121212;
+    background-color: var(--background);
 
     &::before,
     &::after {
@@ -158,13 +159,13 @@ text-align: center;
 
 h1, h2, h3, h4, h5, h6 {
     text-transform: uppercase;
-    color: #b0b0b0;
+    color: var(--onBackground);
 }
 
 label {
-    color: #b0b0b0;
+    color: var(--onBackground);
 }
 
 .layout__footer.footer {
-    background-color: #121212;
+    background-color: var(--background);
 }

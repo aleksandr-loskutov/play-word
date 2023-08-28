@@ -1,7 +1,7 @@
 .profile-page {
 
     h2 {
-        color: #b0b0b0;
+        color: var(--onBackground);
     }
 }
 

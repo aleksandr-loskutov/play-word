@@ -2,7 +2,7 @@
 .sign-up {
   margin: 0 auto;
   &__box {
-    @mixin box-style 380px, 540px;
+    @mixin box-style 380px, 560px;
   }
 
   @mixin form-style;

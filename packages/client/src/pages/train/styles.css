@@ -18,11 +18,11 @@
   }
 
   &__train-input {
-    @mixin train-input-style #fff;
+    @mixin train-input-style var(--onSecondary);
   }
 
   &__paragraph {
-    color: #b0b0b0;
+    color: var(--onBackground);
     text-align: center;
   }
 
@@ -39,7 +39,7 @@
 }
 
 .correct {
-  @mixin disabled-style #45f3ff;
+  @mixin disabled-style var(--primary);
 }
 
 .incorrect {
@@ -62,7 +62,7 @@
 }
 
 .active-color {
-  background-color: #45f3ff;
+  background-color: var(--primary);
   opacity: 0.5;
 }
 

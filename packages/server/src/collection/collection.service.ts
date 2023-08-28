@@ -97,28 +97,19 @@ export class CollectionService {
     userId: number,
   ): Promise<Response<Collection>> {
     try {
-      const collection = await this.prisma.collection.findUnique({
-        where: { id: collectionId },
-        select: { id: true, userId: true, isPublic: true },
-      });
-      if (!collection)
-        return {
-          error: `No collection found with id: ${collectionId}`,
-        };
-      if (collection.userId !== userId)
+      const isOwner = await this.isUserOwnsCollection(userId, collectionId);
+      if (!isOwner) {
         return {
           error: `Unauthorized access to delete collection: ${collectionId}`,
         };
+      }
+
       const deletedCollection = await this.prisma.collection.update({
-        where: { id: collection.id },
+        where: { id: collectionId },
         data: { deleted: true, isPublic: false },
       });
 
-      return (
-        deletedCollection || {
-          error: `Failed to delete collection with id: ${collectionId}`,
-        }
-      );
+      return deletedCollection;
     } catch (error: any) {
       return {
         error: `Failed to delete collection with id: ${collectionId}. ${error.message}`,
@@ -397,5 +388,18 @@ export class CollectionService {
     } catch (error: any) {
       return [];
     }
+  }
+
+  async isUserOwnsCollection(
+    userId: number,
+    collectionId: number,
+  ): Promise<boolean> {
+    const collection = await this.prisma.collection.findFirst({
+      where: {
+        id: collectionId,
+        userId,
+      },
+    });
+    return Boolean(collection);
   }
 }

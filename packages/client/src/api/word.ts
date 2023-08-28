@@ -11,7 +11,7 @@ class WordAPI extends BaseAPI {
     return this.httpService.get<Collection>(`/${collectionId}`)
   }
 
-  addWordsToCollection(collectionId: number, data: WordForCollection[]) {
+  updateWordsInCollection(collectionId: number, data: WordForCollection[]) {
     return this.httpService.post<WordForCollection[], Collection>(
       `/${collectionId}`,
       data

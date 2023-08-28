@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { ApiResponse } from '../types/api'
+import { ApiResponse, ResponseFormat } from '../types/api'
 import CONSTS from '../utils/consts'
 import { User } from '../types/user'
 
@@ -39,6 +39,12 @@ axiosInstance.interceptors.response.use(
   }
 )
 
+const handleApiError = (error: any): ResponseFormat<any> => ({
+  //${error.message} is still there but we dont show it
+  error: `${error.response?.data?.message}`,
+  status: error.response?.status || 500,
+})
+
 const createRequest = <T>(options: RequestOptions<T>) =>
   axiosInstance({
     headers: {
@@ -61,10 +67,9 @@ class HttpService {
       headers,
     })
       .then(response => ({ data: response.data, status: response.status }))
-      .catch(error => ({
-        error: `${error.response?.data?.message} ${error.message}`,
-        status: error.response?.status || 500,
-      }))
+      .catch(error => {
+        return handleApiError(error)
+      })
 
   post = <T, R>(
     url: string,
@@ -78,10 +83,9 @@ class HttpService {
       headers,
     })
       .then(response => ({ data: response.data, status: response.status }))
-      .catch(error => ({
-        error: `${error.response?.data?.message} ${error.message}`,
-        status: error.response?.status || 500,
-      }))
+      .catch(error => {
+        return handleApiError(error)
+      })
 
   put = <T, R>(
     url: string,
@@ -95,10 +99,9 @@ class HttpService {
       headers,
     })
       .then(response => ({ data: response.data, status: response.status }))
-      .catch(error => ({
-        error: `${error.response?.data?.message} ${error.message}`,
-        status: error.response?.status || 500,
-      }))
+      .catch(error => {
+        return handleApiError(error)
+      })
 
   patch = <T, R>(
     url: string,
@@ -112,10 +115,9 @@ class HttpService {
       headers,
     })
       .then(response => ({ data: response.data, status: response.status }))
-      .catch(error => ({
-        error: `${error.response?.data?.message} ${error.message}`,
-        status: error.response?.status || 500,
-      }))
+      .catch(error => {
+        return handleApiError(error)
+      })
 
   delete = <T, R>(
     url: string,
@@ -127,10 +129,9 @@ class HttpService {
       headers,
     })
       .then(response => ({ data: response.data, status: response.status }))
-      .catch(error => ({
-        error: `${error.response?.data?.message} ${error.message}`,
-        status: error.response?.status || 500,
-      }))
+      .catch(error => {
+        return handleApiError(error)
+      })
 }
 
 export default HttpService

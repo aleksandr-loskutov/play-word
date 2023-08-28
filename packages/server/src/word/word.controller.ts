@@ -6,10 +6,14 @@ import {
   Body,
   UsePipes,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { WordService } from './word.service';
 import { WordDto } from './dto';
+import { AtGuard } from '../common/guards';
+import { GetCurrentUserId } from '../common/decorators';
 
+@UseGuards(AtGuard)
 @Controller('word')
 export class WordController {
   constructor(private readonly wordService: WordService) {}
@@ -35,10 +39,12 @@ export class WordController {
   async addWordsToCollection(
     @Body() words: WordDto[],
     @Param('collectionId') collectionId: string,
+    @GetCurrentUserId() userId: number,
   ) {
-    const result = await this.wordService.addWordsToCollection(
+    const result = await this.wordService.updateCollectionWords(
       parseInt(collectionId),
       words,
+      userId,
     );
     return result;
   }

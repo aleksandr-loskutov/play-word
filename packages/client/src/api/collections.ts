@@ -19,8 +19,11 @@ class CollectionsAPI extends BaseAPI {
     return this.httpService.post<RequestCollectionCreate, Collection>('/', data)
   }
 
-  update(data: RequestCollectionUpdate) {
-    return this.httpService.put<RequestCollectionUpdate, Collection>('/', data)
+  update(id: number, data: RequestCollectionUpdate) {
+    return this.httpService.put<RequestCollectionUpdate, Collection>(
+      `/${id}`,
+      data
+    )
   }
 
   delete(id: number) {

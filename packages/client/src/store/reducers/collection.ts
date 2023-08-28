@@ -2,13 +2,19 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import {
   createCollection,
   deleteCollection,
-  getPublicCollections, getUserCollections,
-  updateCollection
-} from "../action-creators/collection";
+  getPublicCollections,
+  getUserCollections,
+  updateCollection,
+} from '../action-creators/collection'
 
-import { setFulfilled, setPending, setRejected, CollectionState } from './common'
-import { Collection } from "../../types/collection";
-import { addWordsToCollection } from "../action-creators/word";
+import {
+  setFulfilled,
+  setPending,
+  setRejected,
+  CollectionState,
+} from './common'
+import { Collection } from '../../types/collection'
+import { updateWordsInCollection } from '../action-creators/word'
 
 const initialState: CollectionState = {
   collections: [],
@@ -30,21 +36,26 @@ const collectionsSlice = createSlice({
       }
     )
     builder.addCase(createCollection.pending.type, setPending<CollectionState>)
-    builder.addCase(createCollection.rejected.type, setRejected<CollectionState, string>)
+    builder.addCase(
+      createCollection.rejected.type,
+      setRejected<CollectionState, string>
+    )
 
     builder.addCase(
       deleteCollection.fulfilled.type,
-      (state: CollectionState, action: PayloadAction<number>) => {
+      (state: CollectionState, action: PayloadAction<Collection>) => {
         state.collections = state.collections.filter(
-          collection => collection.id !== action.payload
+          collection => collection.id !== action.payload.id
         )
         state.isLoading = false
         state.error = null
       }
     )
     builder.addCase(deleteCollection.pending.type, setPending<CollectionState>)
-    builder.addCase(deleteCollection.rejected.type, setRejected<CollectionState, string>)
-
+    builder.addCase(
+      deleteCollection.rejected.type,
+      setRejected<CollectionState, string>
+    )
 
     builder.addCase(
       getPublicCollections.fulfilled.type,
@@ -54,8 +65,14 @@ const collectionsSlice = createSlice({
         state.error = null
       }
     )
-    builder.addCase(getPublicCollections.pending.type, setPending<CollectionState>)
-    builder.addCase(getPublicCollections.rejected.type, setRejected<CollectionState, string>)
+    builder.addCase(
+      getPublicCollections.pending.type,
+      setPending<CollectionState>
+    )
+    builder.addCase(
+      getPublicCollections.rejected.type,
+      setRejected<CollectionState, string>
+    )
 
     builder.addCase(
       getUserCollections.fulfilled.type,
@@ -64,11 +81,13 @@ const collectionsSlice = createSlice({
         state.error = null
 
         action.payload.forEach(newCollection => {
-          const existingIndex = state.collections.findIndex(c => c.id === newCollection.id)
+          const existingIndex = state.collections.findIndex(
+            c => c.id === newCollection.id
+          )
           if (existingIndex >= 0) {
             state.collections[existingIndex] = {
               ...state.collections[existingIndex],
-              ...newCollection
+              ...newCollection,
             }
           } else {
             state.collections.push(newCollection)
@@ -77,8 +96,14 @@ const collectionsSlice = createSlice({
       }
     )
 
-    builder.addCase(getUserCollections.pending.type, setPending<CollectionState>)
-    builder.addCase(getUserCollections.rejected.type, setRejected<CollectionState, string>)
+    builder.addCase(
+      getUserCollections.pending.type,
+      setPending<CollectionState>
+    )
+    builder.addCase(
+      getUserCollections.rejected.type,
+      setRejected<CollectionState, string>
+    )
 
     builder.addCase(
       updateCollection.fulfilled.type,
@@ -91,11 +116,13 @@ const collectionsSlice = createSlice({
       }
     )
     builder.addCase(updateCollection.pending.type, setPending<CollectionState>)
-    builder.addCase(updateCollection.rejected.type, setRejected<CollectionState, string>)
-
+    builder.addCase(
+      updateCollection.rejected.type,
+      setRejected<CollectionState, string>
+    )
 
     builder.addCase(
-      addWordsToCollection.fulfilled.type,
+      updateWordsInCollection.fulfilled.type,
       (state: CollectionState, action: PayloadAction<Collection>) => {
         state.collections = state.collections.map(collection =>
           collection.id === action.payload.id ? action.payload : collection
@@ -104,8 +131,14 @@ const collectionsSlice = createSlice({
         state.error = null
       }
     )
-    builder.addCase(addWordsToCollection.pending.type, setPending<CollectionState>)
-    builder.addCase(addWordsToCollection.rejected.type, setRejected<CollectionState, string>)
+    builder.addCase(
+      updateWordsInCollection.pending.type,
+      setPending<CollectionState>
+    )
+    builder.addCase(
+      updateWordsInCollection.rejected.type,
+      setRejected<CollectionState, string>
+    )
   },
 })
 

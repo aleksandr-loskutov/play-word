@@ -59,6 +59,7 @@ const THEME_CUSTOM_CSS_PROPS = {
   colorItemTextHover: PALETTE.primary,
   colorTextHeading: PALETTE.onBackground,
   colorText: PALETTE.onBackground,
+  colorErrorBg: PALETTE.surface,
 }
 
 const NOTIFICATION_SHADOWS = {
@@ -80,6 +81,8 @@ const THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS: string[] = [
   'Layout',
   'Typography',
   'Card',
+  'Form',
+  'Alert',
 ]
 
 export default {

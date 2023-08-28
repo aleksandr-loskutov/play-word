@@ -9,7 +9,6 @@ import {
 } from '../../store/action-creators/auth'
 import { User } from '../../types/user'
 import { Nullable } from '../../types/common'
-import { getServiceIdFromProvider } from '../../pages/signIn/services/signin-service'
 import { SignInDTO, SignUpDTO } from '../../types/auth'
 import { getTraining } from '../../store/action-creators/training'
 import { UserWordProgress } from '../../types/training'
@@ -59,11 +58,6 @@ function useAuthProvider() {
     return dispatch(logout())
   }
 
-  const getProviderServiceId = async (providerName: string) => {
-    const response = await getServiceIdFromProvider(providerName)
-    return response
-  }
-
   useEffect(() => {
     if (user && !isLoadingTraining) {
       dispatch(getTraining())
@@ -88,7 +82,6 @@ function useAuthProvider() {
     error,
     isLoading,
     isLoggedIn,
-    getProviderServiceId,
     training,
     errorTraining,
     isLoadingTraining,

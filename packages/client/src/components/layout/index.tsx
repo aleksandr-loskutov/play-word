@@ -1,10 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { Badge, Layout, Menu, theme } from 'antd'
-import { Link, useNavigate } from 'react-router-dom'
-import { useAppDispatch, useAppSelector } from '../hooks/store'
+import React, { useCallback, useMemo } from 'react'
+import { Avatar, Badge, Col, Layout, Menu, Row } from 'antd'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAppDispatch } from '../hooks/store'
 import { useAuth } from '../hooks/auth'
 import createCn from '../../utils/create-cn'
-import { updateTheme } from '../../store/action-creators/profile'
 import { signOut } from '../../store/action-creators/auth'
 import './style.css'
 import {
@@ -13,100 +12,55 @@ import {
   BookOutlined,
   EllipsisOutlined,
   HomeOutlined,
+  LoginOutlined,
   LogoutOutlined,
   SettingOutlined,
+  UserAddOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import { getWordsReadyForTraining } from '../../utils/training'
+import { getWordsReadyForTraining } from '../../pages/train/utils'
+
+const { Header, Content, Footer } = Layout
+const cn = createCn('layout')
 
 type LayoutProps = {
   children: React.ReactNode
 }
 
-const { Header, Content, Footer } = Layout
-
-const cn = createCn('layout')
-
 function MainLayout({ children }: LayoutProps): JSX.Element {
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
-  const { user, isLoggedIn, training } = useAuth()
-
-  const currentTheme = user?.theme || 'default'
-  const [isDarkMode, setIsDarkMode] = useState(true)
+  const { user, isLoggedIn, signOut, training } = useAuth()
 
   const handleLogoutButtonClick = useCallback(() => {
-    dispatch(signOut())
+    signOut()
   }, [])
 
-  const wordsForTraining = useCallback(() => {
+  const wordsForTrainingCount = useMemo(() => {
     return getWordsReadyForTraining(training)
   }, [training])
 
-  const homeItem = {
-    label: (
-      <Link to="/">
-        <HomeOutlined /> Главная
-      </Link>
-    ),
-    key: 'home',
-  }
+  const location = useLocation()
 
-  const trainItem = {
-    label: (
-      <Link to="/train">
-        <BookOutlined /> Тренировка слов
-      </Link>
-    ),
-    key: 'train',
-  }
-
-  const collectionsItem = {
-    label: (
-      <Link to="/collections">
-        <AppstoreOutlined /> Коллекции слов
-      </Link>
-    ),
-    key: 'collections',
-  }
-  const authSubMenu = {
-    label: (
-      <Link to="/profile" style={{ color: 'white' }}>
-        <UserOutlined /> {isLoggedIn ? user?.name : 'Авторизация'}
-      </Link>
-    ),
-    key: 'submenu',
-    children: isLoggedIn
-      ? [
-          {
-            label: (
-              <Link to="/profile">
-                <SettingOutlined /> Профиль
-              </Link>
-            ),
-            key: 'profile',
-          },
-          {
-            label: (
-              <Link to="#" onClick={handleLogoutButtonClick}>
-                <LogoutOutlined /> Выйти
-              </Link>
-            ),
-            key: 'logout',
-          },
-        ]
-      : [
-          { label: <Link to="/sign-in">Вход</Link>, key: 'signin' },
-          { label: <Link to="/sign-up">Регистрация</Link>, key: 'signup' },
-        ],
-  }
+  const getActiveMenuKey = useCallback(() => {
+    switch (location.pathname) {
+      case '/':
+        return 'home'
+      case '/train':
+        return 'train'
+      case '/collections':
+        return 'collections'
+      case '/profile':
+        return isLoggedIn ? 'profile' : 'signin'
+      default:
+        return ''
+    }
+  }, [location, isLoggedIn])
 
   const items = useMemo(() => {
     return [
       {
         label: (
           <Link to="/">
-            <HomeOutlined /> Главная
+            <HomeOutlined /> PlayWord
           </Link>
         ),
         key: 'home',
@@ -114,44 +68,101 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
       {
         label: (
           <Link to="/train">
-            <Badge
-              count={wordsForTraining()}
-              style={{ backgroundColor: '#52c41a' }}>
-              <BookOutlined /> Тренировка
-            </Badge>
+            <BookOutlined /> Тренировка
+            {isLoggedIn && (
+              <Badge
+                count={wordsForTrainingCount}
+                className={cn('badge')}
+                style={{
+                  background:
+                    'linear-gradient(0deg, #1b8aab, #45f3ff, #1b8aab)',
+                  color: 'black',
+                  bottom: '11px',
+                  right: '4px',
+                }}></Badge>
+            )}
           </Link>
         ),
         key: 'train',
       },
-      collectionsItem,
-      authSubMenu,
+      {
+        label: (
+          <Link to="/collections">
+            <AppstoreOutlined /> Коллекции
+          </Link>
+        ),
+        key: 'collections',
+      },
+      {
+        label: (
+          <>
+            <UserOutlined /> {isLoggedIn ? user?.name : 'Авторизация'}
+          </>
+        ),
+        key: 'user',
+        children: isLoggedIn
+          ? [
+              {
+                label: (
+                  <Link to="/profile">
+                    <SettingOutlined /> Профиль
+                  </Link>
+                ),
+                key: 'profile',
+              },
+              {
+                label: (
+                  <Link to="#" onClick={handleLogoutButtonClick}>
+                    <LogoutOutlined /> Выйти
+                  </Link>
+                ),
+                key: 'logout',
+              },
+            ]
+          : [
+              {
+                label: (
+                  <Link to="/sign-in">
+                    <LoginOutlined /> Вход
+                  </Link>
+                ),
+                key: 'signin',
+              },
+              {
+                label: (
+                  <Link to="/sign-up">
+                    <UserAddOutlined /> Регистрация
+                  </Link>
+                ),
+                key: 'signup',
+              },
+            ],
+      },
     ]
   }, [isLoggedIn, training])
 
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken()
-  const handleThemeChange = useCallback((theme: string) => {
-    dispatch(updateTheme(theme))
-  }, [])
-
   return (
     <Layout className={cn()}>
-      <Header style={{ backgroundColor: 'black' }}>
-        <div className="logo" />
-        <div className={cn('menu-container')}>
-          <div className={cn('menu-content')}>
+      <Header className={cn('header')} style={{ paddingInline: 0 }}>
+        <Row justify="center">
+          <Col span={24} md={9} className={cn('menu-container')}>
             <Menu
+              className={cn('menu')}
               mode="horizontal"
-              style={{ flex: 'auto', minWidth: 0 }}
-              overflowedIndicator={<UserOutlined />}
               items={items}
+              selectedKeys={[getActiveMenuKey()]}
             />
-          </div>
-        </div>
+          </Col>
+        </Row>
       </Header>
       <Content className={cn('content-container')}>{children}</Content>
-      <Footer style={{ textAlign: 'center' }}>PlayWord</Footer>
+      <Footer style={{ textAlign: 'center' }} className={cn('footer footer')}>
+        <Row justify="space-around" align="middle" className="footer-container">
+          <Col span={3}>PlayWord.ru</Col>
+          <Col span={2}>FAQ</Col>
+          <Col span={3}>О проекте</Col>
+        </Row>
+      </Footer>
     </Layout>
   )
 }

@@ -84,12 +84,51 @@ export class WordService {
     return newWords;
   }
 
-  async addWordsToCollection(
+  async updateCollectionWords(
     collectionId: number,
     words: WordDto[],
+    userId: number,
   ): Promise<Response<CollectionWithWords>> {
     try {
+      const isUserOwnsCollection = await this.isUserOwnsCollection(
+        collectionId,
+        userId,
+      );
+      if (!isUserOwnsCollection) {
+        return {
+          error: `Unauthorized access to update collection: ${collectionId}`,
+        };
+      }
+      // Adds or finds words and their translations in one go
       const addedWords = await this.addWords(words);
+
+      const currentWordsInCollection =
+        await this.prisma.wordForCollection.findMany({
+          where: { collectionId },
+          select: { wordId: true, translationId: true },
+        });
+
+      const idsToDelete = currentWordsInCollection
+        .filter(
+          (current) =>
+            !addedWords.some(
+              (newWord) =>
+                newWord.id === current.wordId &&
+                newWord.translations?.some(
+                  (translation) => translation.id === current.translationId,
+                ),
+            ),
+        )
+        .map((item) => item.wordId);
+
+      await this.prisma.wordForCollection.deleteMany({
+        where: {
+          collectionId,
+          wordId: { in: idsToDelete },
+        },
+      });
+
+      // Add the new words
       const translationIds = addedWords.reduce((ids: number[], word) => {
         if (word.translations && Array.isArray(word.translations)) {
           const translationIds = word.translations.map(
@@ -168,5 +207,18 @@ export class WordService {
         error: `Cannot add words to collection with id "${collectionId}". ${error.message}`,
       };
     }
+  }
+
+  async isUserOwnsCollection(
+    collectionId: number,
+    userId: number,
+  ): Promise<boolean> {
+    const collection = await this.prisma.collection.findFirst({
+      where: {
+        id: collectionId,
+        userId,
+      },
+    });
+    return Boolean(collection);
   }
 }

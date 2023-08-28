@@ -2,98 +2,46 @@ import { createAsyncThunk } from '@reduxjs/toolkit'
 import CollectionsAPI from '../../api/collections'
 import { RequestUserWordProgressUpdate } from '../../types/training'
 import { transformUserProgressResponse } from '../../utils/transform-user-progress'
+import handleAPICall from '../../utils/handle-API-call'
 
-export const getTraining = createAsyncThunk(
-  'training/get',
-  async (_, thunkAPI) => {
-    try {
-      const { data, error: httpReqError } = await CollectionsAPI.getTraining()
-      if (httpReqError) {
-        return thunkAPI.rejectWithValue(httpReqError)
-      }
-      if (data) {
-        const { error } = data
-        if (error) {
-          return thunkAPI.rejectWithValue(error)
-        }
-      }
-      return transformUserProgressResponse(data)
-    } catch (e: any) {
-      return thunkAPI.rejectWithValue(
-        `Не удалось получить тренировку. ${e.message}`
-      )
-    }
-  }
+// Get Training
+export const getTraining = createAsyncThunk('training/get', (_, thunkAPI) =>
+  handleAPICall(
+    CollectionsAPI.getTraining(),
+    thunkAPI,
+    transformUserProgressResponse
+  )
 )
+
+// Add Collection Words For Training
 export const addCollectionWordsForTraining = createAsyncThunk(
   'training/addCollectionWordsForTraining',
-  async (id: number, thunkAPI) => {
-    try {
-      const { data, error: httpReqError } =
-        await CollectionsAPI.addCollectionWordsToTraining(id)
-      if (httpReqError) {
-        return thunkAPI.rejectWithValue(httpReqError)
-      }
-      if (data) {
-        const { error } = data
-        if (error) {
-          return thunkAPI.rejectWithValue(error)
-        }
-      }
-      return transformUserProgressResponse(data)
-    } catch (e: any) {
-      return thunkAPI.rejectWithValue(
-        `Не удалось добавить слова в тренировку. ${e.message}`
-      )
-    }
-  }
+  (id: number, thunkAPI) =>
+    handleAPICall(
+      CollectionsAPI.addCollectionWordsToTraining(id),
+      thunkAPI,
+      transformUserProgressResponse
+    )
 )
+
+// Remove Collection Words From Training
 export const removeCollectionWordsFromTraining = createAsyncThunk(
   'training/removeCollectionWordsFromTraining',
-  async (id: number, thunkAPI) => {
-    try {
-      const { data, error: httpReqError } =
-        await CollectionsAPI.removeCollectionWordsFromTraining(id)
-      if (httpReqError) {
-        return thunkAPI.rejectWithValue(httpReqError)
-      }
-      if (data) {
-        const { error } = data
-        if (error) {
-          return thunkAPI.rejectWithValue(error)
-        }
-      }
-      return transformUserProgressResponse(data)
-    } catch (e: any) {
-      return thunkAPI.rejectWithValue(
-        `Не удалось удалить слова из тренировки. ${e.message}`
-      )
-    }
-  }
+  (id: number, thunkAPI) =>
+    handleAPICall(
+      CollectionsAPI.removeCollectionWordsFromTraining(id),
+      thunkAPI,
+      transformUserProgressResponse
+    )
 )
 
+// Update Training
 export const updateTraining = createAsyncThunk(
   'training/update',
-  async (payload: RequestUserWordProgressUpdate[], thunkAPI) => {
-    try {
-      const { data, error } = await CollectionsAPI.updateTraining(payload)
-      if (error) {
-        return thunkAPI.rejectWithValue(error)
-      }
-      return transformUserProgressResponse(data)
-    } catch (e: any) {
-      return thunkAPI.rejectWithValue(
-        `Не удалось обновить тренировку. ${e.message}`
-      )
-    }
-  }
+  (payload: RequestUserWordProgressUpdate[], thunkAPI) =>
+    handleAPICall(
+      CollectionsAPI.updateTraining(payload),
+      thunkAPI,
+      transformUserProgressResponse
+    )
 )
-
-const actions = {
-  getTraining,
-  updateTraining,
-  addCollectionWordsForTraining,
-  removeCollectionWordsFromTraining,
-}
-
-export default actions

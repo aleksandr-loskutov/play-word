@@ -4,103 +4,46 @@ import {
   RequestCollectionCreate,
   RequestCollectionUpdate,
 } from '../../types/collection'
+import handleAPICall from '../../utils/handle-API-call'
 
+// Create Collection
 export const createCollection = createAsyncThunk(
   'collections/create',
-  async (payload: RequestCollectionCreate, thunkAPI) => {
-    try {
-      const { data, error: httpReqError } = await CollectionsAPI.create(payload)
-      if (httpReqError) {
-        return thunkAPI.rejectWithValue(httpReqError)
-      }
-      if (data) {
-        const { error } = data
-        if (error) {
-          return thunkAPI.rejectWithValue(error)
-        }
-      }
-      return data
-    } catch (e: any) {
-      return thunkAPI.rejectWithValue(
-        `Не удалось создать коллекцию. ${e.message}`
-      )
-    }
-  }
+  (payload: RequestCollectionCreate, thunkAPI) =>
+    handleAPICall(CollectionsAPI.create(payload), thunkAPI)
 )
 
+// Update Collection
 export const updateCollection = createAsyncThunk(
   'collections/update',
-  async (payload: RequestCollectionUpdate, thunkAPI) => {
-    try {
-      const { data, error } = await CollectionsAPI.update(payload)
-
-      if (error) {
-        return thunkAPI.rejectWithValue(error)
-      }
-      return data
-    } catch (e: any) {
-      return thunkAPI.rejectWithValue(
-        `Не удалось обновить коллекцию. ${e.message}`
-      )
-    }
-  }
+  (payload: RequestCollectionUpdate, thunkAPI) =>
+    handleAPICall(CollectionsAPI.update(payload.id, payload), thunkAPI)
 )
 
+// Get Public Collections
 export const getPublicCollections = createAsyncThunk(
   'collections/getPublic',
-  async (_, thunkAPI) => {
-    try {
-      const { data, error } = await CollectionsAPI.getPublicCollections()
-      if (error) {
-        return thunkAPI.rejectWithValue(error)
-      }
-      return data
-    } catch (e: any) {
-      return thunkAPI.rejectWithValue(
-        `Не удалось загрузить коллекции. ${e.message}`
-      )
-    }
-  }
+  (_, thunkAPI) =>
+    handleAPICall(CollectionsAPI.getPublicCollections(), thunkAPI)
 )
 
+// Get User Collections
 export const getUserCollections = createAsyncThunk(
   'collections/getUserCollections',
-  async (_, thunkAPI) => {
-    try {
-      const { data, error } = await CollectionsAPI.getUserCollections()
-      if (error) {
-        return thunkAPI.rejectWithValue(error)
-      }
-      return data
-    } catch (e: any) {
-      return thunkAPI.rejectWithValue(
-        `Не удалось загрузить коллекции. ${e.message}`
-      )
-    }
-  }
+  (_, thunkAPI) => handleAPICall(CollectionsAPI.getUserCollections(), thunkAPI)
 )
 
+// Delete Collection
 export const deleteCollection = createAsyncThunk(
   'collections/delete',
-  async (id: number, thunkAPI) => {
-    try {
-      const { error } = await CollectionsAPI.delete(id)
-      if (error) {
-        return thunkAPI.rejectWithValue(error)
-      }
-      return id
-    } catch (e: any) {
-      return thunkAPI.rejectWithValue(
-        `Не удалось удалить коллекцию. ${e.message}`
-      )
-    }
-  }
+  (id: number, thunkAPI) => handleAPICall(CollectionsAPI.delete(id), thunkAPI)
 )
 
 const actions = {
   createCollection,
   updateCollection,
   getPublicCollections,
+  getUserCollections,
   deleteCollection,
 }
 

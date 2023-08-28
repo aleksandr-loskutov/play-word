@@ -4,7 +4,6 @@ import { useAppDispatch, useAppSelector } from './store'
 import {
   fetchUser,
   signIn as login,
-  signInOAuth,
   signOut as logout,
   signUp as register,
 } from '../../store/action-creators/auth'
@@ -29,8 +28,6 @@ type AuthContextProps = {
   error: string | null
   isLoading: boolean
   isLoggedIn: boolean
-  getProviderServiceId: (providerName: string) => any
-  signInWithProvider: (code: string, navigate: NavigateFunction) => any
   isLoadingTraining: boolean
   training: UserWordProgress[]
 }
@@ -66,12 +63,6 @@ function useAuthProvider() {
     const response = await getServiceIdFromProvider(providerName)
     return response
   }
-  const signInWithProvider = (
-    code: string,
-    navigate: NavigateFunction
-  ): void => {
-    return dispatch(signInOAuth({ code, navigate }))
-  }
 
   useEffect(() => {
     if (user && !isLoadingTraining) {
@@ -97,7 +88,6 @@ function useAuthProvider() {
     error,
     isLoading,
     isLoggedIn,
-    signInWithProvider,
     getProviderServiceId,
     training,
     errorTraining,

@@ -26,12 +26,12 @@ type AddWordsModalProps = {
   initialWords: WordForCollection[]
 }
 
-const AddWordsModal = ({
+const AddWordsModal: React.FC<AddWordsModalProps> = ({
   visible,
   onClose,
   onSubmit,
   initialWords,
-}: AddWordsModalProps) => {
+}) => {
   const [form] = Form.useForm()
   const [words, setWords] = useState<WordForCollection[]>(
     initialWords.length > 0 ? initialWords : [{ word: '', translation: '' }]
@@ -110,10 +110,18 @@ const AddWordsModal = ({
           .filter((row: any) => row.length === 2)
           .map((row: any) => ({ word: row[0], translation: row[1] }))
         setWords(words.concat(importedWords))
-        message.success(`${importedWords.length} слова успешно добавлены`)
+        customNotification({
+          message: 'Успешно!',
+          description: `${importedWords.length} слова успешно добавлены`,
+          type: 'success',
+        })
       },
       error: function () {
-        message.error('Ошибка чтения файла')
+        customNotification({
+          message: 'Ошибка!',
+          description: `Проблема при чтении файла`,
+          type: 'error',
+        })
       },
     })
   }
@@ -129,7 +137,7 @@ const AddWordsModal = ({
       onCancel={handleCancel}
       onOk={handleOk}
       cancelText={'Отмена'}
-      okText={'Добавить в коллекцию'}>
+      okText={'Сохранить'}>
       <Form form={form}>
         <Row gutter={[10, 10]} justify={'center'} align={'middle'}>
           <Col span={24}>

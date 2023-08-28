@@ -1,10 +1,12 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Alert, Button, Form, Input } from 'antd'
 import { Link, useNavigate } from 'react-router-dom'
 import createCn from '../../utils/create-cn'
 import signUpRules from '../signUp/validator'
 import './style.css'
 import { useAuth } from '../../components/hooks/auth'
+import { customNotification } from '../../components/custom-notification/customNotification'
+import { Nullable } from '../../types/common'
 
 type FormData = {
   email: string
@@ -15,15 +17,28 @@ const cn = createCn('sign-in')
 
 function SignInPage(): JSX.Element {
   const navigate = useNavigate()
-  const { isLoggedIn, signIn, error: formAlert } = useAuth()
+  const { isLoggedIn, signIn } = useAuth()
+  const [error, setError] = useState<Nullable<string>>(null)
   const handleFormFinish = useCallback(
     (data: FormData): void => {
+      setError(null)
       signIn({
         email: data.email,
         password: data.password,
       })
+        .unwrap()
+        .then(_ => {
+          customNotification({
+            message: 'Успешно!',
+            description: 'Вошли в аккаунт.',
+            type: 'success',
+          })
+        })
+        .catch((error: string) => {
+          setError(error)
+        })
     },
-    [signIn, navigate]
+    [signIn]
   )
 
   useEffect(() => {
@@ -58,9 +73,9 @@ function SignInPage(): JSX.Element {
             <Input.Password />
           </Form.Item>
 
-          {formAlert && (
+          {error && (
             <Alert
-              message={formAlert}
+              message={`Ошибка: ${error}`}
               type="error"
               className={cn('form-alert')}
             />

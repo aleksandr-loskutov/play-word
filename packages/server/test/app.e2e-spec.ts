@@ -1,16 +1,24 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import * as pactum from 'pactum';
-import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { AuthDto } from '../src/auth/dto';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { EditUserDto } from '../src/user/dto';
-import { Tokens } from '../src/auth/types';
+import {
+  mockSignUpDto,
+  mockSignUpDtoInvalidEmail,
+  mockSignUpDtoInvalidName,
+  mockSignUpDtoInvalidPassword,
+} from './mockData';
+import supertest from 'supertest';
+import { UserDto } from '../src/user/dto';
+import { JwtService } from '@nestjs/jwt';
 
 describe('App e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let jwtService: JwtService;
+  let requestAgent: supertest.SuperTest<supertest.Test>;
+  let cookies: string;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -25,6 +33,8 @@ describe('App e2e', () => {
     );
     await app.init();
     await app.listen(3333);
+    requestAgent = supertest.agent(app.getHttpServer());
+    jwtService = app.get(JwtService);
 
     prisma = app.get(PrismaService);
     await prisma.cleanDatabase();
@@ -35,135 +45,181 @@ describe('App e2e', () => {
     app.close();
   });
   describe('Auth', () => {
-    const dto: AuthDto = {
-      email: 'aleksandr@fakemail.com',
-      password: '12345',
-    };
-    let tokens: Tokens;
     describe('Signup', () => {
-      it('should throw if email empty', () => {
-        return pactum
-          .spec()
-          .post('/auth/local/signup')
-          .withBody({
-            password: dto.password,
-          })
-          .expectStatus(400);
-      });
       it('should throw if password empty', () => {
         return pactum
           .spec()
-          .post('/auth/local/signup')
+          .post('/auth/signup')
           .withBody({
-            email: dto.email,
+            email: mockSignUpDto.email,
           })
           .expectStatus(400);
       });
-      it('should throw if no body provided', () => {
-        return pactum.spec().post('/auth/local/signup').expectStatus(400);
+
+      it('should throw if email is invalid', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody(mockSignUpDtoInvalidEmail)
+          .expectStatus(400);
       });
+
+      it('should throw if name is invalid', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody(mockSignUpDtoInvalidName)
+          .expectStatus(400);
+      });
+
+      it('should throw if password is invalid', () => {
+        return pactum
+          .spec()
+          .post('/auth/signup')
+          .withBody(mockSignUpDtoInvalidPassword)
+          .expectStatus(400);
+      });
+
+      it('should throw if no body provided', () => {
+        return pactum.spec().post('/auth/signup').expectStatus(400);
+      });
+
       it('should signup', () => {
-        return request(app.getHttpServer())
-          .post('/auth/local/signup')
-          .send(dto)
+        return requestAgent
+          .post('/auth/signup')
+          .send(mockSignUpDto)
           .expect(201)
-          .expect(({ body }: { body: Tokens }) => {
-            expect(body.access_token).toBeTruthy();
-            expect(body.refresh_token).toBeTruthy();
+          .expect((res) => {
+            verifyAuthResponse(res, jwtService);
           });
       });
     });
 
     describe('Signin', () => {
+      it('should throw if no body provided', () => {
+        return pactum.spec().post('/auth/signin').expectStatus(400);
+      });
       it('should throw if email empty', () => {
         return pactum
           .spec()
-          .post('/auth/local/signin')
+          .post('/auth/signin')
           .withBody({
-            password: dto.password,
+            password: mockSignUpDto.password,
           })
           .expectStatus(400);
       });
       it('should throw if password empty', () => {
         return pactum
           .spec()
-          .post('/auth/local/signin')
+          .post('/auth/signin')
           .withBody({
-            email: dto.email,
+            email: mockSignUpDto.email,
           })
           .expectStatus(400);
       });
-      it('should throw if no body provided', () => {
-        return pactum.spec().post('/auth/local/signin').expectStatus(400);
+      it('should throw if email is not valid', () => {
+        return pactum
+          .spec()
+          .post('/auth/signin')
+          .withBody({
+            ...mockSignUpDtoInvalidEmail,
+          })
+          .expectStatus(400);
       });
-      it('should signin', () => {
-        return request(app.getHttpServer())
-          .post('/auth/local/signin')
-          .send(dto)
-          .expect(200)
-          .expect(({ body }: { body: Tokens }) => {
-            expect(body.access_token).toBeTruthy();
-            expect(body.refresh_token).toBeTruthy();
 
-            tokens = body;
-          });
-      });
-      it('should get current user from /users/me', () => {
+      it('should throw if password length is less than 8', () => {
         return pactum
           .spec()
-          .get('/users/me')
-          .withHeaders({
-            Authorization: `Bearer ${tokens.access_token}`,
+          .post('/auth/signin')
+          .withBody({
+            ...mockSignUpDtoInvalidPassword,
           })
-          .expectStatus(200);
+          .expectStatus(400);
       });
-      it('should edit user', () => {
-        const dto: EditUserDto = {
-          firstName: 'Aleksandr',
-          lastName: 'L',
-          email: 'aleksandrL@fakemail.com',
-        };
+
+      it('should throw if password does not contain a number', () => {
         return pactum
           .spec()
-          .patch('/users')
-          .withHeaders({
-            Authorization: `Bearer ${tokens.access_token}`,
+          .post('/auth/signin')
+          .withBody({
+            email: mockSignUpDto.email,
+            password: 'PasswordWithoutNumber',
           })
-          .withBody(dto)
-          .expectStatus(200)
-          .expectBodyContains(dto.firstName)
-          .expectBodyContains(dto.lastName)
-          .expectBodyContains(dto.email);
+          .expectStatus(400);
       });
-      it('should refresh tokens', async () => {
-        // wait for 1 second
-        await new Promise((resolve, reject) => {
-          setTimeout(() => {
-            resolve(true);
-          }, 1000);
-        });
-        return request(app.getHttpServer())
-          .post('/auth/refresh')
-          .auth(tokens.refresh_token, {
-            type: 'bearer',
-          })
+
+      it('should signin', async () => {
+        await requestAgent
+          .post('/auth/signin')
+          .send(mockSignUpDto)
           .expect(200)
-          .expect(({ body }: { body: Tokens }) => {
-            expect(body.access_token).toBeTruthy();
-            expect(body.refresh_token).toBeTruthy();
-            expect(body.refresh_token).not.toBe(tokens.access_token);
-            expect(body.refresh_token).not.toBe(tokens.refresh_token);
-            tokens = body;
+          .expect((res) => {
+            verifyAuthResponse(res, jwtService);
+            // Extract cookies from the response
+            if (Array.isArray(res.headers['set-cookie'])) {
+              cookies = res.headers['set-cookie']
+                .map((cookie) => cookie.split(';')[0])
+                .join('; ');
+            }
           });
       });
-      it('should logout', () => {
-        return request(app.getHttpServer())
-          .post('/auth/logout')
-          .auth(tokens.access_token, {
-            type: 'bearer',
-          })
-          .expect(200);
+
+      it('should get current user from /user', async () => {
+        await requestAgent
+          .get('/user')
+          .set('Cookie', cookies)
+          .expect(200)
+          .expect((res) => {
+            expect(res.body).toHaveProperty('id');
+            expect(res.body).toHaveProperty('email', mockSignUpDto.email);
+            expect(res.body).toHaveProperty('name', mockSignUpDto.name);
+            expect(res.body).toHaveProperty('trainingSettings');
+          });
       });
     });
   });
 });
+
+function verifyAuthResponse(
+  { body, headers }: { body: UserDto; headers: any },
+  jwtService: JwtService,
+) {
+  expect(typeof body.id).toBe('number');
+  expect(body.email).toBe(mockSignUpDto.email);
+  expect(body.name).toBe(mockSignUpDto.name);
+  expect(typeof body.createdAt).toBe('string');
+  expect(body.trainingSettings).toBeDefined();
+
+  // Verify cookies
+  const cookies = headers['set-cookie'];
+  expect(cookies).toBeDefined();
+
+  expect(
+    cookies.some((cookie: string) => cookie.startsWith('access_token=')),
+  ).toBe(true);
+
+  expect(
+    cookies.some((cookie: string) => cookie.startsWith('refresh_token=')),
+  ).toBe(true);
+
+  // Optional: Check for httpOnly flag
+  expect(cookies.some((cookie: string) => cookie.includes('HttpOnly'))).toBe(
+    true,
+  );
+
+  // Decode JWT token and verify
+  const accessTokenCookie = cookies.find((cookie: string) =>
+    cookie.startsWith('access_token='),
+  );
+  const accessToken = accessTokenCookie.split(';')[0].split('=')[1];
+  const decodedToken: any = jwtService.decode(accessToken);
+
+  if (typeof decodedToken === 'object') {
+    expect(decodedToken.id).toBe(body.id);
+    expect(decodedToken.email).toBe(mockSignUpDto.email);
+    expect(decodedToken.name).toBe(mockSignUpDto.name);
+    expect(decodedToken.trainingSettings).toBeDefined();
+  } else {
+    throw new Error('JWT did not decode to an object');
+  }
+}

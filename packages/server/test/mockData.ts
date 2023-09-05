@@ -1,4 +1,6 @@
 import { SignUpDto } from '../src/auth/dto';
+import { UserTrainingSettings } from '@prisma/client';
+import { EditUserDto } from '../src/user/dto';
 
 const mockSignUpDto: SignUpDto = {
   email: 'aleksandr@fakemail.com',
@@ -21,7 +23,7 @@ const mockSignUpDtoInvalidPassword = {
   password: 'short', // less than 8 characters and no number
 };
 
-const mockTrainingSettingsDto = {
+const mockTrainingSettingsDto: Omit<UserTrainingSettings, 'userId'> = {
   stageOneInterval: 5,
   stageTwoInterval: 10,
   stageThreeInterval: 20,
@@ -38,10 +40,42 @@ const mockTrainingSettingsDto = {
   speechRecognizerAutoStart: true,
 };
 
+// Mock object with all invalid fields for EditUserDto and TrainingSettingsDto
+const mockInvalidEditUserDto = {
+  email: 'invalid_email', // Not a valid email
+  name: 'a', // Too short, not within length of 2-20
+  password: 'abcdefg', // Less than 8 characters, no numbers
+  passwordRepeat: 'abcdef', // Less than 8 characters, no numbers
+  trainingSettings: {
+    stageOneInterval: 0, // Less than 1
+    stageTwoInterval: 200, // More than 180
+    stageThreeInterval: -1, // Less than 1
+    stageFourInterval: 0, // Less than 1
+    stageFiveInterval: 300, // More than 180
+    countdownTimeInSec: 0, // Less than 5
+    wordErrorLimit: -5, // Less than 0
+    wordMistypeLimit: 110, // More than 100
+    useCountdown: 'notBoolean', // Not a boolean
+    strictMode: 'notBoolean', // Not a boolean
+    showCollectionNameHint: 0, // Not a boolean
+    wordsPerSession: 0, // Less than 1
+    synthVoiceAutoStart: 1, // Not a boolean
+    speechRecognizerAutoStart: 'false', // Not a boolean
+  },
+};
+
+const mockUpdatedUserDto: EditUserDto = {
+  email: 'aleksandrl@fakemail.com',
+  name: 'Aleksandr',
+  trainingSettings: mockTrainingSettingsDto,
+};
+
 export {
   mockSignUpDto,
   mockSignUpDtoInvalidEmail,
   mockSignUpDtoInvalidName,
   mockSignUpDtoInvalidPassword,
   mockTrainingSettingsDto,
+  mockUpdatedUserDto,
+  mockInvalidEditUserDto,
 };

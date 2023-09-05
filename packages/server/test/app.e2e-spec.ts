@@ -1,24 +1,30 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-import * as pactum from 'pactum';
+// import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import {
+  mockInvalidEditUserDto,
   mockSignUpDto,
   mockSignUpDtoInvalidEmail,
   mockSignUpDtoInvalidName,
   mockSignUpDtoInvalidPassword,
+  mockTrainingSettingsDto,
+  mockUpdatedUserDto,
 } from './mockData';
 import supertest from 'supertest';
 import { UserDto } from '../src/user/dto';
 import { JwtService } from '@nestjs/jwt';
+import { UserWithTrainingSettings } from 'user';
+import { Tokens } from '../src/auth/types';
 
 describe('App e2e', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let jwtService: JwtService;
   let requestAgent: supertest.SuperTest<supertest.Test>;
-  let cookies: string;
+  let unAuthedRequestAgent: supertest.SuperTest<supertest.Test>;
+  let currentTokensWithCookies: Tokens & { cookiesString: string };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -35,57 +41,57 @@ describe('App e2e', () => {
     await app.listen(3333);
     requestAgent = supertest.agent(app.getHttpServer());
     jwtService = app.get(JwtService);
-
     prisma = app.get(PrismaService);
     await prisma.cleanDatabase();
-    pactum.request.setBaseUrl('http://localhost:3333');
+    // pactum.request.setBaseUrl('http://localhost:3333');
   });
 
   afterAll(() => {
     app.close();
   });
+
+  beforeEach(() => {
+    unAuthedRequestAgent = supertest.agent(app.getHttpServer());
+  });
+
   describe('Auth', () => {
     describe('Signup', () => {
+      it('should throw if no body provided', () => {
+        return unAuthedRequestAgent.post('/auth/signup').expect(400);
+      });
+
       it('should throw if password empty', () => {
-        return pactum
-          .spec()
+        return unAuthedRequestAgent
           .post('/auth/signup')
-          .withBody({
+          .send({
             email: mockSignUpDto.email,
           })
-          .expectStatus(400);
+          .expect(400);
       });
 
       it('should throw if email is invalid', () => {
-        return pactum
-          .spec()
+        return unAuthedRequestAgent
           .post('/auth/signup')
-          .withBody(mockSignUpDtoInvalidEmail)
-          .expectStatus(400);
+          .send(mockSignUpDtoInvalidEmail)
+          .expect(400);
       });
 
       it('should throw if name is invalid', () => {
-        return pactum
-          .spec()
+        return unAuthedRequestAgent
           .post('/auth/signup')
-          .withBody(mockSignUpDtoInvalidName)
-          .expectStatus(400);
+          .send(mockSignUpDtoInvalidName)
+          .expect(400);
       });
 
       it('should throw if password is invalid', () => {
-        return pactum
-          .spec()
+        return unAuthedRequestAgent
           .post('/auth/signup')
-          .withBody(mockSignUpDtoInvalidPassword)
-          .expectStatus(400);
-      });
-
-      it('should throw if no body provided', () => {
-        return pactum.spec().post('/auth/signup').expectStatus(400);
+          .send(mockSignUpDtoInvalidPassword)
+          .expect(400);
       });
 
       it('should signup', () => {
-        return requestAgent
+        return unAuthedRequestAgent
           .post('/auth/signup')
           .send(mockSignUpDto)
           .expect(201)
@@ -97,55 +103,57 @@ describe('App e2e', () => {
 
     describe('Signin', () => {
       it('should throw if no body provided', () => {
-        return pactum.spec().post('/auth/signin').expectStatus(400);
+        return unAuthedRequestAgent.post('/auth/signin').expect(400);
       });
+
       it('should throw if email empty', () => {
-        return pactum
-          .spec()
+        return unAuthedRequestAgent
           .post('/auth/signin')
-          .withBody({
+          .send({
             password: mockSignUpDto.password,
           })
-          .expectStatus(400);
+          .expect(400);
       });
+
       it('should throw if password empty', () => {
-        return pactum
-          .spec()
+        return unAuthedRequestAgent
           .post('/auth/signin')
-          .withBody({
+          .send({
             email: mockSignUpDto.email,
           })
-          .expectStatus(400);
+          .expect(400);
       });
+
       it('should throw if email is not valid', () => {
-        return pactum
-          .spec()
+        return unAuthedRequestAgent
           .post('/auth/signin')
-          .withBody({
+          .send({
             ...mockSignUpDtoInvalidEmail,
           })
-          .expectStatus(400);
+          .expect(400);
       });
 
       it('should throw if password length is less than 8', () => {
-        return pactum
-          .spec()
+        return unAuthedRequestAgent
           .post('/auth/signin')
-          .withBody({
+          .send({
             ...mockSignUpDtoInvalidPassword,
           })
-          .expectStatus(400);
+          .expect(400);
       });
 
       it('should throw if password does not contain a number', () => {
-        return pactum
-          .spec()
+        return unAuthedRequestAgent
           .post('/auth/signin')
-          .withBody({
+          .send({
             email: mockSignUpDto.email,
             password: 'PasswordWithoutNumber',
           })
-          .expectStatus(400);
+          .expect(400);
+      });
+
+      it('should not get current user from /user without cookies', async () => {
+        await unAuthedRequestAgent.get('/user').expect(401);
       });
 
       it('should signin', async () => {
@@ -156,18 +164,15 @@ describe('App e2e', () => {
           .expect((res) => {
             verifyAuthResponse(res, jwtService);
             // Extract cookies from the response
-            if (Array.isArray(res.headers['set-cookie'])) {
-              cookies = res.headers['set-cookie']
-                .map((cookie) => cookie.split(';')[0])
-                .join('; ');
-            }
+            currentTokensWithCookies = extractTokensFromCookies(
+              res.headers['set-cookie'],
+            );
           });
       });
 
       it('should get current user from /user', async () => {
         await requestAgent
           .get('/user')
-          .set('Cookie', cookies)
           .expect(200)
           .expect((res) => {
             expect(res.body).toHaveProperty('id');
@@ -176,12 +181,92 @@ describe('App e2e', () => {
             expect(res.body).toHaveProperty('trainingSettings');
           });
       });
+
+      it('should not update user with invalid data', async () => {
+        await requestAgent
+          .patch('/user')
+          .send(mockInvalidEditUserDto)
+          .expect(400)
+          .expect((res) => {
+            const { message } = res.body;
+            //there should be a lot of validation errors inside message
+            expect(message.length).toBeGreaterThanOrEqual(
+              Object.keys(mockInvalidEditUserDto).length +
+                Object.keys(mockInvalidEditUserDto.trainingSettings).length,
+            );
+          });
+      });
+
+      it('should update user', async () => {
+        await requestAgent
+          .patch('/user')
+          .send(mockUpdatedUserDto)
+          .expect(200)
+          .expect((res) => {
+            expect(res.headers['set-cookie']).toBeTruthy();
+            const newTokensWithCookies = extractTokensFromCookies(
+              res.headers['set-cookie'],
+            );
+            //new auth token comparing with old one
+            expect(newTokensWithCookies.accessToken).not.toEqual(
+              currentTokensWithCookies.accessToken,
+            );
+            currentTokensWithCookies = newTokensWithCookies;
+            //check for updated user
+            const updatedUser: UserWithTrainingSettings = res.body;
+            expect(updatedUser.email).toBe(mockUpdatedUserDto.email);
+            expect(updatedUser.name).toBe(mockUpdatedUserDto.name);
+            expect(updatedUser.trainingSettings).toBeDefined();
+            expect(updatedUser.trainingSettings).toEqual(
+              expect.objectContaining(mockTrainingSettingsDto),
+            );
+          });
+      });
+
+      it('should not refresh tokens in cookies without valid cookies', async () => {
+        return unAuthedRequestAgent.get('/auth/refresh').expect(401);
+      });
+
+      it('should refresh tokens', async () => {
+        // wait for 1 second to make sure we get a new token
+        await new Promise((resolve, _) => {
+          setTimeout(() => {
+            resolve(true);
+          }, 1000);
+        });
+
+        await requestAgent
+          .get('/auth/refresh')
+          .expect(200)
+          .expect((res) => {
+            const newTokensWithCookies = extractTokensFromCookies(
+              res.headers['set-cookie'],
+            );
+            expect(newTokensWithCookies).not.toEqual(currentTokensWithCookies);
+            currentTokensWithCookies = newTokensWithCookies;
+          });
+      });
+      it('should logout user successfully', async () => {
+        await requestAgent
+          .post('/auth/logout')
+          .expect(200)
+          .expect((res) => {
+            // Check if cookies were cleared
+            const cookies = res.headers['set-cookie'];
+            expect(
+              cookies.some((cookie) => cookie.includes('access_token=;')),
+            ).toBeTruthy();
+            expect(
+              cookies.some((cookie) => cookie.includes('refresh_token=;')),
+            ).toBeTruthy();
+          });
+      });
     });
   });
 });
 
 function verifyAuthResponse(
-  { body, headers }: { body: UserDto; headers: any },
+  { body, headers }: { body: Partial<UserDto>; headers: any },
   jwtService: JwtService,
 ) {
   expect(typeof body.id).toBe('number');
@@ -202,7 +287,7 @@ function verifyAuthResponse(
     cookies.some((cookie: string) => cookie.startsWith('refresh_token=')),
   ).toBe(true);
 
-  // Optional: Check for httpOnly flag
+  // Check for httpOnly flag
   expect(cookies.some((cookie: string) => cookie.includes('HttpOnly'))).toBe(
     true,
   );
@@ -222,4 +307,28 @@ function verifyAuthResponse(
   } else {
     throw new Error('JWT did not decode to an object');
   }
+}
+
+function extractTokensFromCookies(
+  cookies: string[],
+): Tokens & { cookiesString: string } {
+  expect(cookies).toBeTruthy();
+  const accessTokenCookie = cookies.find((cookie: string) =>
+    cookie.startsWith('access_token='),
+  );
+
+  const refreshTokenCookie = cookies.find((cookie: string) =>
+    cookie.startsWith('refresh_token='),
+  );
+  const accessToken = accessTokenCookie.split(';')[0].split('=')[1];
+  const refreshToken = refreshTokenCookie.split(';')[0].split('=')[1];
+
+  expect(accessToken).toBeTruthy();
+  expect(refreshToken).toBeTruthy();
+
+  const cookiesString = cookies
+    .map((cookie) => cookie.split(';')[0])
+    .join('; ');
+
+  return { accessToken, refreshToken, cookiesString };
 }

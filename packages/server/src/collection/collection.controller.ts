@@ -13,12 +13,12 @@ import {
 } from '@nestjs/common';
 import { AtGuard } from '../common/guards';
 import { CollectionService } from './collection.service';
-import { GetCurrentUserId } from '../common/decorators';
+import { GetCurrentUserId, Public } from '../common/decorators';
 import { Collection } from '@prisma/client';
 import {
   CollectionWithWords,
-  RequestCollectionCreate,
-  RequestCollectionUpdate,
+  RequestCollectionCreateDto,
+  RequestCollectionUpdateDto,
   UserWordProgressResponse,
   RequestUserTrainingUpdate,
 } from './dto';
@@ -32,7 +32,7 @@ export class CollectionController {
   @Post('/')
   @HttpCode(HttpStatus.CREATED)
   createCollection(
-    @Body() payload: RequestCollectionCreate,
+    @Body() payload: RequestCollectionCreateDto,
     @GetCurrentUserId() userId: number,
   ): Promise<Response<CollectionWithWords>> {
     return this.collectionService.createCollection(payload, userId);
@@ -41,7 +41,7 @@ export class CollectionController {
   @Put('/:collectionId')
   @HttpCode(HttpStatus.OK)
   updateCollection(
-    @Body() payload: RequestCollectionUpdate,
+    @Body() payload: RequestCollectionUpdateDto,
     @Param('collectionId') collectionId: string,
     @GetCurrentUserId() userId: number,
   ): Promise<Response<Collection>> {
@@ -113,9 +113,10 @@ export class CollectionController {
     );
   }
 
+  @Public()
   @Get('/public')
   @HttpCode(HttpStatus.OK)
-  getPublicCollections(): Promise<Response<CollectionWithWords[]>> {
+  getPublicCollections(): Promise<Response<Collection[]>> {
     return this.collectionService.getPublicCollections();
   }
 }

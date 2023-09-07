@@ -11,7 +11,7 @@ const TrainingStatsTable = ({ trainingStats, extraStats }: TrainingStats) => {
     <Row gutter={24}>
       <Col span={6}>
         <Paragraph className={cn('paragraph')}>
-          Итого время: {extraStats.totalTimeSpent} минут
+          Итого время: {extraStats.totalTimeSpent.toFixed(1)} минут
         </Paragraph>
       </Col>
       <Col span={5}>

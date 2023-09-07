@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Button, message } from 'antd'
 import { AudioOutlined } from '@ant-design/icons'
+import { customNotification } from '../../../components/custom-notification/customNotification'
 
 interface SpeechRecognitionProps {
   lang: string
   onResult: (text: string) => void
   autoStart?: boolean
+  isReady?: boolean
   word: string
 }
 
@@ -13,6 +15,7 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
   lang,
   onResult,
   autoStart,
+  isReady,
   word,
 }) => {
   const [isListening, setIsListening] = useState<boolean>(false)
@@ -22,11 +25,15 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
   useEffect(() => {
     // Check for browser compatibility
     if (!('webkitSpeechRecognition' in window)) {
-      message.error('Your browser does not support the Web Speech API')
+      customNotification({
+        message: 'Ошибка!',
+        description: 'Ваш браузер не поддерживает распознавание речи',
+        type: 'error',
+      })
       return
     }
     recognitionRef.current = new window.webkitSpeechRecognition()
-    recognitionRef.current.continuous = true
+    recognitionRef.current.continuous = false
     recognitionRef.current.interimResults = true
     recognitionRef.current.lang = lang
 
@@ -54,6 +61,7 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
     }
 
     const startListening = () => {
+      if (!isReady) return
       recognitionRef.current.start()
       setIsListening(true)
     }
@@ -68,6 +76,7 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
   }, [word])
 
   const handleToggle = () => {
+    if (!isReady) return
     if (recognitionRef.current) {
       if (isListening) {
         recognitionRef.current.stop()
@@ -80,14 +89,15 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
   }
 
   return (
-    <div>
-      <Button
-        size="large"
-        title={'распознать речь'}
-        icon={<AudioOutlined />}
-        onClick={handleToggle}
-        type={isListening ? 'primary' : 'default'}></Button>
-    </div>
+    <Button
+      size="large"
+      title={'распознать речь'}
+      icon={<AudioOutlined />}
+      onClick={handleToggle}
+      disabled={!isReady}
+      type={
+        isReady ? (isListening ? 'primary' : 'default') : 'default'
+      }></Button>
   )
 }
 

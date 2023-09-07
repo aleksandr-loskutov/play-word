@@ -74,7 +74,7 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
     if (isEmptyQueue() && resultingProgress.length > 0) {
       handleFinishTraining()
     }
-  }, [queue])
+  }, [queue.length])
 
   const handleFinishTraining = () => {
     if (resultingProgress.length > 0 && user) {
@@ -267,7 +267,7 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
   }
 
   const userSpeechLang = currentWord?.sessionStage === 1 ? 'ru-RU' : 'en-US'
-  const synthSpeechLang = currentWord?.sessionStage === 1 ? 'en-US' : 'ru-RU'
+  const synthSpeechLang = currentWord?.sessionStage <= 1 ? 'en-US' : 'ru-RU'
 
   const inputClassName = !lockInput
     ? ''
@@ -278,9 +278,11 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
   const useCountDown = !!(
     user &&
     user.trainingSettings.useCountdown &&
-    currentWord?.sessionStage !== 0 &&
+    !isZeroStage &&
     !showAnswer
   )
+
+  const useSpeechRecognizer = !isZeroStage && !showAnswer
 
   const getTrainingStats = (): WordStats[] => {
     if (!user || resultingProgress.length === 0) return []
@@ -302,15 +304,19 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
   const totalErrorsCount =
     user && resultingProgress.length === 0 ? getTotalErrorsCount() : 0
 
+  const collectionName = peekQueue()?.collectionName
+  const isWordNew = peekQueue()?.stage === 0
+
   return (
     isLoaded && (
-      <>
+      <div className={cn('input-wrapper')}>
         <WordWithTooltip
-          word={currentWord.word.toUpperCase()}
-          collectionName={peekQueue()?.collectionName}
+          word={currentWord.word}
+          collectionName={collectionName}
           showCollectionNameHint={user.trainingSettings.showCollectionNameHint}
+          isWordNew={isWordNew}
         />
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', marginTop: 15 }}>
           <Input
             placeholder="перевод"
             value={inputValue}
@@ -341,6 +347,7 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
             onResult={handleSpeech}
             lang={userSpeechLang}
             autoStart={user.trainingSettings.speechRecognizerAutoStart}
+            isReady={useSpeechRecognizer}
           />
         </Space>
         <br />
@@ -359,7 +366,7 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
           word={currentWord}
           totalErrorsCount={totalErrorsCount}
         />
-      </>
+      </div>
     )
   )
 }

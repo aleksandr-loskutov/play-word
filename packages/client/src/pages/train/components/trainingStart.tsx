@@ -14,7 +14,7 @@ const TrainingStart: React.FC<TrainingStartProps> = ({
   const { user, training } = useAuth()
   return (
     user && (
-      <>
+      <div>
         <Paragraph>
           {training.length > 0
             ? `У вас есть ${
@@ -34,7 +34,7 @@ const TrainingStart: React.FC<TrainingStartProps> = ({
             Начать
           </Button>
         )}
-      </>
+      </div>
     )
   )
 }

@@ -25,6 +25,6 @@ export type RequestCollectionCreate = {
   isPublic?: boolean
 }
 
-export type RequestCollectionUpdate = Omit<Collection, 'userId' | 'words'>
+export type RequestCollectionUpdate = RequestCollectionCreate & { id: number }
 
 export type AvatarSrcs = { [key: number]: string | null }

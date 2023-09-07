@@ -90,10 +90,10 @@ const CollectionPage: React.FC = () => {
           type: 'success',
         })
       })
-      .catch(_ => {
+      .catch((e: any) => {
         customNotification({
           message: 'Ошибка!',
-          description: 'Не удалось обновить коллекцию',
+          description: `${e}`,
           type: 'error',
         })
       })

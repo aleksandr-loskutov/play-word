@@ -23,6 +23,7 @@ import {
   TrainingStatus,
 } from './components'
 import WithAuth from '../../components/hoc/withAuth'
+import { customNotification } from '../../components/custom-notification/customNotification'
 
 const cn = createCn('train-page')
 
@@ -40,18 +41,23 @@ const TrainPage = () => {
     trainingStats: WordStats[]
   ) => {
     if (resultingProgress.length === 0) return
-    console.log('resultingProgress', resultingProgress)
     dispatch(
       updateTraining(transformUserProgressToUpdateRequest(resultingProgress))
     )
       .unwrap()
       .then(() => {
-        message.success('Успешно сохранили тренировку!')
+        customNotification({
+          message: 'Успешно!',
+          description: 'Сохранили тренировку.',
+          type: 'success',
+        })
       })
       .catch((error: any) => {
-        message.error(
-          error.message || 'Не удалось сохранить прогресс тренировки'
-        )
+        customNotification({
+          message: 'Ошибка!',
+          description: 'Не удалось сохранить тренировку.',
+          type: 'error',
+        })
       })
       .finally(() => {
         if (resultingProgress.length > 0 && trainingStats.length > 0) {
@@ -71,22 +77,15 @@ const TrainPage = () => {
 
   return (
     <section className={cn('')}>
-      <div style={{ textAlign: 'center', marginTop: 5 }}>
-        <div style={{ marginTop: 60 }}>
-          {queue.length === 0 && (
-            <TrainingStart handleStartTraining={handleStartTraining} />
-          )}
-          {queue.length > 0 && (
-            <TrainingInput
-              initialQueue={queue}
-              onFinish={handleFinishTraining}
-            />
-          )}
-          {trainingStats.length > 0 && (
-            <TrainingStats trainingStats={trainingStats} />
-          )}
-        </div>
-      </div>
+      {queue.length === 0 && (
+        <TrainingStart handleStartTraining={handleStartTraining} />
+      )}
+      {queue.length > 0 && (
+        <TrainingInput initialQueue={queue} onFinish={handleFinishTraining} />
+      )}
+      {trainingStats.length > 0 && (
+        <TrainingStats trainingStats={trainingStats} />
+      )}
     </section>
   )
 }

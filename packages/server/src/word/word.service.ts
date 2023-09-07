@@ -1,87 +1,96 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { WordDto } from './dto';
 import { Response } from 'common';
 import { WordWithTranslations } from 'word';
 import { CollectionWithWords } from '../collection/dto';
+import { handleError } from '../common/utils';
 
 @Injectable()
 export class WordService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getWordsByCollection(collectionId: number): Promise<WordDto[]> {
-    const words = await this.prisma.wordForCollection.findMany({
-      where: {
-        collectionId,
-      },
-      include: {
-        word: {
-          include: {
-            translations: true,
-          },
-        },
-      },
-    });
-
-    return words.map((wordForCollection) => ({
-      word: wordForCollection.word.word,
-      translation: wordForCollection.word.translations[0]?.translation,
-    }));
-  }
-
-  async addWords(words: WordDto[]): Promise<WordWithTranslations[]> {
-    const uniqueWords = Array.from(
-      new Set(words.map((word) => JSON.stringify(word))),
-    )
-      .map((word) => JSON.parse(word))
-      .filter((word) => Object.keys(word).length > 0);
-
-    const newWords: WordWithTranslations[] = [];
-
-    for (const word of uniqueWords) {
-      const existingWord = await this.prisma.word.findFirst({
+    try {
+      const words = await this.prisma.wordForCollection.findMany({
         where: {
-          word: word.word,
+          collectionId,
         },
         include: {
-          translations: {
-            where: {
-              translation: word.translation,
+          word: {
+            include: {
+              translations: true,
             },
           },
         },
       });
 
-      if (!existingWord) {
-        const createdWord = await this.prisma.word.create({
-          data: {
+      return words.map((wordForCollection) => ({
+        word: wordForCollection.word.word,
+        translation: wordForCollection.word.translations[0]?.translation,
+      }));
+    } catch (error: any) {
+      handleError(error);
+    }
+  }
+
+  async addWords(words: WordDto[]): Promise<WordWithTranslations[]> {
+    try {
+      const uniqueWords = Array.from(
+        new Set(words.map((word) => JSON.stringify(word))),
+      )
+        .map((word) => JSON.parse(word))
+        .filter((word) => Object.keys(word).length > 0);
+
+      const newWords: WordWithTranslations[] = [];
+
+      for (const word of uniqueWords) {
+        const existingWord = await this.prisma.word.findFirst({
+          where: {
             word: word.word,
+          },
+          include: {
             translations: {
-              create: {
+              where: {
                 translation: word.translation,
               },
             },
           },
-          include: {
-            translations: true,
-          },
         });
 
-        newWords.push(createdWord);
-      } else if (!existingWord.translations.length) {
-        const createdTranslation = await this.prisma.translation.create({
-          data: {
-            wordId: existingWord.id,
-            translation: word.translation,
-          },
-        });
-        existingWord.translations.push(createdTranslation);
-        newWords.push(existingWord);
-      } else {
-        newWords.push(existingWord);
+        if (!existingWord) {
+          const createdWord = await this.prisma.word.create({
+            data: {
+              word: word.word,
+              translations: {
+                create: {
+                  translation: word.translation,
+                },
+              },
+            },
+            include: {
+              translations: true,
+            },
+          });
+
+          newWords.push(createdWord);
+        } else if (!existingWord.translations.length) {
+          const createdTranslation = await this.prisma.translation.create({
+            data: {
+              wordId: existingWord.id,
+              translation: word.translation,
+            },
+          });
+          existingWord.translations.push(createdTranslation);
+          newWords.push(existingWord);
+        } else {
+          newWords.push(existingWord);
+        }
       }
+      return newWords;
+    } catch (error: any) {
+      handleError(error);
     }
-    return newWords;
   }
 
   async updateCollectionWords(
@@ -95,9 +104,9 @@ export class WordService {
         userId,
       );
       if (!isUserOwnsCollection) {
-        return {
-          error: `Unauthorized access to update collection: ${collectionId}`,
-        };
+        throw new ForbiddenException(
+          `Доступ запрещен для коллекции: ${collectionId}`,
+        );
       }
       // Adds or finds words and their translations in one go
       const addedWords = await this.addWords(words);
@@ -197,15 +206,9 @@ export class WordService {
         })),
       };
 
-      return (
-        collectionWithWords || {
-          error: `Failed to add words to collection with id ${collectionId}`,
-        }
-      );
+      return collectionWithWords;
     } catch (error: any) {
-      return {
-        error: `Cannot add words to collection with id "${collectionId}". ${error.message}`,
-      };
+      handleError(error);
     }
   }
 

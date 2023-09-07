@@ -14,6 +14,7 @@ import { AtGuard, RtGuard } from '../common/guards';
 import { AuthService } from './auth.service';
 import { AuthDto, SignUpDto, AuthResponse } from './dto';
 import setCookieToken from './utils/setCookieToken';
+import { disableCache } from '../common/utils';
 
 @Controller('auth')
 export class AuthController {
@@ -28,8 +29,7 @@ export class AuthController {
   ): Promise<AuthResponse> {
     const { user, tokens } = await this.authService.signupLocal(dto);
     setCookieToken(response, tokens);
-    response.json(user);
-    return response.end();
+    return response.json(user);
   }
 
   @Public()
@@ -41,8 +41,7 @@ export class AuthController {
   ): Promise<AuthResponse> {
     const { user, tokens } = await this.authService.signinLocal(dto);
     setCookieToken(response, tokens);
-    response.json(user);
-    return response.end();
+    return response.json(user);
   }
 
   @UseGuards(AtGuard)
@@ -51,13 +50,12 @@ export class AuthController {
   async logout(
     @Res() response,
     @GetCurrentUserId() userId: number,
-  ): Promise<boolean> {
+  ): Promise<void> {
     await this.authService.logout(userId);
-    setCookieToken(response, { access_token: '', refresh_token: '' });
+    setCookieToken(response, { accessToken: '', refreshToken: '' });
     return response.end();
   }
 
-  @Public()
   @UseGuards(RtGuard)
   @Get('/refresh')
   @HttpCode(HttpStatus.OK)
@@ -70,8 +68,8 @@ export class AuthController {
       userId,
       refreshToken,
     );
+    disableCache(response);
     setCookieToken(response, tokens);
-    response.json(user);
-    return response.end();
+    return response.json(user);
   }
 }

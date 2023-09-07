@@ -16,19 +16,24 @@ import setCookieToken from '../auth/utils/setCookieToken';
 import { UserWithTrainingSettings } from 'user';
 import { JwtPayloadWithRt } from '../auth/types';
 import { Response } from 'express';
+import excludeFields from '../auth/utils/exludeFields';
+import { disableCache } from '../common/utils';
 
-//protected route /user
-@UseGuards(AtGuard)
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
-  @Get('')
+
+  @Get()
+  @UseGuards(AtGuard)
   @HttpCode(HttpStatus.OK)
   getMe(
     @GetCurrentUser()
-    { id, name, email, createdAt, trainingSettings }: UserWithTrainingSettings,
+    user: UserWithTrainingSettings,
+    @Res() response,
   ): UserDto {
-    return { id, name, email, createdAt, trainingSettings };
+    excludeFields(user, ['iat', 'exp']);
+    disableCache(response);
+    return response.json(user);
   }
 
   @Patch()
@@ -45,7 +50,6 @@ export class UserController {
       refreshToken,
     );
     if (tokens) setCookieToken(response, tokens);
-    response.json(user);
-    return response.end();
+    return response.json(user);
   }
 }

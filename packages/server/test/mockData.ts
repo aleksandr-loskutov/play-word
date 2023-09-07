@@ -1,6 +1,7 @@
 import { SignUpDto } from '../src/auth/dto';
 import { UserTrainingSettings } from '@prisma/client';
 import { EditUserDto } from '../src/user/dto';
+import { RequestCollectionCreateDto } from '../src/collection/dto';
 
 const mockSignUpDto: SignUpDto = {
   email: 'aleksandr@fakemail.com',
@@ -70,6 +71,12 @@ const mockUpdatedUserDto: EditUserDto = {
   trainingSettings: mockTrainingSettingsDto,
 };
 
+const mockRequestCollectionCreateDto: RequestCollectionCreateDto = {
+  name: 'TestCollection',
+  description: 'This is a test description',
+  isPublic: true,
+};
+
 export {
   mockSignUpDto,
   mockSignUpDtoInvalidEmail,
@@ -78,4 +85,5 @@ export {
   mockTrainingSettingsDto,
   mockUpdatedUserDto,
   mockInvalidEditUserDto,
+  mockRequestCollectionCreateDto,
 };

@@ -1,10 +1,10 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
-// import * as pactum from 'pactum';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import {
   mockInvalidEditUserDto,
+  mockRequestCollectionCreateDto,
   mockSignUpDto,
   mockSignUpDtoInvalidEmail,
   mockSignUpDtoInvalidName,
@@ -17,6 +17,7 @@ import { UserDto } from '../src/user/dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserWithTrainingSettings } from 'user';
 import { Tokens } from '../src/auth/types';
+import { generateRandomString } from '../src/common/utils';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -43,7 +44,6 @@ describe('App e2e', () => {
     jwtService = app.get(JwtService);
     prisma = app.get(PrismaService);
     await prisma.cleanDatabase();
-    // pactum.request.setBaseUrl('http://localhost:3333');
   });
 
   afterAll(() => {
@@ -152,10 +152,6 @@ describe('App e2e', () => {
           .expect(400);
       });
 
-      it('should not get current user from /user without cookies', async () => {
-        await unAuthedRequestAgent.get('/user').expect(401);
-      });
-
       it('should signin', async () => {
         await requestAgent
           .post('/auth/signin')
@@ -169,98 +165,188 @@ describe('App e2e', () => {
             );
           });
       });
+    });
+  });
 
-      it('should get current user from /user', async () => {
-        await requestAgent
-          .get('/user')
-          .expect(200)
-          .expect((res) => {
-            expect(res.body).toHaveProperty('id');
-            expect(res.body).toHaveProperty('email', mockSignUpDto.email);
-            expect(res.body).toHaveProperty('name', mockSignUpDto.name);
-            expect(res.body).toHaveProperty('trainingSettings');
-          });
-      });
+  describe('Collections', () => {
+    it('should get public collections if not authenticated', async () => {
+      await unAuthedRequestAgent.get('/collections/public').expect(200);
+    });
 
-      it('should not update user with invalid data', async () => {
-        await requestAgent
-          .patch('/user')
-          .send(mockInvalidEditUserDto)
-          .expect(400)
-          .expect((res) => {
-            const { message } = res.body;
-            //there should be a lot of validation errors inside message
-            expect(message.length).toBeGreaterThanOrEqual(
-              Object.keys(mockInvalidEditUserDto).length +
-                Object.keys(mockInvalidEditUserDto.trainingSettings).length,
-            );
-          });
-      });
+    it('should not get private collections if not authenticated', async () => {
+      await unAuthedRequestAgent
+        .post('/collections')
+        .send(mockRequestCollectionCreateDto)
+        .expect(401);
+    });
 
-      it('should update user', async () => {
-        await requestAgent
-          .patch('/user')
-          .send(mockUpdatedUserDto)
-          .expect(200)
-          .expect((res) => {
-            expect(res.headers['set-cookie']).toBeTruthy();
-            const newTokensWithCookies = extractTokensFromCookies(
-              res.headers['set-cookie'],
-            );
-            //new auth token comparing with old one
-            expect(newTokensWithCookies.accessToken).not.toEqual(
-              currentTokensWithCookies.accessToken,
-            );
-            currentTokensWithCookies = newTokensWithCookies;
-            //check for updated user
-            const updatedUser: UserWithTrainingSettings = res.body;
-            expect(updatedUser.email).toBe(mockUpdatedUserDto.email);
-            expect(updatedUser.name).toBe(mockUpdatedUserDto.name);
-            expect(updatedUser.trainingSettings).toBeDefined();
-            expect(updatedUser.trainingSettings).toEqual(
-              expect.objectContaining(mockTrainingSettingsDto),
-            );
-          });
-      });
+    it('should throw if no body provided', async () => {
+      await requestAgent.post('/collections').expect(400);
+    });
 
-      it('should not refresh tokens in cookies without valid cookies', async () => {
-        return unAuthedRequestAgent.get('/auth/refresh').expect(401);
-      });
+    it('should throw if name is invalid', async () => {
+      await requestAgent
+        .post('/collections')
+        .send({
+          ...mockRequestCollectionCreateDto,
+          name: '',
+        })
+        .expect(400);
+    });
 
-      it('should refresh tokens', async () => {
-        // wait for 1 second to make sure we get a new token
-        await new Promise((resolve, _) => {
-          setTimeout(() => {
-            resolve(true);
-          }, 1000);
+    it('should throw if name length is short', async () => {
+      await requestAgent
+        .post('/collections')
+        .send({
+          ...mockRequestCollectionCreateDto,
+          name: 'AB',
+        })
+        .expect(400);
+    });
+
+    it('should throw if name length is exceeded', async () => {
+      await requestAgent
+        .post('/collections')
+        .send({
+          ...mockRequestCollectionCreateDto,
+          name: generateRandomString(31),
+        })
+        .expect(400);
+    });
+
+    it('should throw if description length is short', async () => {
+      await requestAgent
+        .post('/collections')
+        .send({
+          ...mockRequestCollectionCreateDto,
+          description: 'AB',
+        })
+        .expect(400);
+    });
+
+    it('should throw if description length is exceeded', async () => {
+      await requestAgent
+        .post('/collections')
+        .send({
+          ...mockRequestCollectionCreateDto,
+          description: generateRandomString(101),
+        })
+        .expect(400);
+    });
+
+    it('should create a collection successfully', async () => {
+      // Successful collection creation
+      const response = await requestAgent
+        .post('/collections')
+        .send(mockRequestCollectionCreateDto)
+        .expect(201);
+
+      expect(response.body.name).toEqual(mockRequestCollectionCreateDto.name);
+      expect(response.body.description).toEqual(
+        mockRequestCollectionCreateDto.description,
+      );
+      expect(response.body.isPublic).toEqual(
+        mockRequestCollectionCreateDto.isPublic,
+      );
+    });
+  });
+
+  describe('User', () => {
+    it('should not get current user from /user without cookies', async () => {
+      await unAuthedRequestAgent.get('/user').expect(401);
+    });
+
+    it('should get current user from /user', async () => {
+      await requestAgent
+        .get('/user')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveProperty('id');
+          expect(res.body).toHaveProperty('email', mockSignUpDto.email);
+          expect(res.body).toHaveProperty('name', mockSignUpDto.name);
+          expect(res.body).toHaveProperty('trainingSettings');
         });
+    });
 
-        await requestAgent
-          .get('/auth/refresh')
-          .expect(200)
-          .expect((res) => {
-            const newTokensWithCookies = extractTokensFromCookies(
-              res.headers['set-cookie'],
-            );
-            expect(newTokensWithCookies).not.toEqual(currentTokensWithCookies);
-            currentTokensWithCookies = newTokensWithCookies;
-          });
+    it('should not update user with invalid data', async () => {
+      await requestAgent
+        .patch('/user')
+        .send(mockInvalidEditUserDto)
+        .expect(400)
+        .expect((res) => {
+          const { message } = res.body;
+          //there should be a lot of validation errors inside message
+          expect(message.length).toBeGreaterThanOrEqual(
+            Object.keys(mockInvalidEditUserDto).length +
+              Object.keys(mockInvalidEditUserDto.trainingSettings).length,
+          );
+        });
+    });
+
+    it('should update user', async () => {
+      await requestAgent
+        .patch('/user')
+        .send(mockUpdatedUserDto)
+        .expect(200)
+        .expect((res) => {
+          expect(res.headers['set-cookie']).toBeTruthy();
+          const newTokensWithCookies = extractTokensFromCookies(
+            res.headers['set-cookie'],
+          );
+          //new auth token comparing with old one
+          expect(newTokensWithCookies.accessToken).not.toEqual(
+            currentTokensWithCookies.accessToken,
+          );
+          currentTokensWithCookies = newTokensWithCookies;
+          //check for updated user
+          const updatedUser: UserWithTrainingSettings = res.body;
+          expect(updatedUser.email).toBe(mockUpdatedUserDto.email);
+          expect(updatedUser.name).toBe(mockUpdatedUserDto.name);
+          expect(updatedUser.trainingSettings).toBeDefined();
+          expect(updatedUser.trainingSettings).toEqual(
+            expect.objectContaining(mockTrainingSettingsDto),
+          );
+        });
+    });
+
+    it('should not refresh tokens in cookies without valid cookies', async () => {
+      return unAuthedRequestAgent.get('/auth/refresh').expect(401);
+    });
+
+    it('should refresh tokens', async () => {
+      // wait for 1 second to make sure we get a new token
+      await new Promise((resolve, _) => {
+        setTimeout(() => {
+          resolve(true);
+        }, 1000);
       });
-      it('should logout user successfully', async () => {
-        await requestAgent
-          .post('/auth/logout')
-          .expect(200)
-          .expect((res) => {
-            // Check if cookies were cleared
-            const cookies = res.headers['set-cookie'];
-            expect(
-              cookies.some((cookie) => cookie.includes('access_token=;')),
-            ).toBeTruthy();
-            expect(
-              cookies.some((cookie) => cookie.includes('refresh_token=;')),
-            ).toBeTruthy();
-          });
-      });
+
+      await requestAgent
+        .get('/auth/refresh')
+        .expect(200)
+        .expect((res) => {
+          const newTokensWithCookies = extractTokensFromCookies(
+            res.headers['set-cookie'],
+          );
+          expect(newTokensWithCookies).not.toEqual(currentTokensWithCookies);
+          currentTokensWithCookies = newTokensWithCookies;
+        });
+    });
+
+    it('should logout user successfully', async () => {
+      await requestAgent
+        .post('/auth/logout')
+        .expect(200)
+        .expect((res) => {
+          // Check if cookies were cleared
+          const cookies = res.headers['set-cookie'];
+          expect(
+            cookies.some((cookie) => cookie.includes('access_token=;')),
+          ).toBeTruthy();
+          expect(
+            cookies.some((cookie) => cookie.includes('refresh_token=;')),
+          ).toBeTruthy();
+        });
     });
   });
 });

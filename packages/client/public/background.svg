@@ -1,0 +1,432 @@
+<svg id="visual" viewBox="0 0 1920 1080" width="1920" height="1080" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+    <defs>
+        <filter id="glow">
+            <feGaussianBlur stdDeviation="3.5" result="coloredBlur"/>
+            <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+        </filter>
+    </defs>
+    <rect width="1920" height="1080" fill="transparent"></rect>
+    <g>
+
+        <g transform="translate(576 161)">
+            <text font-size="34" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">A
+            </text>
+        </g>
+        <g transform="translate(1421 133)">
+            <text font-size="25" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ц
+            </text>
+        </g>
+        <g transform="translate(1081 368)">
+            <text font-size="21" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">B
+            </text>
+        </g>
+        <g transform="translate(1016 1003)">
+            <text font-size="28" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0"
+                  filter="url(#glow)">Ф
+            </text>
+        </g>
+        <g transform="translate(865 212)">
+            <text font-size="21" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">C
+            </text>
+        </g>
+        <g transform="translate(1286 624)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Х
+            </text>
+        </g>
+        <g transform="translate(284 279)">
+            <text font-size="31" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">D
+            </text>
+        </g>
+        <g transform="translate(1685 97)">
+            <text font-size="16" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ш
+            </text>
+        </g>
+        <g transform="translate(1252 353)">
+            <text font-size="15" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">E
+            </text>
+        </g>
+        <g transform="translate(108 108)">
+            <text font-size="28" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ч
+            </text>
+        </g>
+        <g transform="translate(705 826)">
+            <text font-size="30" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">F
+            </text>
+        </g>
+        <g transform="translate(1011 504)">
+            <text font-size="13" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Щ
+            </text>
+        </g>
+        <g transform="translate(518 332)">
+            <text font-size="23" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">G
+            </text>
+        </g>
+        <g transform="translate(132 757)">
+            <text font-size="17" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ю
+            </text>
+        </g>
+        <g transform="translate(943 900)">
+            <text font-size="31" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">H
+            </text>
+        </g>
+        <g transform="translate(476 640)">
+            <text font-size="26" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Я
+            </text>
+        </g>
+        <g transform="translate(1502 344)">
+            <text font-size="28" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">I
+            </text>
+        </g>
+        <g transform="translate(635 742)">
+            <text font-size="12" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">А
+            </text>
+        </g>
+        <g transform="translate(529 1027)">
+            <text font-size="25" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">J
+            </text>
+        </g>
+        <g transform="translate(1613 450)">
+            <text font-size="29" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Б
+            </text>
+        </g>
+        <g transform="translate(1878 180)">
+            <text font-size="26" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">K
+            </text>
+        </g>
+        <g transform="translate(670 146)">
+            <text font-size="17" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">В
+            </text>
+        </g>
+        <g transform="translate(380 287)">
+            <text font-size="27" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">L
+            </text>
+        </g>
+        <g transform="translate(724 409)">
+            <text font-size="12" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Г
+            </text>
+        </g>
+        <g transform="translate(1543 875)">
+            <text font-size="9" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">M
+            </text>
+        </g>
+        <g transform="translate(1586 34)">
+            <text font-size="25" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Д
+            </text>
+        </g>
+        <g transform="translate(349 548)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">N
+            </text>
+        </g>
+        <g transform="translate(1271 60)">
+            <text font-size="27" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Е
+            </text>
+        </g>
+        <g transform="translate(406 443)">
+            <text font-size="24" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">O
+            </text>
+        </g>
+        <g transform="translate(1806 480)">
+            <text font-size="32" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ж
+            </text>
+        </g>
+        <g transform="translate(1220 578)">
+            <text font-size="24" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">P
+            </text>
+        </g>
+        <g transform="translate(1495 263)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">З
+            </text>
+        </g>
+        <g transform="translate(1023 429)">
+            <text font-size="9" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Q
+            </text>
+        </g>
+        <g transform="translate(815 354)">
+            <text font-size="25" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">И
+            </text>
+        </g>
+        <g transform="translate(550 244)">
+            <text font-size="10" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">R
+            </text>
+        </g>
+        <g transform="translate(780 1031)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Й
+            </text>
+        </g>
+        <g transform="translate(1333 1007)">
+            <text font-size="10" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0"
+                  filter="url(#glow)">S
+            </text>
+        </g>
+        <g transform="translate(141 672)">
+            <text font-size="30" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">К
+            </text>
+        </g>
+        <g transform="translate(1447 860)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">T
+            </text>
+        </g>
+        <g transform="translate(78 534)">
+            <text font-size="28" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Л
+            </text>
+        </g>
+        <g transform="translate(933 42)">
+            <text font-size="25" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">U
+            </text>
+        </g>
+        <g transform="translate(1741 655)">
+            <text font-size="16" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">М
+            </text>
+        </g>
+        <g transform="translate(337 760)">
+            <text font-size="31" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">V
+            </text>
+        </g>
+        <g transform="translate(352 40)">
+            <text font-size="26" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Н
+            </text>
+        </g>
+        <g transform="translate(1521 611)">
+            <text font-size="22" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">W
+            </text>
+        </g>
+        <g transform="translate(71 626)">
+            <text font-size="11" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">О
+            </text>
+        </g>
+        <g transform="translate(1716 812)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">X
+            </text>
+        </g>
+        <g transform="translate(303 990)">
+            <text font-size="21" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">П
+            </text>
+        </g>
+        <g transform="translate(1204 713)">
+            <text font-size="26" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Y
+            </text>
+        </g>
+        <g transform="translate(286 84)">
+            <text font-size="16" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Р
+            </text>
+        </g>
+        <g transform="translate(400 698)">
+            <text font-size="27" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Z
+            </text>
+        </g>
+        <g transform="translate(124 207)">
+            <text font-size="10" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">С
+            </text>
+        </g>
+        <g transform="translate(839 500)">
+            <text font-size="16" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">A
+            </text>
+        </g>
+        <g transform="translate(639 990)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Т
+            </text>
+        </g>
+        <g transform="translate(893 986)">
+            <text font-size="25" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">B
+            </text>
+        </g>
+        <g transform="translate(171 444)">
+            <text font-size="19" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">У
+            </text>
+        </g>
+        <g transform="translate(216 923)">
+            <text font-size="25" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">C
+            </text>
+        </g>
+        <g transform="translate(1076 703)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Э
+            </text>
+        </g>
+        <g transform="translate(816 711)">
+            <text font-size="24" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">D
+            </text>
+        </g>
+        <g transform="translate(540 764)">
+            <text font-size="11" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ъ
+            </text>
+        </g>
+        <g transform="translate(1506 87)">
+            <text font-size="31" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">E
+            </text>
+        </g>
+        <g transform="translate(1259 913)">
+            <text font-size="27" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ы
+            </text>
+        </g>
+        <g transform="translate(323 837)">
+            <text font-size="25" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">F
+            </text>
+        </g>
+        <g transform="translate(1829 558)">
+            <text font-size="31" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ь
+            </text>
+        </g>
+        <g transform="translate(650 39)">
+            <text font-size="14" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">A
+            </text>
+        </g>
+        <g transform="translate(655 357)">
+            <text font-size="22" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ц
+            </text>
+        </g>
+        <g transform="translate(294 603)">
+            <text font-size="21" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">B
+            </text>
+        </g>
+        <g transform="translate(819 422)">
+            <text font-size="32" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ф
+            </text>
+        </g>
+        <g transform="translate(202 338)">
+            <text font-size="11" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">C
+            </text>
+        </g>
+        <g transform="translate(1753 75)">
+            <text font-size="21" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Х
+            </text>
+        </g>
+        <g transform="translate(856 850)">
+            <text font-size="13" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">D
+            </text>
+        </g>
+        <g transform="translate(303 690)">
+            <text font-size="24" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ш
+            </text>
+        </g>
+        <g transform="translate(1657 188)">
+            <text font-size="32" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">E
+            </text>
+        </g>
+        <g transform="translate(1358 588)">
+            <text font-size="8" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ч
+            </text>
+        </g>
+        <g transform="translate(1782 412)">
+            <text font-size="23" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">F
+            </text>
+        </g>
+        <g transform="translate(135 866)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Щ
+            </text>
+        </g>
+        <g transform="translate(380 872)">
+            <text font-size="19" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">G
+            </text>
+        </g>
+        <g transform="translate(1619 336)">
+            <text font-size="17" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Ю
+            </text>
+        </g>
+        <g transform="translate(187 594)">
+            <text font-size="13" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">H
+            </text>
+        </g>
+        <g transform="translate(1639 742)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">Я
+            </text>
+        </g>
+        <g transform="translate(930 727)">
+            <text font-size="17" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">I
+            </text>
+        </g>
+        <g transform="translate(1365 489)">
+            <text font-size="18" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">А
+            </text>
+        </g>
+        <g transform="translate(692 574)">
+            <text font-size="27" font-family="Roboto" fill="none" stroke="#45f3ff" stroke-width="1" stroke-opacity="0.3"
+                  filter="url(#glow)">J
+            </text>
+        </g>
+
+    </g>
+</svg>

@@ -5,8 +5,8 @@
     font-family: inherit;
     text-transform: uppercase;
     text-align: center;
-    background: linear-gradient(to right, var(--primary), var(--secondary));
-    -webkit-background-clip: text;
+    @mixin input-background;
+
 
     @mixin border-style $color;
     box-shadow: 0 0 10px var(--primary), 0 0 1px var(--primary); /* Add glow */
@@ -33,7 +33,6 @@
     border-color: $color;
     border-bottom: 0px solid $color;
     border-radius: 0;
-    background-color: var(--surface);
     border-top-style: none;
     border-right-style: none;
     border-left-style: none;
@@ -56,5 +55,11 @@
         cursor: not-allowed;
         @mixin border-style $color;
         box-shadow: 0 0 10px var(--primary), 0 0 1px var(--primary); /* Add glow */
+        @mixin input-background;
     }
+}
+
+@define-mixin input-background {
+    background: linear-gradient(to right, var(--backgroundSpecial), var(--background) 50%, var(--backgroundSpecial)) ;
+
 }

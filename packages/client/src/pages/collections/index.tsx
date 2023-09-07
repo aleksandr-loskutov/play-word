@@ -102,7 +102,12 @@ function CollectionsPage(): JSX.Element {
         />
         <Row gutter={[10, 15]} justify={'center'}>
           {collections.map(collection => (
-            <Col key={collection.id} span={6}>
+            <Col
+              key={collection.id}
+              xs={{ span: 24 }}
+              sm={{ span: 12 }}
+              md={{ span: 8 }}
+              lg={{ span: 6 }}>
               <Link
                 to={`/collections/${collection.id}`}
                 style={{ textDecoration: 'none' }}>

@@ -115,5 +115,4 @@
 
 @define-mixin box-shadow {
     box-shadow: 0 0 4px var(--primary), 0 0 1px var(--primary);
-    transition: box-shadow 1s ease-out;
 }

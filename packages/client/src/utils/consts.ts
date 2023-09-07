@@ -40,6 +40,7 @@ const PALETTE = {
   onSuccess: '#ffffff',
   onWarning: '#000000',
   onInfo: '#ffffff',
+  transparent: 'transparent',
 }
 
 // theme customization
@@ -51,7 +52,6 @@ const THEME_CUSTOM_CSS_PROPS = {
   colorLinkHover: PALETTE.primary,
   colorLinkActive: PALETTE.primary,
   colorItemBgSelected: PALETTE.background,
-  colorBgHeader: PALETTE.background,
   colorItemTextSelected: PALETTE.primary,
   colorItemTextSelectedHorizontal: PALETTE.primary,
   colorItemTextHoverHorizontal: PALETTE.primary,
@@ -60,6 +60,7 @@ const THEME_CUSTOM_CSS_PROPS = {
   colorTextHeading: PALETTE.onBackground,
   colorText: PALETTE.onBackground,
   colorErrorBg: PALETTE.surface,
+  colorBgHeader: PALETTE.transparent,
 }
 
 const NOTIFICATION_SHADOWS = {

@@ -142,27 +142,30 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
   }, [isLoggedIn, training])
 
   return (
-    <Layout className={cn()}>
-      <Header className={cn('header')} style={{ paddingInline: 0 }}>
-        <Row justify="center">
-          <Col span={24} md={9} className={cn('menu-container')}>
+    <Layout className={cn('')}>
+      <div className={cn('page-container')}>
+        <Header className={cn('header')} style={{ paddingInline: 0 }}>
+          <div className={cn('menu-container')}>
             <Menu
               className={cn('menu')}
               mode="horizontal"
               items={items}
               selectedKeys={[getActiveMenuKey()]}
             />
-          </Col>
-        </Row>
-      </Header>
-      <Content className={cn('content-container')}>{children}</Content>
-      <Footer style={{ textAlign: 'center' }} className={cn('footer footer')}>
-        <Row justify="space-around" align="middle" className="footer-container">
-          <Col span={3}>PlayWord.ru</Col>
-          <Col span={2}>FAQ</Col>
-          <Col span={3}>О проекте</Col>
-        </Row>
-      </Footer>
+          </div>
+        </Header>
+        <Content className={cn('content-container')}>{children}</Content>
+        <Footer style={{ textAlign: 'center' }} className={cn('footer footer')}>
+          <Row
+            justify="space-around"
+            align="middle"
+            className="footer-container">
+            <Col span={3}>PlayWord.ru</Col>
+            <Col span={2}>FAQ</Col>
+            <Col span={3}>О проекте</Col>
+          </Row>
+        </Footer>
+      </div>
     </Layout>
   )
 }

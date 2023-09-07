@@ -2,146 +2,169 @@
 @import 'variables.css';
 
 .layout {
-  min-height: 100vh;
-   background-color: var(--background);
-  font-family: 'Arial', sans-serif;
-
-  &__menu-container {
-    position: relative;
-      &::before,
-      &::after {
-          content: "";
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          width: 4px;
-          background: linear-gradient(0deg, rgba(69, 243, 255, 0.5), rgba(69, 243, 255, 0.5), transparent);
-          z-index: 0;
-      }
-
-      &::before {
-          left: -30px;
-          transform: skewX(45deg);
-      }
-
-      &::after {
-          right: -30px;
-          transform: skewX(-45deg);
-      }
-
-  }
-
-  &__badge{
-    /*  temporary important coz Badge component with inline css is not setting this prop to span wrapper*/
-    margin-inline-start: 0px !important;
-  }
-
-  &__menu {
-    justify-content: center;
-    border-bottom: 2px solid rgba(69, 243, 255, 0.5);
-    border-radius: 5px;
-    background-color:var(--background);
- & > li::after {
-     display: none;
- }
-
- & > li > span:hover  {
-   color: var(--primary);
- }
-
- & > li > span > a > span:hover  {
-   color: var(--primary);
- }
-
-}
-
-
-&__content-container {
-    position: relative;
-    width: 100%;
-    max-width: 1024px;
-    display: flex;
-    flex-direction: column;
-    margin: 40px auto;
-    padding: 40px 20px;
-    border-top: 2px solid transparent;
-    border-bottom: 2px solid transparent;
-    border-image: linear-gradient(90deg, transparent, rgba(69, 243, 255, 0.6), transparent) 1;
-
-    &::before,
-    &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(40deg, transparent, rgba(69, 243, 255, 0.6), transparent);
-  }
-
-
-  &::before {
-    left: 0;
-  }
-  &::after {
-    right: 0;
-  }
-
-
-
-
-
-    @media screen and (min-width: 1024px) {
-        padding: 40px;
-
-    }
-
-    @media screen and (max-width: 1023px) {
-        padding: 30px;
-    }
-
-    @media screen and (max-width: 767px) {
-        padding: 20px;
-    }
-
-    @media screen and (max-width: 480px) {
-        padding: 10px;
-    }
-
-
-}
-
-&__footer{
-    position: relative;
-    width: 750px;
-    border-top: 2px solid rgba(69, 243, 255, 0.5);
-    border-radius: 5px;
-    margin: 0 auto;
+    min-height: 100vh;
+    font-family: 'Roboto', sans-serif;
     background-color: var(--background);
+    background-image: url("/background.svg");
+    background-repeat: repeat;
 
-    &::before,
-    &::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background: linear-gradient(180deg, rgba(69, 243, 255, 0.5), rgba(69, 243, 255, 0.5), transparent); /* Change the direction of the gradient */
-        z-index: 0;
+    &__header {
+        background-color: transparent;
     }
 
-    &::before {
-        right: -30px; /* Swap left and right */
-        transform: skewX(45deg); /* Change the skew direction */
+    &__page-container {
+        position: relative;
+        width: 100%;
+        max-width: 1024px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        margin: 10px auto;
+        border-top: 2px solid transparent;
+        border-bottom: 2px solid transparent;
+        border-image: linear-gradient(90deg, transparent, rgba(69, 243, 255, 0.6), transparent) 1;
+        background-color: var(--background);
     }
 
-    &::after {
-        left: -30px; /* Swap left and right */
-        transform: skewX(-45deg); /* Change the skew direction */
+    &__menu-container {
+        position: relative;
+        text-transform: uppercase;
+        font-weight: 500;
+        margin: 0 auto;
+
+        &::before,
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, transparent, rgba(69, 243, 255, 0.5), transparent);
+            z-index: 0;
+        }
+
+        &::before {
+            left: -30px;
+            transform: skewX(45deg);
+        }
+
+        &::after {
+            right: -30px;
+            transform: skewX(-45deg);
+        }
+
     }
+
+    &__badge {
+        /*  temporary important coz Badge component with inline css is not setting this prop to span wrapper*/
+        margin-inline-start: 0px !important;
+    }
+
+    &__menu {
+        justify-content: center;
+        border-radius: 5px;
+        border: 1px solid transparent;
+        background-color: transparent;
+
+        & > li::after {
+            display: none;
+        }
+
+        & > li > span:hover {
+            color: var(--primary);
+        }
+
+        & > li > span > a > span:hover {
+            color: var(--primary);
+        }
+
+    }
+
+
+    &__content-container {
+        position: relative;
+        width: 100%;
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        margin: 0px auto;
+        padding: 40px 20px;
+        border-top: 2px solid transparent;
+        border-bottom: 2px solid transparent;
+        border-image: linear-gradient(90deg, transparent, rgba(69, 243, 255, 0.6), transparent) 1;
+        background-color: var(--background);
+
+        &::before,
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(40deg, transparent, rgba(69, 243, 255, 0.6), transparent);
+        }
+
+
+        &::before {
+            left: 0;
+        }
+
+        &::after {
+            right: 0;
+        }
+
+
+        @media screen and (min-width: 1024px) {
+            padding: 40px;
+
+        }
+
+        @media screen and (max-width: 1023px) {
+            padding: 30px;
+        }
+
+        @media screen and (max-width: 767px) {
+            padding: 20px;
+        }
+
+        @media screen and (max-width: 480px) {
+            padding: 10px;
+        }
+
+
+    }
+
+    &__footer {
+        position: relative;
+        width: 100%;
+        /* border-top: 0px solid rgba(69, 243, 255, 0.5); */
+        /*   border-radius: 5px; */
+        margin: 0 auto;
+        background-color: var(--background);
+
+        &::before,
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(0deg, transparent, rgba(69, 243, 255, 0.5), transparent); /* Change the direction of the gradient */
+            z-index: 0;
+        }
+
+        &::before {
+            right: -30px; /* Swap left and right */
+            transform: skewX(45deg); /* Change the skew direction */
+        }
+
+        &::after {
+            left: -30px; /* Swap left and right */
+            transform: skewX(-45deg); /* Change the skew direction */
+        }
+    }
+
 }
-
-}
-
 
 
 .title {
@@ -150,11 +173,11 @@
 }
 
 .spinner {
-   @mixin spinner 120px, 120px;
+    @mixin spinner 120px, 120px;
 }
 
 .text-center {
-text-align: center;
+    text-align: center;
 }
 
 h1, h2, h3, h4, h5, h6 {

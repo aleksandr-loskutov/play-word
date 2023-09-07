@@ -1,6 +1,6 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Request as RequestType, Request } from 'express';
+import { Request as RequestType } from 'express';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, JwtPayloadWithRt } from '../types';
@@ -11,30 +11,42 @@ export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([RtStrategy.extractJWT]),
       secretOrKey: config.get<string>('RT_SECRET'),
+      // Pass request object to the validate function
       passReqToCallback: true,
     });
   }
 
   private static extractJWT(request: RequestType): string | null {
-    if (
-      request.cookies &&
-      'refresh_token' in request.cookies &&
-      request.cookies.refresh_token?.length > 0
-    ) {
-      return request.cookies.refresh_token;
+    let token: string | null = null;
+
+    // Check if 'refresh_token' is present in cookies
+    if (request.cookies && 'refresh_token' in request.cookies) {
+      token = request.cookies.refreshToken;
     }
-    return null;
+
+    // Fallback: Check if 'refresh_token' is present in request headers
+    if (!token && request.headers.cookie) {
+      const cookies = request.headers.cookie
+        .split(';')
+        .map((cookie) => cookie.trim());
+      const refreshTokenCookie = cookies.find((cookie) =>
+        cookie.startsWith('refresh_token='),
+      );
+      if (refreshTokenCookie) {
+        token = refreshTokenCookie.split('=')[1];
+      }
+    }
+
+    return token && token.length > 0 ? token : null;
   }
 
-  validate(request: Request, payload: JwtPayload): JwtPayloadWithRt {
-    if (
-      request.cookies &&
-      'refresh_token' in request.cookies &&
-      request.cookies.refresh_token?.length > 0
-    ) {
+  validate(request: RequestType, payload: JwtPayload): JwtPayloadWithRt {
+    const token = RtStrategy.extractJWT(request);
+
+    if (token) {
       return {
         ...payload,
-        refreshToken: request.cookies.refresh_token,
+        refreshToken: token,
       };
     }
     throw new ForbiddenException('Refresh token malformed');

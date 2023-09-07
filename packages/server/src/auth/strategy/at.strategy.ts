@@ -21,13 +21,26 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   private static extractJWT(request: RequestType): string | null {
-    if (
-      request.cookies &&
-      'access_token' in request.cookies &&
-      request.cookies.access_token?.length > 0
-    ) {
-      return request.cookies.access_token;
+    let token: string | null = null;
+
+    // Check if 'access_token' is present in cookies array
+    if (request.cookies && 'access_token' in request.cookies) {
+      token = request.cookies.accessToken;
     }
-    return null;
+
+    // Fallback: Check if 'access_token' is present in request headers
+    if (!token && request.headers.cookie) {
+      const cookies = request.headers.cookie
+        .split(';')
+        .map((cookie) => cookie.trim());
+      const accessTokenCookie = cookies.find((cookie) =>
+        cookie.startsWith('access_token='),
+      );
+      if (accessTokenCookie) {
+        token = accessTokenCookie.split('=')[1];
+      }
+    }
+
+    return token && token.length > 0 ? token : null;
   }
 }

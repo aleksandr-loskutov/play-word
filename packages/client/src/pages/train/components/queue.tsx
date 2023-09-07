@@ -106,7 +106,12 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
       const { sessionStage: currentSessionStage, errorCounter } =
         currentProgress.word
       const wordErrors = errorCounter + 1
-      const sessionStage = wordErrors >= maxErrorLimit ? 3 : currentSessionStage
+      let sessionStage
+      if (currentProgress.stage === 0) {
+        sessionStage = currentSessionStage
+      } else {
+        sessionStage = wordErrors >= maxErrorLimit ? 3 : currentSessionStage
+      }
 
       const updatedProgress: UserWordProgress = {
         ...currentProgress,

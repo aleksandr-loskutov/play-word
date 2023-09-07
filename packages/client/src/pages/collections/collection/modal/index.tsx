@@ -16,6 +16,7 @@ import Papa from 'papaparse'
 import { WordForCollection } from '../../../../types/collection'
 import { customNotification } from '../../../../components/custom-notification/customNotification'
 import Title from 'antd/lib/typography/Title'
+import { validateArrayForEmptyStringAndLength } from '../../../../utils/validate-array'
 
 const { Dragger } = Upload
 
@@ -64,16 +65,28 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
   }, [anyRowIsEmpty, handleAddWordRow])
 
   const handleOk = () => {
+    // Filter out empty rows
+    const validWords = words.filter(
+      row => row.word !== '' && row.translation !== ''
+    )
+    //we are temporarily is not using antd form validation
+    const isValid = validateArrayForEmptyStringAndLength(validWords, [
+      'word',
+      'translation',
+    ])
+    if (!isValid) return
+    //TODO use antd form validation
     form
       .validateFields()
       .then((values: any) => {
-        onSubmit(words.concat([values]))
+        // Submit only valid rows
+        onSubmit(validWords.concat([values]))
         onClose()
       })
-      .catch(_ => {
+      .catch((e: any) => {
         customNotification({
           message: 'Ошибка!',
-          description: 'Ошибка валидации',
+          description: `Ошибка валидации формы: ${e.message}`,
           type: 'error',
         })
       })
@@ -109,6 +122,7 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
         const importedWords = results.data
           .filter((row: any) => row.length === 2)
           .map((row: any) => ({ word: row[0], translation: row[1] }))
+          .filter(row => row.word !== '' && row.translation !== '') // Filter out invalid rows
         setWords(words.concat(importedWords))
         customNotification({
           message: 'Успешно!',

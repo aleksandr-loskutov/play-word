@@ -9,10 +9,11 @@ import {
   IsBoolean,
   IsNotEmpty,
   Length,
+  Matches,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-class TrainingSettingsDto {
+export class TrainingSettingsDto {
   @Min(1)
   @Max(180)
   stageOneInterval: number;
@@ -76,7 +77,7 @@ export class UserDto {
 
   @IsString()
   @IsNotEmpty()
-  @Length(1, 20)
+  @Length(2, 20)
   name: string;
 
   @IsString()
@@ -96,19 +97,25 @@ export class EditUserDto {
 
   @IsString()
   @IsNotEmpty()
-  @Length(1, 20)
+  @Length(2, 20)
   name: string;
 
   @IsString()
   @IsOptional()
   @IsNotEmpty()
-  @Length(1, 20)
+  @Matches(/.*[0-9].*/, {
+    message: 'Пароль должен содержать хотя бы одну цифру.',
+  })
+  @Length(8, 20)
   password?: string;
 
   @IsString()
   @IsOptional()
   @IsNotEmpty()
-  @Length(1, 20)
+  @Matches(/.*[0-9].*/, {
+    message: 'Пароль должен содержать хотя бы одну цифру.',
+  })
+  @Length(8, 20)
   passwordRepeat?: string;
 
   @ValidateNested()

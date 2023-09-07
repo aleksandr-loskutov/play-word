@@ -1,29 +1,46 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Length,
+  Matches,
+} from 'class-validator';
 import { UserTrainingSettings } from '@prisma/client';
 import { Tokens } from '../types';
 
 export class AuthDto {
-  @IsEmail()
+  @IsString()
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 
   @IsString()
   @IsNotEmpty()
+  @Matches(/.*[0-9].*/, {
+    message: 'Пароль должен содержать хотя бы одну цифру.',
+  })
+  @Length(8, 20)
   password: string;
 }
 
 export class SignUpDto {
-  @IsEmail()
+  @IsString()
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 
   @IsString()
   @IsNotEmpty()
-  password: string;
+  @Length(2, 20)
+  name: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  @Matches(/.*[0-9].*/, {
+    message: 'Пароль должен содержать хотя бы одну цифру.',
+  })
+  @Length(8, 20)
+  password: string;
 }
 
 export type UserDto = {

@@ -5,6 +5,7 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Length,
 } from 'class-validator';
 import { Collection, UserWordProgress, Word } from '@prisma/client';
 import { TranslationWithWord } from 'word';
@@ -23,12 +24,14 @@ export class CollectionDto {
   isPublic: boolean;
 }
 
-export class RequestCollectionCreate {
+export class RequestCollectionCreateDto {
   @IsNotEmpty()
   @IsString()
+  @Length(3, 30)
   name: string;
   @IsString()
   @IsOptional()
+  @Length(3, 100)
   description?: string;
   @IsString()
   @IsOptional()
@@ -38,7 +41,7 @@ export class RequestCollectionCreate {
   isPublic?: boolean;
 }
 
-export class RequestCollectionUpdate extends RequestCollectionCreate {
+export class RequestCollectionUpdateDto extends RequestCollectionCreateDto {
   @IsOptional()
   @IsString()
   override name: string;

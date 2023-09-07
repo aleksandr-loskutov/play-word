@@ -1,17 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Collection } from '@prisma/client';
 import { calculateNextTrainingDate } from './utils/calculateNextTrainingDate';
 
 import {
   CollectionWithWords,
-  RequestCollectionCreate,
-  RequestCollectionUpdate,
+  RequestCollectionCreateDto,
+  RequestCollectionUpdateDto,
   RequestUserTrainingUpdate,
   UserWordProgressExtended,
   UserWordProgressResponse,
 } from './dto';
 import { Response } from 'common';
+import { handleError } from '../common/utils';
+import { cacheManager } from '../common/utils/memCache';
 
 @Injectable()
 export class CollectionService {
@@ -40,14 +47,14 @@ export class CollectionService {
           translationId: translation.id,
         })),
       }));
-      return collectionsWithWords || { error: `Cannot get user collections` };
+      return collectionsWithWords;
     } catch (error: any) {
-      return { error: `Cannot get user collections. ${error.message}` };
+      handleError(error);
     }
   }
 
   async createCollection(
-    collection: RequestCollectionCreate,
+    collection: RequestCollectionCreateDto,
     userId: number,
   ): Promise<Response<CollectionWithWords>> {
     try {
@@ -57,37 +64,30 @@ export class CollectionService {
           createdBy: { connect: { id: userId } },
         },
       });
-      return { ...data, words: [] } || { error: `Cannot create collection` };
+      return { ...data, words: [] };
     } catch (error: any) {
-      return { error: `Cannot create collection. ${error.message}` };
+      handleError(error);
     }
   }
 
-  async getPublicCollections(): Promise<Response<CollectionWithWords[]>> {
+  async getPublicCollections(): Promise<Response<Collection[]>> {
     try {
+      const cacheKey = 'publicCollections';
+      if (!cacheManager.isStale(cacheKey)) {
+        return cacheManager.get(cacheKey);
+      }
+
       const data = await this.prisma.collection.findMany({
         where: { isPublic: true, deleted: false },
         include: {
-          words: {
-            select: {
-              word: true,
-              translation: true,
-            },
-          },
+          words: true,
         },
       });
 
-      const collectionsWithWords = data.map((collection) => ({
-        ...collection,
-        words: collection.words.map(({ word, translation }) => ({
-          ...word,
-          translation: translation.translation,
-          translationId: translation.id,
-        })),
-      }));
-      return collectionsWithWords || { error: `Cannot get public collections` };
+      cacheManager.set(cacheKey, data);
+      return data;
     } catch (error: any) {
-      return { error: `Cannot get public collections. ${error.message}` };
+      handleError(error);
     }
   }
 
@@ -99,9 +99,7 @@ export class CollectionService {
     try {
       const isOwner = await this.isUserOwnsCollection(userId, collectionId);
       if (!isOwner) {
-        return {
-          error: `Unauthorized access to delete collection: ${collectionId}`,
-        };
+        throw new ForbiddenException('Доступ запрещен');
       }
 
       const deletedCollection = await this.prisma.collection.update({
@@ -111,9 +109,7 @@ export class CollectionService {
 
       return deletedCollection;
     } catch (error: any) {
-      return {
-        error: `Failed to delete collection with id: ${collectionId}. ${error.message}`,
-      };
+      handleError(error);
     }
   }
 
@@ -131,28 +127,11 @@ export class CollectionService {
           words: { select: { wordId: true } },
         },
       });
-      if (!collection) {
-        return {
-          error: `Collection with id "${collectionId}" not found.`,
-        };
-      }
-      if (!collection.words || collection.words.length < 1) {
-        return {
-          error: `Collection with id "${collectionId}" is empty.`,
-        };
-      }
-      // Check if user owns the collection or it's public
-      if (collection.userId !== userId && !collection.isPublic) {
-        return {
-          error: `User is not authorized to learn this collection.`,
-        };
-      }
+
+      this.checkUserAccessToCollection(collection, userId);
 
       const collectionWords = await this.prisma.wordForCollection.findMany({
         where: { collectionId },
-        // include: {
-        //   word: true,
-        // },
       });
       const userWordProgresses = await this.prisma.userWordProgress.findMany({
         where: {
@@ -181,9 +160,25 @@ export class CollectionService {
       const userProgress = await this.getUserProgress(userId);
       return userProgress;
     } catch (error: any) {
-      return {
-        error: `Cannot update userWordProgress with words from collection id "${collectionId}". ${error.message}`,
-      };
+      handleError(error);
+    }
+  }
+
+  checkUserAccessToCollection(
+    collection: Partial<Collection> & {
+      words: { translationId?: number; wordId?: number }[];
+    },
+    userId: number,
+  ): void {
+    if (!collection) {
+      throw new NotFoundException(`Коллекция не найдена.`);
+    }
+    if (!collection.words || collection.words.length < 1) {
+      throw new BadRequestException(`Коллекция "${collection.id}" пустая.`);
+    }
+    // Check if user owns the collection or it's public
+    if (collection.userId !== userId && !collection.isPublic) {
+      throw new ForbiddenException('Доступ запрещен!!');
     }
   }
 
@@ -200,21 +195,7 @@ export class CollectionService {
           words: { select: { translationId: true } },
         },
       });
-      if (!collection) {
-        return {
-          error: `Collection with id "${collectionId}" not found.`,
-        };
-      }
-      if (!collection.words || collection.words.length < 1) {
-        return {
-          error: `Collection with id "${collectionId}" is empty.`,
-        };
-      }
-      if (collection.userId !== userId && !collection.isPublic) {
-        return {
-          error: `User is not authorized to this collection.`,
-        };
-      }
+      this.checkUserAccessToCollection(collection, userId);
 
       await this.prisma.userWordProgress.deleteMany({
         where: {
@@ -228,9 +209,7 @@ export class CollectionService {
       const userProgress = await this.getUserProgress(userId);
       return userProgress;
     } catch (error: any) {
-      return {
-        error: `Cannot update collection with id "${collectionId}". ${error.message}`,
-      };
+      handleError(error);
     }
   }
 
@@ -242,9 +221,7 @@ export class CollectionService {
 
       return userProgress;
     } catch (error: any) {
-      return {
-        error: `Cannot get user training progress. ${error.message}`,
-      };
+      handleError(error);
     }
   }
 
@@ -279,52 +256,39 @@ export class CollectionService {
               ? calculateNextTrainingDate(nextStage, userSettings)
               : oneDayFromNow;
 
-          try {
-            const updatedProgress = await this.prisma.userWordProgress.update({
-              where: { userId_translationId: { userId, translationId } },
-              data: {
-                mistakes: updatedMistakes,
-                stage: nextStage,
-                nextReview,
-              },
-            });
-            if (updatedProgress) {
-              userProgress.splice(userProgress.indexOf(progressToUpdate), 1);
-            }
-          } catch (error: any) {
-            return {
-              error: `Cannot update user progress. ${error.message}`,
-            };
+          const updatedProgress = await this.prisma.userWordProgress.update({
+            where: { userId_translationId: { userId, translationId } },
+            data: {
+              mistakes: updatedMistakes,
+              stage: nextStage,
+              nextReview,
+            },
+          });
+          if (updatedProgress) {
+            userProgress.splice(userProgress.indexOf(progressToUpdate), 1);
           }
         }
       }
 
       return userProgress;
     } catch (error: any) {
-      return {
-        error: `Cannot update user progress. ${error.message}`,
-      };
+      handleError(error);
     }
   }
 
   async updateCollection(
     collectionId: number,
     userId: number,
-    payload: RequestCollectionUpdate,
+    payload: RequestCollectionUpdateDto,
   ): Promise<Response<Collection>> {
     try {
       const collection = await this.prisma.collection.findUnique({
         where: { id: collectionId },
       });
-      if (!collection) {
-        return {
-          error: `Collection with id "${collectionId}" not found.`,
-        };
-      }
-      if (collection.userId !== userId) {
-        return {
-          error: `Unauthorized access to update collection: ${collectionId}`,
-        };
+      if (!collection || collection.userId !== userId) {
+        throw new ForbiddenException(
+          `"Коллекция ${collectionId}" не найдена или у вас нет доступа.`,
+        );
       }
       const data = await this.prisma.collection.update({
         data: payload,
@@ -347,15 +311,9 @@ export class CollectionService {
         })),
       };
 
-      return (
-        collectionWithWords || {
-          error: `Cannot update collection with id "${collectionId}"`,
-        }
-      );
+      return collectionWithWords;
     } catch (error: any) {
-      return {
-        error: `Cannot update collection with id "${collectionId}". ${error.message}`,
-      };
+      handleError(error);
     }
   }
 
@@ -386,7 +344,7 @@ export class CollectionService {
 
       return userProgress;
     } catch (error: any) {
-      return [];
+      handleError(error);
     }
   }
 
@@ -394,12 +352,16 @@ export class CollectionService {
     userId: number,
     collectionId: number,
   ): Promise<boolean> {
-    const collection = await this.prisma.collection.findFirst({
-      where: {
-        id: collectionId,
-        userId,
-      },
-    });
-    return Boolean(collection);
+    try {
+      const collection = await this.prisma.collection.findFirst({
+        where: {
+          id: collectionId,
+          userId,
+        },
+      });
+      return Boolean(collection);
+    } catch (error: any) {
+      handleError(error);
+    }
   }
 }

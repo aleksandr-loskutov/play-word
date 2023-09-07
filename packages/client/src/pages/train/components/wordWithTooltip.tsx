@@ -6,6 +6,7 @@ type WordWithTooltipProps = {
   collectionName: string | undefined
   word: string
   showCollectionNameHint: boolean
+  isWordNew: boolean
 }
 const cn = createCn('train-page')
 
@@ -13,18 +14,28 @@ const WordWithTooltip: React.FC<WordWithTooltipProps> = ({
   collectionName,
   word,
   showCollectionNameHint,
+  isWordNew,
 }) => {
   const showCollectionNameHintProp = showCollectionNameHint
     ? { open: true }
     : {}
 
   return (
-    <Tooltip
-      title={collectionName}
-      color="cyan"
-      {...showCollectionNameHintProp}>
-      <span className={cn('word')}>{word.toUpperCase()}</span>
-    </Tooltip>
+    <div className={cn('badge-container')}>
+      <Tooltip
+        title={collectionName}
+        color="cyan"
+        {...showCollectionNameHintProp}>
+        <span className={cn('word')}>{word.toUpperCase()}</span>
+      </Tooltip>
+      {isWordNew && (
+        <Tooltip
+          title={'для новых слов кол-во ошибок игнорируется'}
+          color="cyan">
+          <div className={cn('badge')}>new</div>{' '}
+        </Tooltip>
+      )}
+    </div>
   )
 }
 

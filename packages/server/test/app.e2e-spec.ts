@@ -5,12 +5,15 @@ import { PrismaService } from '../src/prisma/prisma.service';
 import {
   mockInvalidEditUserDto,
   mockRequestCollectionCreateDto,
+  mockInvalidRequestCollectionUpdateDto,
   mockSignUpDto,
   mockSignUpDtoInvalidEmail,
   mockSignUpDtoInvalidName,
   mockSignUpDtoInvalidPassword,
+  mockSignUpSecondUser,
   mockTrainingSettingsDto,
   mockUpdatedUserDto,
+  mockRequestCollectionUpdateDto,
 } from './mockData';
 import supertest from 'supertest';
 import { UserDto } from '../src/user/dto';
@@ -24,6 +27,7 @@ describe('App e2e', () => {
   let prisma: PrismaService;
   let jwtService: JwtService;
   let requestAgent: supertest.SuperTest<supertest.Test>;
+  let requestAgentForSecondUser: supertest.SuperTest<supertest.Test>;
   let unAuthedRequestAgent: supertest.SuperTest<supertest.Test>;
   let currentTokensWithCookies: Tokens & { cookiesString: string };
 
@@ -41,6 +45,7 @@ describe('App e2e', () => {
     await app.init();
     await app.listen(3333);
     requestAgent = supertest.agent(app.getHttpServer());
+    requestAgentForSecondUser = supertest.agent(app.getHttpServer());
     jwtService = app.get(JwtService);
     prisma = app.get(PrismaService);
     await prisma.cleanDatabase();
@@ -90,14 +95,26 @@ describe('App e2e', () => {
           .expect(400);
       });
 
-      it('should signup', () => {
-        return unAuthedRequestAgent
+      it('should signup', async () => {
+        await unAuthedRequestAgent
           .post('/auth/signup')
           .send(mockSignUpDto)
           .expect(201)
           .expect((res) => {
             verifyAuthResponse(res, jwtService);
           });
+        //and second user for tests
+        await requestAgentForSecondUser
+          .post('/auth/signup')
+          .send(mockSignUpSecondUser)
+          .expect(201);
+      });
+
+      it('should throw if user already exists', async () => {
+        await unAuthedRequestAgent
+          .post('/auth/signup')
+          .send(mockSignUpDto)
+          .expect(403);
       });
     });
 
@@ -169,6 +186,7 @@ describe('App e2e', () => {
   });
 
   describe('Collections', () => {
+    let createdCollectionId: string;
     it('should get public collections if not authenticated', async () => {
       await unAuthedRequestAgent.get('/collections/public').expect(200);
     });
@@ -248,6 +266,93 @@ describe('App e2e', () => {
       expect(response.body.isPublic).toEqual(
         mockRequestCollectionCreateDto.isPublic,
       );
+      createdCollectionId = response.body.id;
+      //and private collection for second user
+      await requestAgentForSecondUser
+        .post('/collections')
+        .send({ ...mockRequestCollectionCreateDto, isPublic: false })
+        .expect(201);
+    });
+
+    it('should throw if collection already exists', async () => {
+      await requestAgent
+        .post('/collections')
+        .send(mockRequestCollectionCreateDto)
+        .expect(403);
+    });
+
+    it('should get only owned & public collections', async () => {
+      //should not get collection from second user
+      await requestAgent
+        .get('/collections')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveLength(1);
+        });
+      //second user should get his own and 1 public form first user
+      await requestAgentForSecondUser
+        .get('/collections')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveLength(2);
+        });
+    });
+
+    it('should not update with invalid data', async () => {
+      //name is important
+      await requestAgent
+        .put(`/collections/${createdCollectionId}`)
+        .send({ name: '' })
+        .expect(400);
+
+      await requestAgent
+        .put(`/collections/${createdCollectionId}`)
+        .send({ name: 'AB' })
+        .expect(400);
+
+      //all other fields are optional, but we validate them if provided
+      await requestAgent
+        .put(`/collections/${createdCollectionId}`)
+        .send(mockInvalidRequestCollectionUpdateDto)
+        .expect(400)
+        .expect((res) => {
+          const { message } = res.body;
+          expect(message.length).toBeGreaterThanOrEqual(
+            Object.keys(mockInvalidRequestCollectionUpdateDto).length,
+          );
+        });
+    });
+
+    it('should update collection', async () => {
+      await requestAgent
+        .put(`/collections/${createdCollectionId}`)
+        .send(mockRequestCollectionUpdateDto)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body.name).toEqual(mockRequestCollectionUpdateDto.name);
+          expect(res.body.description).toEqual(
+            mockRequestCollectionUpdateDto.description,
+          );
+          expect(res.body.image).toEqual(mockRequestCollectionUpdateDto.image);
+        });
+    });
+
+    it('should not delete collection if not authenticated', async () => {
+      await unAuthedRequestAgent
+        .delete(`/collections/${createdCollectionId}`)
+        .expect(401);
+    });
+
+    it('should not delete collection if not owner', async () => {
+      await requestAgentForSecondUser
+        .delete(`/collections/${createdCollectionId}`)
+        .expect(403);
+    });
+
+    it('should delete collection', async () => {
+      await requestAgent
+        .delete(`/collections/${createdCollectionId}`)
+        .expect(200);
     });
   });
 
@@ -281,6 +386,16 @@ describe('App e2e', () => {
               Object.keys(mockInvalidEditUserDto.trainingSettings).length,
           );
         });
+    });
+
+    it('should not update user email if it already exist', async () => {
+      await requestAgent
+        .patch('/user')
+        .send({
+          email: mockSignUpSecondUser.email,
+          name: mockSignUpSecondUser.name,
+        })
+        .expect(409);
     });
 
     it('should update user', async () => {

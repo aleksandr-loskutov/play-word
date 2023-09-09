@@ -9,6 +9,12 @@ const mockSignUpDto: SignUpDto = {
   password: 'Password123', // conforms to all validation rules
 };
 
+const mockSignUpSecondUser: SignUpDto = {
+  email: 'aleksandr2@fakemail.com',
+  name: 'AleksandrL',
+  password: 'Password123', // conforms to all validation rules
+};
+
 const mockSignUpDtoInvalidEmail = {
   ...mockSignUpDto,
   email: 'notAnEmail',
@@ -77,6 +83,19 @@ const mockRequestCollectionCreateDto: RequestCollectionCreateDto = {
   isPublic: true,
 };
 
+const mockInvalidRequestCollectionUpdateDto = {
+  name: '', // Invalid: Empty string
+  description: 'A', // Invalid: Less than 3 characters
+  image: 123, // Invalid: Not a string
+  isPublic: 'yes', // Invalid: Not a boolean
+};
+
+const mockRequestCollectionUpdateDto = {
+  name: 'updated collection',
+  description: 'updated description',
+  image: 'https://example.com/img.png',
+};
+
 export {
   mockSignUpDto,
   mockSignUpDtoInvalidEmail,
@@ -86,4 +105,7 @@ export {
   mockUpdatedUserDto,
   mockInvalidEditUserDto,
   mockRequestCollectionCreateDto,
+  mockInvalidRequestCollectionUpdateDto,
+  mockRequestCollectionUpdateDto,
+  mockSignUpSecondUser,
 };

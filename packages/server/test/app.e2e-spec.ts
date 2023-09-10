@@ -14,6 +14,9 @@ import {
   mockTrainingSettingsDto,
   mockUpdatedUserDto,
   mockRequestCollectionUpdateDto,
+  mockInvalidRequestUserTrainingUpdateDto,
+  mockInvalidWordsForCollectionDto,
+  mockWordsForCollectionDto,
 } from './mockData';
 import supertest from 'supertest';
 import { UserDto } from '../src/user/dto';
@@ -21,6 +24,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UserWithTrainingSettings } from 'user';
 import { Tokens } from '../src/auth/types';
 import { generateRandomString } from '../src/common/utils';
+import { UserWordProgressExtended } from '../src/collection/dto';
+import { calculateNextTrainingDate } from '../src/collection/utils/calculateNextTrainingDate';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -30,6 +35,7 @@ describe('App e2e', () => {
   let requestAgentForSecondUser: supertest.SuperTest<supertest.Test>;
   let unAuthedRequestAgent: supertest.SuperTest<supertest.Test>;
   let currentTokensWithCookies: Tokens & { cookiesString: string };
+  let user: UserWithTrainingSettings;
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -102,6 +108,7 @@ describe('App e2e', () => {
           .expect(201)
           .expect((res) => {
             verifyAuthResponse(res, jwtService);
+            user = res.body;
           });
         //and second user for tests
         await requestAgentForSecondUser
@@ -186,7 +193,7 @@ describe('App e2e', () => {
   });
 
   describe('Collections', () => {
-    let createdCollectionId: string;
+    let collectionId: number;
     it('should get public collections if not authenticated', async () => {
       await unAuthedRequestAgent.get('/collections/public').expect(200);
     });
@@ -266,7 +273,7 @@ describe('App e2e', () => {
       expect(response.body.isPublic).toEqual(
         mockRequestCollectionCreateDto.isPublic,
       );
-      createdCollectionId = response.body.id;
+      collectionId = response.body.id;
       //and private collection for second user
       await requestAgentForSecondUser
         .post('/collections')
@@ -301,18 +308,18 @@ describe('App e2e', () => {
     it('should not update with invalid data', async () => {
       //name is important
       await requestAgent
-        .put(`/collections/${createdCollectionId}`)
+        .put(`/collections/${collectionId}`)
         .send({ name: '' })
         .expect(400);
 
       await requestAgent
-        .put(`/collections/${createdCollectionId}`)
+        .put(`/collections/${collectionId}`)
         .send({ name: 'AB' })
         .expect(400);
 
       //all other fields are optional, but we validate them if provided
       await requestAgent
-        .put(`/collections/${createdCollectionId}`)
+        .put(`/collections/${collectionId}`)
         .send(mockInvalidRequestCollectionUpdateDto)
         .expect(400)
         .expect((res) => {
@@ -325,7 +332,7 @@ describe('App e2e', () => {
 
     it('should update collection', async () => {
       await requestAgent
-        .put(`/collections/${createdCollectionId}`)
+        .put(`/collections/${collectionId}`)
         .send(mockRequestCollectionUpdateDto)
         .expect(200)
         .expect((res) => {
@@ -339,20 +346,231 @@ describe('App e2e', () => {
 
     it('should not delete collection if not authenticated', async () => {
       await unAuthedRequestAgent
-        .delete(`/collections/${createdCollectionId}`)
+        .delete(`/collections/${collectionId}`)
         .expect(401);
     });
 
     it('should not delete collection if not owner', async () => {
       await requestAgentForSecondUser
-        .delete(`/collections/${createdCollectionId}`)
+        .delete(`/collections/${collectionId}`)
         .expect(403);
     });
 
     it('should delete collection', async () => {
+      await requestAgent.delete(`/collections/${collectionId}`).expect(200);
+
       await requestAgent
-        .delete(`/collections/${createdCollectionId}`)
-        .expect(200);
+        .get('/collections')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveLength(0);
+        });
+    });
+  });
+
+  describe('Words', () => {
+    let collectionId: number;
+    const words = mockWordsForCollectionDto;
+
+    //create collection
+    beforeAll(async () => {
+      await requestAgent
+        .post('/collections')
+        .send({ mockRequestCollectionCreateDto, name: 'for words' })
+        .expect(201)
+        .expect((res) => {
+          collectionId = res.body.id;
+        });
+    });
+
+    it('should not get words from collection if not authenticated', async () => {
+      await unAuthedRequestAgent.get(`/word/${collectionId}`).expect(401);
+    });
+    it('should not add words to collection if not authenticated', async () => {
+      await unAuthedRequestAgent.post(`/word/${collectionId}`).expect(401);
+    });
+    it('should not add words to not owned collection', async () => {
+      await requestAgentForSecondUser.post(`/word/${collectionId}`).expect(403);
+    });
+
+    it('should not add invalid words to collection', async () => {
+      // no body provided
+      await requestAgent.post(`/word/${collectionId}`).expect(404);
+      //empty values
+      await requestAgent
+        .post(`/word/${collectionId}`)
+        .send([mockInvalidWordsForCollectionDto[0]])
+        .expect(400);
+      //length exceeds
+      await requestAgent
+        .post(`/word/${collectionId}`)
+        .send([mockInvalidWordsForCollectionDto[1]])
+        .expect(400);
+    });
+
+    it('should add words to collection', async () => {
+      await requestAgent
+        .post(`/word/${collectionId}`)
+        .send(words)
+        .expect(201)
+        .expect((res) => {
+          const { words: collectionWords } = res.body;
+          expect(collectionWords).toHaveLength(words.length);
+          expect(collectionWords[0].word).toEqual(words[0].word);
+          expect(collectionWords[0].translation).toEqual(words[0].translation);
+        });
+    });
+
+    it('should get words from collection', async () => {
+      await requestAgent
+        .get(`/word/${collectionId}`)
+        .expect(200)
+        .expect((res) => {
+          const collectionWords = res.body;
+          expect(collectionWords).toHaveLength(words.length);
+        });
+    });
+
+    it('should remove words from collection', async () => {
+      await requestAgent
+        .post(`/word/${collectionId}`)
+        .send([])
+        .expect(201)
+        .expect((res) => {
+          const { words: collectionWords } = res.body;
+          expect(collectionWords).toHaveLength(0);
+        });
+    });
+  });
+
+  describe('Training', () => {
+    let collectionId: number;
+    const mockWords = mockWordsForCollectionDto;
+    // let wordsFromServer: ResponseWordDto[];
+    let userWordProgress: UserWordProgressExtended[];
+
+    beforeAll(async () => {
+      //create collection
+      await requestAgent
+        .post('/collections')
+        .send({ ...mockRequestCollectionCreateDto, name: 'for training' })
+        .expect(201)
+        .expect((res) => {
+          collectionId = res.body.id;
+        });
+      //add words to it
+      await requestAgent
+        .post(`/word/${collectionId}`)
+        .send(mockWords)
+        .expect(201)
+        .expect((res) => {
+          const { words: collectionWords } = res.body;
+          // wordsFromServer = collectionWords;
+          expect(collectionWords).toHaveLength(mockWords.length);
+          expect(collectionWords[0].word).toEqual(mockWords[0].word);
+          expect(collectionWords[0].translation).toEqual(
+            mockWords[0].translation,
+          );
+        });
+    });
+    it('should not get training progress if not authenticated', async () => {
+      await unAuthedRequestAgent.get('/collections/train').expect(401);
+    });
+
+    it('should not train collection if not authenticated', async () => {
+      await unAuthedRequestAgent
+        .post(`/collections/${collectionId}`)
+        .expect(401);
+    });
+
+    it('should not update training progress if not authenticated', async () => {
+      await unAuthedRequestAgent
+        .patch(`/collections/train`)
+        .send(mockInvalidRequestUserTrainingUpdateDto)
+        .expect(401);
+    });
+
+    it('should add collection words to training', async () => {
+      await requestAgent.post(`/collections/${collectionId}`).expect(200);
+    });
+
+    it('should get valid training progress based on user preferences', async () => {
+      await requestAgent
+        .get('/collections/train')
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toHaveLength(mockWords.length);
+          expect(res.body[0].collectionId).toEqual(collectionId);
+          expect(res.body[1].collectionId).toEqual(collectionId);
+          userWordProgress = res.body;
+        });
+      //progress should have correct nextReview date according to user settings
+      const { trainingSettings } = user;
+      const nextReviewShouldBe = calculateNextTrainingDate(0, trainingSettings);
+      // Convert both 'nextReviewShouldBe' and 'nextReviewFromResponse' to Date objects
+      const nextReviewShouldBeDate = new Date(nextReviewShouldBe);
+      const nextReviewFromResponseDate = new Date(
+        userWordProgress[0].nextReview,
+      );
+      // Calculate date difference in milliseconds
+      const dateDifference = Math.abs(
+        nextReviewFromResponseDate.getTime() - nextReviewShouldBeDate.getTime(),
+      );
+      // Tolerance
+      const toleranceInMilliseconds = 5000;
+      // Check if the date difference falls within the acceptable tolerance
+      expect(dateDifference).toBeLessThanOrEqual(toleranceInMilliseconds);
+    });
+
+    it('should not update training progress with invalid data', async () => {
+      //it should always return actual userProgress even if sent data is not valid or ids is not correct
+      await requestAgent
+        .patch(`/collections/train`)
+        .send([{ wordId: true, translationId: '0', sessionMistakes: null }])
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toEqual(userWordProgress);
+        });
+      await requestAgent
+        .patch(`/collections/train`)
+        .send(mockInvalidRequestUserTrainingUpdateDto)
+        .expect(200)
+        .expect((res) => {
+          expect(res.body).toEqual(userWordProgress);
+        });
+    });
+    it('should update training progress', async () => {
+      const {
+        translationId,
+        translation: { wordId },
+      } = userWordProgress[0];
+      await requestAgent
+        .patch(`/collections/train`)
+        .send([{ wordId, translationId, sessionMistakes: 3 }])
+        .expect(200)
+        .expect((res) => {
+          const updatedUserWordProgress: UserWordProgressExtended[] = res.body;
+          //backend is filtering progress by date, so it should return 1 less word
+          expect(updatedUserWordProgress).toHaveLength(
+            userWordProgress.length - 1,
+          );
+          const wordProgress: UserWordProgressExtended =
+            updatedUserWordProgress.find(
+              (x: UserWordProgressExtended) =>
+                x.translationId === translationId,
+            );
+          expect(wordProgress).toBeUndefined();
+        });
+    });
+
+    it('should untrain colection words', async () => {
+      await requestAgent
+        .patch(`/collections/${collectionId}`)
+        .expect(200)
+        .expect((res) => {
+          const updatedUserWordProgress: UserWordProgressExtended[] = res.body;
+          expect(updatedUserWordProgress).toHaveLength(0);
+        });
     });
   });
 
@@ -414,11 +632,11 @@ describe('App e2e', () => {
           );
           currentTokensWithCookies = newTokensWithCookies;
           //check for updated user
-          const updatedUser: UserWithTrainingSettings = res.body;
-          expect(updatedUser.email).toBe(mockUpdatedUserDto.email);
-          expect(updatedUser.name).toBe(mockUpdatedUserDto.name);
-          expect(updatedUser.trainingSettings).toBeDefined();
-          expect(updatedUser.trainingSettings).toEqual(
+          user = res.body;
+          expect(user.email).toBe(mockUpdatedUserDto.email);
+          expect(user.name).toBe(mockUpdatedUserDto.name);
+          expect(user.trainingSettings).toBeDefined();
+          expect(user.trainingSettings).toEqual(
             expect.objectContaining(mockTrainingSettingsDto),
           );
         });

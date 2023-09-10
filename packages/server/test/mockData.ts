@@ -1,7 +1,12 @@
 import { SignUpDto } from '../src/auth/dto';
 import { UserTrainingSettings } from '@prisma/client';
 import { EditUserDto } from '../src/user/dto';
-import { RequestCollectionCreateDto } from '../src/collection/dto';
+import {
+  RequestCollectionCreateDto,
+  RequestUserTrainingUpdate,
+} from '../src/collection/dto';
+import { generateRandomString } from '../src/common/utils';
+import { WordDto } from '../src/word/dto';
 
 const mockSignUpDto: SignUpDto = {
   email: 'aleksandr@fakemail.com',
@@ -96,6 +101,33 @@ const mockRequestCollectionUpdateDto = {
   image: 'https://example.com/img.png',
 };
 
+const mockInvalidRequestUserTrainingUpdateDto: RequestUserTrainingUpdate[] = [
+  {
+    wordId: 10000,
+    translationId: 10000,
+    sessionMistakes: 5,
+  },
+];
+
+const mockInvalidWordsForCollectionDto: WordDto[] = [
+  {
+    word: '',
+    translation: '',
+  },
+  { word: generateRandomString(100), translation: generateRandomString(100) },
+];
+
+const mockWordsForCollectionDto: WordDto[] = [
+  {
+    word: generateRandomString(2),
+    translation: generateRandomString(2),
+  },
+  {
+    word: generateRandomString(45),
+    translation: generateRandomString(45),
+  },
+];
+
 export {
   mockSignUpDto,
   mockSignUpDtoInvalidEmail,
@@ -108,4 +140,7 @@ export {
   mockInvalidRequestCollectionUpdateDto,
   mockRequestCollectionUpdateDto,
   mockSignUpSecondUser,
+  mockInvalidRequestUserTrainingUpdateDto,
+  mockWordsForCollectionDto,
+  mockInvalidWordsForCollectionDto,
 };

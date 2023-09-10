@@ -107,7 +107,13 @@ const CollectionPage: React.FC = () => {
     dataToUpdate: RequestCollectionUpdate
   ) => {
     handleCloseEditModal()
-    if (!collection || !dataToUpdate.id) return
+    if (
+      !collection ||
+      !dataToUpdate.id ||
+      dataToUpdate.name === '' ||
+      dataToUpdate.name === collection.name
+    )
+      return
     dispatch(updateCollection(dataToUpdate))
       .unwrap()
       .then(_ => {

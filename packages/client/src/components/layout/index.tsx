@@ -96,7 +96,7 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
       {
         label: (
           <>
-            <UserOutlined /> {isLoggedIn ? user?.name : 'Авторизация'}
+            <UserOutlined /> {isLoggedIn ? user?.name : 'Вход'}
           </>
         ),
         key: 'user',
@@ -123,7 +123,7 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
               {
                 label: (
                   <Link to="/sign-in">
-                    <LoginOutlined /> Вход
+                    <LoginOutlined /> Войти
                   </Link>
                 ),
                 key: 'signin',

@@ -26,7 +26,12 @@ export class PrismaService
     await this.$disconnect();
   }
   async cleanDatabase() {
-    // if (process.env.NODE_ENV === 'production') return;
-    return Promise.all([this.user.deleteMany()]);
+    if (process.env.NODE_ENV === 'production') return;
+    await this.userTrainingSettings.deleteMany();
+    await this.word.deleteMany();
+    await this.collection.deleteMany();
+    await this.wordForCollection.deleteMany();
+    await this.userWordProgress.deleteMany();
+    await this.user.deleteMany();
   }
 }

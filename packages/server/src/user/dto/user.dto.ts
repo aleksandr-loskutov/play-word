@@ -55,6 +55,7 @@ export class TrainingSettingsDto {
   @IsBoolean()
   showCollectionNameHint: boolean;
 
+  // this max number also is using in updateUserTraining method for payload validation
   @Min(1)
   @Max(100)
   wordsPerSession;

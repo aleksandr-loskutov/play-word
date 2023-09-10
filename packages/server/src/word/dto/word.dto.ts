@@ -1,23 +1,20 @@
-import {
-  IsString,
-  IsNotEmpty,
-  MinLength,
-  IsOptional,
-  IsNumber,
-} from 'class-validator';
-
+import { IsString, IsNotEmpty, IsNumber, Length } from 'class-validator';
 export class WordDto {
-  @IsNumber()
-  @IsOptional()
-  id?;
-
   @IsString()
   @IsNotEmpty()
-  @MinLength(1, { message: 'Word should not be empty' })
+  @Length(2, 45, { message: 'Word should contain 2-45 characters' })
   word;
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(1, { message: 'Translation should not be empty' })
+  @Length(2, 45, { message: 'Translation should contain 2-45 characters' })
   translation;
 }
+
+export class ResponseWordDto extends WordDto {
+  @IsNumber()
+  @IsNotEmpty()
+  id;
+}
+
+export class RequestUpdateWordDto extends ResponseWordDto {}

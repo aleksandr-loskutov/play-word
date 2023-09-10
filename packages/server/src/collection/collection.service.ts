@@ -14,22 +14,29 @@ import {
   RequestCollectionUpdateDto,
   RequestUserTrainingUpdate,
   UserWordProgressExtended,
-  UserWordProgressResponse,
 } from './dto';
 import { Response } from 'common';
-import { handleError } from '../common/utils';
+import {
+  handleError,
+  validateUserTrainingUpdatePayloadArray,
+} from '../common/utils';
 import { cacheManager } from '../common/utils/memCache';
 
 @Injectable()
 export class CollectionService {
   constructor(private prisma: PrismaService) {}
 
-  async getUserCollections(
+  async getCollections(
     userId: number,
   ): Promise<Response<CollectionWithWords[]>> {
     try {
       const data = await this.prisma.collection.findMany({
-        where: { userId, deleted: false },
+        where: {
+          OR: [
+            { userId, deleted: false },
+            { isPublic: true, deleted: false },
+          ],
+        },
         include: {
           words: {
             select: {
@@ -39,6 +46,8 @@ export class CollectionService {
           },
         },
       });
+
+      // Map the data to include word and translation details
       const collectionsWithWords = data.map((collection) => ({
         ...collection,
         words: collection.words.map(({ word, translation }) => ({
@@ -47,6 +56,7 @@ export class CollectionService {
           translationId: translation.id,
         })),
       }));
+
       return collectionsWithWords;
     } catch (error: any) {
       handleError(error);
@@ -117,7 +127,7 @@ export class CollectionService {
   async addCollectionWordsToUserProgress(
     collectionId: number,
     userId: number,
-  ): Promise<Response<UserWordProgressResponse>> {
+  ): Promise<Response<UserWordProgressExtended[]>> {
     try {
       const collection = await this.prisma.collection.findUnique({
         where: { id: collectionId },
@@ -185,7 +195,7 @@ export class CollectionService {
   async deleteCollectionWordsFromUserProgress(
     collectionId: number,
     userId: number,
-  ): Promise<Response<UserWordProgressResponse>> {
+  ): Promise<Response<UserWordProgressExtended[]>> {
     try {
       const collection = await this.prisma.collection.findUnique({
         where: { id: collectionId },
@@ -215,7 +225,7 @@ export class CollectionService {
 
   async getUserTraining(
     userId: number,
-  ): Promise<Response<UserWordProgressResponse>> {
+  ): Promise<Response<UserWordProgressExtended[]>> {
     try {
       const userProgress = await this.getUserProgress(userId);
 
@@ -233,12 +243,17 @@ export class CollectionService {
       const userSettings = await this.prisma.userTrainingSettings.findUnique({
         where: { userId },
       });
-      if (!userSettings || trainingToUpdate.length === 0) return [];
-
+      if (!userSettings) return [];
       const userProgress = await this.getUserProgress(userId);
+      if (
+        trainingToUpdate.length === 0 ||
+        trainingToUpdate.length > userSettings.wordsPerSession ||
+        !validateUserTrainingUpdatePayloadArray(trainingToUpdate)
+      )
+        return userProgress;
+
       for (const trainingItem of trainingToUpdate) {
         const { wordId, translationId, sessionMistakes } = trainingItem;
-
         const progressToUpdate = userProgress.find(
           (progress) =>
             progress.translation.id === translationId &&

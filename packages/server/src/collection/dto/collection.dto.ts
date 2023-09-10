@@ -41,11 +41,7 @@ export class RequestCollectionCreateDto {
   isPublic?: boolean;
 }
 
-export class RequestCollectionUpdateDto extends RequestCollectionCreateDto {
-  @IsOptional()
-  @IsString()
-  override name: string;
-}
+export class RequestCollectionUpdateDto extends RequestCollectionCreateDto {}
 
 export class RequestLearnCollection {
   @IsOptional()

@@ -19,8 +19,8 @@ import {
   CollectionWithWords,
   RequestCollectionCreateDto,
   RequestCollectionUpdateDto,
-  UserWordProgressResponse,
   RequestUserTrainingUpdate,
+  UserWordProgressExtended,
 } from './dto';
 import { Response } from 'common';
 
@@ -56,7 +56,7 @@ export class CollectionController {
   @HttpCode(HttpStatus.OK)
   getUserTraining(
     @GetCurrentUserId() userId: number,
-  ): Promise<Response<UserWordProgressResponse>> {
+  ): Promise<Response<UserWordProgressExtended[]>> {
     return this.collectionService.getUserTraining(userId);
   }
 
@@ -65,7 +65,7 @@ export class CollectionController {
   updateUserTraining(
     @Body() payload: RequestUserTrainingUpdate[],
     @GetCurrentUserId() userId: number,
-  ): Promise<Response<UserWordProgressResponse>> {
+  ): Promise<Response<UserWordProgressExtended[]>> {
     return this.collectionService.updateUserTraining(payload, userId);
   }
 
@@ -74,7 +74,7 @@ export class CollectionController {
   trainCollectionWords(
     @Param('collectionId') collectionId: string,
     @GetCurrentUserId() userId: number,
-  ): Promise<Response<UserWordProgressResponse>> {
+  ): Promise<Response<UserWordProgressExtended[]>> {
     return this.collectionService.addCollectionWordsToUserProgress(
       parseInt(collectionId),
       userId,
@@ -86,7 +86,7 @@ export class CollectionController {
   unTrainCollectionWords(
     @Param('collectionId') collectionId: string,
     @GetCurrentUserId() userId: number,
-  ): Promise<Response<UserWordProgressResponse>> {
+  ): Promise<Response<UserWordProgressExtended[]>> {
     return this.collectionService.deleteCollectionWordsFromUserProgress(
       parseInt(collectionId),
       userId,
@@ -98,7 +98,7 @@ export class CollectionController {
   getUserCollections(
     @GetCurrentUserId() userId: number,
   ): Promise<Response<CollectionWithWords[]>> {
-    return this.collectionService.getUserCollections(userId);
+    return this.collectionService.getCollections(userId);
   }
 
   @Delete('/:collectionId')

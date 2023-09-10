@@ -1,4 +1,6 @@
-import validateArrayForEmptyStringAndLength from './validateArray';
+import validateArrayForEmptyStringAndLength, {
+  validateUserTrainingUpdatePayloadArray,
+} from './validateArray';
 import handleError from './handleError';
 import disableCache from './disableCache';
 import generateRandomString from './randomString';
@@ -8,4 +10,5 @@ export {
   handleError,
   disableCache,
   generateRandomString,
+  validateUserTrainingUpdatePayloadArray,
 };

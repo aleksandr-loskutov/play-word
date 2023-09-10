@@ -1,5 +1,7 @@
 import { BadRequestException } from '@nestjs/common';
+import { RequestUserTrainingUpdate } from '../../collection/dto';
 
+//we should use class-validator here, but for now we use this
 function validateArrayForEmptyStringAndLength(
   arr: any[],
   fields: string[],
@@ -31,6 +33,18 @@ function validateArrayForEmptyStringAndLength(
       }
     }
   }
+}
+
+export function validateUserTrainingUpdatePayloadArray(
+  requestUpdates: RequestUserTrainingUpdate[],
+): boolean {
+  return requestUpdates.every((update) => {
+    return (
+      typeof update.wordId === 'number' &&
+      typeof update.translationId === 'number' &&
+      typeof update.sessionMistakes === 'number'
+    );
+  });
 }
 
 export default validateArrayForEmptyStringAndLength;

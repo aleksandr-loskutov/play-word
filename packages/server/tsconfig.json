@@ -20,6 +20,7 @@
     "forceConsistentCasingInFileNames": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "noEmit": true,
     "lib": ["es2019", "esnext.asynciterable"],
     "types": ["node", "jest"],
         "incremental": true,
@@ -31,28 +32,6 @@
     "paths": {
       "*": ["types/*"]
     },
-    "outDir": "dist"
+    "outDir": "./dist"
   }
 }
-
-//{
-//  "compilerOptions": {
-//    "module": "commonjs",
-//    "declaration": true,
-//    "removeComments": true,
-//    "emitDecoratorMetadata": true,
-//    "experimentalDecorators": true,
-//    "allowSyntheticDefaultImports": true,
-//    "target": "es2017",
-//    "sourceMap": true,
-//    "outDir": "./dist",
-//    "baseUrl": ".",
-//    "incremental": true,
-//    "skipLibCheck": true,
-//    "strictNullChecks": false,
-//    "noImplicitAny": false,
-//    "strictBindCallApply": false,
-//    "forceConsistentCasingInFileNames": false,
-//    "noFallthroughCasesInSwitch": false
-//  }
-//}

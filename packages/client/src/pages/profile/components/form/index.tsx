@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState } from 'react';
 import {
   Form,
   Input,
@@ -8,40 +8,40 @@ import {
   Switch,
   Divider,
   Select,
-} from 'antd'
-const { Option } = Select
-import signUpRules from '../../../signUp/validator'
-import createCn from '../../../../utils/create-cn'
-import { RequestUserDataUpdate, User } from '../../../../types/user'
-import { Nullable } from '../../../../types/common'
-import './style.css'
+} from 'antd';
+const { Option } = Select;
+import signUpRules from '../../../signUp/validator';
+import createCn from '../../../../utils/create-cn';
+import { RequestUserDataUpdate, User } from '../../../../types/user';
+import { Nullable } from '../../../../types/common';
+import './style.css';
 import {
   TRAINING_COUNTDOWN_RULES,
   TRAINING_ERROR_RULES,
   TRAINING_INTERVAL_RULES,
   TRAINING_MISTYPE_RULES,
   TRAINING_WORDS_PER_SESSION_RULES,
-} from './validator'
+} from './validator';
 
 type ProfileFormProps = {
-  error: Nullable<string>
-  user: Nullable<User>
-  onSubmit: (data: RequestUserDataUpdate) => void
-}
-const cn = createCn('profile-form')
+  error: Nullable<string>;
+  user: Nullable<User>;
+  onSubmit: (data: RequestUserDataUpdate) => void;
+};
+const cn = createCn('profile-form');
 
 function ProfileForm({ user, error, onSubmit }: ProfileFormProps) {
-  const [form] = Form.useForm()
+  const [form] = Form.useForm();
   const initialValues = {
     ...user,
     language: 'english',
-  }
+  };
 
-  const [isFormTouched, setIsFormTouched] = useState(false)
+  const [isFormTouched, setIsFormTouched] = useState(false);
 
   const handleFormChange = () => {
-    setIsFormTouched(form.isFieldsTouched())
-  }
+    setIsFormTouched(form.isFieldsTouched());
+  };
 
   return (
     <div className={cn('box')}>
@@ -96,9 +96,9 @@ function ProfileForm({ user, error, onSubmit }: ProfileFormProps) {
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue('password') === value) {
-                    return Promise.resolve()
+                    return Promise.resolve();
                   }
-                  return Promise.reject('Пароли не совпадают')
+                  return Promise.reject('Пароли не совпадают');
                 },
               }),
             ]}>
@@ -269,7 +269,7 @@ function ProfileForm({ user, error, onSubmit }: ProfileFormProps) {
         </Button>
       </Form>
     </div>
-  )
+  );
 }
 
-export default ProfileForm
+export default ProfileForm;

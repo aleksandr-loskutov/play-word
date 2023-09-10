@@ -1,5 +1,5 @@
-import { SignUpDto } from '../src/auth/dto';
 import { UserTrainingSettings } from '@prisma/client';
+import { SignUpDto } from '../src/auth/dto';
 import { EditUserDto } from '../src/user/dto';
 import {
   RequestCollectionCreateDto,

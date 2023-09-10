@@ -1,10 +1,10 @@
-import React from 'react'
-import { Button, Typography } from 'antd'
-import createCn from '../../utils/create-cn'
-import './error.css'
-import { Link } from 'react-router-dom'
+import React from 'react';
+import { Button, Typography } from 'antd';
+import createCn from '../../utils/create-cn';
+import './error.css';
+import { Link } from 'react-router-dom';
 
-const cn = createCn('error-page')
+const cn = createCn('error-page');
 
 function ErrorPage() {
   return (
@@ -14,7 +14,7 @@ function ErrorPage() {
         <Button type="primary">На главную</Button>
       </Link>
     </section>
-  )
+  );
 }
 
-export default ErrorPage
+export default ErrorPage;

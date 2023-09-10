@@ -1,21 +1,21 @@
-import { customNotification } from '../components/custom-notification/customNotification'
+import { customNotification } from '../components/custom-notification/customNotification';
 
 export function validateArrayForEmptyStringAndLength(
   arr,
   fields,
   minLength = 2,
-  maxLength = 45
+  maxLength = 45,
 ) {
-  const errors = []
+  const errors = [];
 
   for (let i = 0; i < arr.length; i++) {
-    const item = arr[i]
+    const item = arr[i];
     for (const field of fields) {
       // Check for empty string
       if (typeof item[field] === 'string' && item[field].trim() === '') {
         errors.push(
-          `Ошибка валидации: ${field} на строке ${i + 1} не должно быть пустым`
-        )
+          `Ошибка валидации: ${field} на строке ${i + 1} не должно быть пустым`,
+        );
       }
 
       // Check for min length
@@ -23,8 +23,8 @@ export function validateArrayForEmptyStringAndLength(
         errors.push(
           `Ошибка валидации: ${field} на строке ${
             i + 1
-          } должно быть больше ${minLength} символов`
-        )
+          } должно быть больше ${minLength} символов`,
+        );
       }
 
       // Check for max length
@@ -32,8 +32,8 @@ export function validateArrayForEmptyStringAndLength(
         errors.push(
           `Ошибка валидации: ${field}  на строке ${
             i + 1
-          } должно быть меньше ${maxLength} символов`
-        )
+          } должно быть меньше ${maxLength} символов`,
+        );
       }
     }
   }
@@ -43,8 +43,8 @@ export function validateArrayForEmptyStringAndLength(
       message: 'Ошибка!',
       description: errors[0],
       type: 'error',
-    })
-    return false
+    });
+    return false;
   }
-  return true
+  return true;
 }

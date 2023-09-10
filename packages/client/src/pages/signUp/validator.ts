@@ -1,8 +1,8 @@
-import { Indexable } from '../../types/common'
-import { Rule } from 'antd/lib/form'
+import { Indexable } from '../../types/common';
+import { Rule } from 'antd/lib/form';
 
-const CIRILLIC_OR_LATIN_REGEXP = /^[a-zA-Zа-яА-ЯёЁ][a-zA-Zа-яА-ЯёЁ-]*$/g
-const CHECK_NUMBER_REGEXP = /(?=.*\d)/
+const CIRILLIC_OR_LATIN_REGEXP = /^[a-zA-Zа-яА-ЯёЁ][a-zA-Zа-яА-ЯёЁ-]*$/g;
+const CHECK_NUMBER_REGEXP = /(?=.*\d)/;
 const signUpRules: Indexable<Rule[]> = {
   email: [
     {
@@ -33,6 +33,6 @@ const signUpRules: Indexable<Rule[]> = {
       message: 'Должен содержать хотя бы одну цифру',
     },
   ],
-}
+};
 
-export default signUpRules
+export default signUpRules;

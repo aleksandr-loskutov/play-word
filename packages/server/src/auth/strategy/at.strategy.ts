@@ -2,8 +2,8 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { JwtPayload } from '../types';
 import { Request as RequestType } from 'express';
+import { JwtPayload } from '../types';
 
 @Injectable()
 export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -14,7 +14,8 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
       secretOrKey: config.get<string>('AT_SECRET'),
     });
   }
-  //user object will append to request (req.user) and can be used further like in express
+
+  // user object will append to request (req.user) and can be used further like in express
   validate(payload: JwtPayload) {
     if (!payload) throw new ForbiddenException('Access token malformed');
     return payload;

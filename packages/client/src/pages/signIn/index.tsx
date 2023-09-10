@@ -1,51 +1,51 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Alert, Button, Form, Input } from 'antd'
-import { Link, useNavigate } from 'react-router-dom'
-import createCn from '../../utils/create-cn'
-import signUpRules from '../signUp/validator'
-import './style.css'
-import { useAuth } from '../../components/hooks/auth'
-import { customNotification } from '../../components/custom-notification/customNotification'
-import { Nullable } from '../../types/common'
+import { useCallback, useEffect, useState } from 'react';
+import { Alert, Button, Form, Input } from 'antd';
+import { Link, useNavigate } from 'react-router-dom';
+import createCn from '../../utils/create-cn';
+import signUpRules from '../signUp/validator';
+import './style.css';
+import { useAuth } from '../../components/hooks/auth';
+import { customNotification } from '../../components/custom-notification/customNotification';
+import { Nullable } from '../../types/common';
 
 type FormData = {
-  email: string
-  password: string
-}
+  email: string;
+  password: string;
+};
 
-const cn = createCn('sign-in')
+const cn = createCn('sign-in');
 
 function SignInPage(): JSX.Element {
-  const navigate = useNavigate()
-  const { isLoggedIn, signIn } = useAuth()
-  const [error, setError] = useState<Nullable<string>>(null)
+  const navigate = useNavigate();
+  const { isLoggedIn, signIn } = useAuth();
+  const [error, setError] = useState<Nullable<string>>(null);
   const handleFormFinish = useCallback(
     (data: FormData): void => {
-      setError(null)
+      setError(null);
       signIn({
         email: data.email,
         password: data.password,
       })
         .unwrap()
-        .then(_ => {
+        .then((_) => {
           customNotification({
             message: 'Успешно!',
             description: 'Вошли в аккаунт.',
             type: 'success',
-          })
+          });
         })
         .catch((error: string) => {
-          setError(error)
-        })
+          setError(error);
+        });
     },
-    [signIn]
-  )
+    [signIn],
+  );
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigate('/')
+      navigate('/');
     }
-  }, [isLoggedIn])
+  }, [isLoggedIn]);
 
   return (
     <section className={cn()}>
@@ -97,6 +97,6 @@ function SignInPage(): JSX.Element {
         </Form>
       </div>
     </section>
-  )
+  );
 }
-export default SignInPage
+export default SignInPage;

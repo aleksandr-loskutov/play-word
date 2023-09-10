@@ -1,20 +1,20 @@
 :root {
-    --primary: #45f3ff;
-    --secondary: #1b8aab;
-    --background: #121212;
-    --surface: #1f1f1f;
-    --error: #f44336;
-    --success: #4caf50;
-    --warning: #ffc107;
-    --info: #2196f3;
+  --primary: #45f3ff;
+  --secondary: #1b8aab;
+  --background: #121212;
+  --surface: #1f1f1f;
+  --error: #f44336;
+  --success: #4caf50;
+  --warning: #ffc107;
+  --info: #2196f3;
 
-    --onPrimary: #000000;
-    --onSecondary: #ffffff;
-    --onBackground: #b0b0b0;
-    --onSurface: #b0b0b0;
-    --onError: #ffffff;
-    --onSuccess: #ffffff;
-    --onWarning: #000000;
-    --onInfo: #ffffff;
-    --backgroundSpecial: rgba(27, 138, 171, 0.4);
+  --onPrimary: #000000;
+  --onSecondary: #ffffff;
+  --onBackground: #b0b0b0;
+  --onSurface: #b0b0b0;
+  --onError: #ffffff;
+  --onSuccess: #ffffff;
+  --onWarning: #000000;
+  --onInfo: #ffffff;
+  --backgroundSpecial: rgba(27, 138, 171, 0.4);
 }

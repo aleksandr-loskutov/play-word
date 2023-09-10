@@ -11,10 +11,11 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { Collection } from '@prisma/client';
+import { Response } from 'common';
 import { AtGuard } from '../common/guards';
 import { CollectionService } from './collection.service';
 import { GetCurrentUserId, Public } from '../common/decorators';
-import { Collection } from '@prisma/client';
 import {
   CollectionWithWords,
   RequestCollectionCreateDto,
@@ -22,7 +23,6 @@ import {
   RequestUserTrainingUpdate,
   UserWordProgressExtended,
 } from './dto';
-import { Response } from 'common';
 
 @UseGuards(AtGuard)
 @Controller('collections')

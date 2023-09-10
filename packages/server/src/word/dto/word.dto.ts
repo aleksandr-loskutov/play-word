@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, IsNumber, Length } from 'class-validator';
+
 export class WordDto {
   @IsString()
   @IsNotEmpty()

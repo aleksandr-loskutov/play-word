@@ -18,7 +18,7 @@ abstract class Storage<T extends string> {
         setItem: () => {},
         removeItem: () => {},
       };
-    }
+    },
   ) {
     this.storage = getStorage();
   }
@@ -36,7 +36,7 @@ abstract class Storage<T extends string> {
   }
 
   protected clearItems(keys: T[]): void {
-    keys.forEach(key => this.clearItem(key));
+    keys.forEach((key) => this.clearItem(key));
   }
 }
 

@@ -1,5 +1,6 @@
 class CacheManager<T> {
   private static instance: CacheManager<any>;
+
   private cache: { [key: string]: { data: T; lastFetched: Date } } = {};
 
   private constructor() {}

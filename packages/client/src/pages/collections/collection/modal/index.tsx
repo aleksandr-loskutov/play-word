@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react';
 import {
   Modal,
   Table,
@@ -10,22 +10,22 @@ import {
   Space,
   Col,
   Row,
-} from 'antd'
-import { DeleteOutlined, InboxOutlined, PlusOutlined } from '@ant-design/icons'
-import Papa from 'papaparse'
-import { WordForCollection } from '../../../../types/collection'
-import { customNotification } from '../../../../components/custom-notification/customNotification'
-import Title from 'antd/lib/typography/Title'
-import { validateArrayForEmptyStringAndLength } from '../../../../utils/validate-array'
+} from 'antd';
+import { DeleteOutlined, InboxOutlined, PlusOutlined } from '@ant-design/icons';
+import Papa from 'papaparse';
+import { WordForCollection } from '../../../../types/collection';
+import { customNotification } from '../../../../components/custom-notification/customNotification';
+import Title from 'antd/lib/typography/Title';
+import { validateArrayForEmptyStringAndLength } from '../../../../utils/validate-array';
 
-const { Dragger } = Upload
+const { Dragger } = Upload;
 
 type AddWordsModalProps = {
-  visible: boolean
-  onClose: () => void
-  onSubmit: (words: WordForCollection[]) => void
-  initialWords: WordForCollection[]
-}
+  visible: boolean;
+  onClose: () => void;
+  onSubmit: (words: WordForCollection[]) => void;
+  initialWords: WordForCollection[];
+};
 
 const AddWordsModal: React.FC<AddWordsModalProps> = ({
   visible,
@@ -33,87 +33,87 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
   onSubmit,
   initialWords,
 }) => {
-  const [form] = Form.useForm()
+  const [form] = Form.useForm();
   const [words, setWords] = useState<WordForCollection[]>(
-    initialWords.length > 0 ? initialWords : [{ word: '', translation: '' }]
-  )
-  const wordsRef = useRef([])
+    initialWords.length > 0 ? initialWords : [{ word: '', translation: '' }],
+  );
+  const wordsRef = useRef([]);
   const handleAddWordRow = () => {
-    setWords([...words, { word: '', translation: '' }])
-  }
+    setWords([...words, { word: '', translation: '' }]);
+  };
   const anyRowIsEmpty = words.some(
-    row => row.word === '' || row.translation === ''
-  )
+    (row) => row.word === '' || row.translation === '',
+  );
   useEffect(() => {
-    wordsRef.current.length = words.length
-    const lastInputRef = wordsRef.current[words.length - 1]
+    wordsRef.current.length = words.length;
+    const lastInputRef = wordsRef.current[words.length - 1];
     if (lastInputRef) {
-      lastInputRef.focus()
+      lastInputRef.focus();
     }
-  }, [words.length])
+  }, [words.length]);
 
   useEffect(() => {
-    const handleEnterKeyDown = event => {
+    const handleEnterKeyDown = (event) => {
       if (event.key === 'Enter' && !anyRowIsEmpty) {
-        handleAddWordRow()
+        handleAddWordRow();
       }
-    }
-    document.addEventListener('keydown', handleEnterKeyDown)
+    };
+    document.addEventListener('keydown', handleEnterKeyDown);
     return () => {
-      document.removeEventListener('keydown', handleEnterKeyDown)
-    }
-  }, [anyRowIsEmpty, handleAddWordRow])
+      document.removeEventListener('keydown', handleEnterKeyDown);
+    };
+  }, [anyRowIsEmpty, handleAddWordRow]);
 
   const handleOk = () => {
     // Filter out empty rows
     const validWords = words.filter(
-      row => row.word !== '' && row.translation !== ''
-    )
+      (row) => row.word !== '' && row.translation !== '',
+    );
     //we are temporarily is not using antd form validation
     const isValid = validateArrayForEmptyStringAndLength(validWords, [
       'word',
       'translation',
-    ])
-    if (!isValid) return
+    ]);
+    if (!isValid) return;
     //TODO use antd form validation
     form
       .validateFields()
       .then((values: any) => {
         // Submit only valid rows
-        onSubmit(validWords.concat([values]))
-        onClose()
+        onSubmit(validWords.concat([values]));
+        onClose();
       })
       .catch((e: any) => {
         customNotification({
           message: 'Ошибка!',
           description: `Ошибка валидации формы: ${e.message}`,
           type: 'error',
-        })
-      })
-  }
+        });
+      });
+  };
 
   const handleCancel = () => {
-    onClose()
-  }
+    onClose();
+  };
 
   const handleWordChange = (value: string, index: number) => {
     const newWords = words.map((word, i) =>
-      i === index ? { ...word, word: value } : word
-    )
-    setWords(newWords)
-  }
+      i === index ? { ...word, word: value } : word,
+    );
+    setWords(newWords);
+  };
 
   const handleTranslationChange = (value: string, index: number) => {
     const newWords = words.map((word, i) =>
-      i === index ? { ...word, translation: value } : word
-    )
-    setWords(newWords)
-  }
+      i === index ? { ...word, translation: value } : word,
+    );
+    setWords(newWords);
+  };
 
   const handleUpload = (file: File) => {
     if (!file) {
       // File is not valid
-      return
+      return;
     }
 
     Papa.parse(file, {
@@ -122,28 +122,28 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
         const importedWords = results.data
           .filter((row: any) => row.length === 2)
           .map((row: any) => ({ word: row[0], translation: row[1] }))
-          .filter(row => row.word !== '' && row.translation !== '') // Filter out invalid rows
-        setWords(words.concat(importedWords))
+          .filter((row) => row.word !== '' && row.translation !== ''); // Filter out invalid rows
+        setWords(words.concat(importedWords));
         customNotification({
           message: 'Успешно!',
           description: `${importedWords.length} слова успешно добавлены`,
           type: 'success',
-        })
+        });
       },
       error: function () {
         customNotification({
           message: 'Ошибка!',
           description: `Проблема при чтении файла`,
           type: 'error',
-        })
+        });
       },
-    })
-  }
+    });
+  };
   const handleDeleteWordRow = (index: number) => {
-    const newWords = [...words]
-    newWords.splice(index, 1)
-    setWords(newWords)
-  }
+    const newWords = [...words];
+    newWords.splice(index, 1);
+    setWords(newWords);
+  };
 
   return (
     <Modal
@@ -166,8 +166,8 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
                     <Input
                       value={text}
                       placeholder={index === 0 ? 'Apple' : ''}
-                      onChange={e => handleWordChange(e.target.value, index)}
-                      ref={el => (wordsRef.current[index] = el)}
+                      onChange={(e) => handleWordChange(e.target.value, index)}
+                      ref={(el) => (wordsRef.current[index] = el)}
                     />
                   ),
                 },
@@ -179,7 +179,7 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
                     <Input
                       value={text}
                       placeholder={index === 0 ? 'Яблоко' : ''}
-                      onChange={e =>
+                      onChange={(e) =>
                         handleTranslationChange(e.target.value, index)
                       }
                     />
@@ -213,13 +213,13 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
             <Dragger
               accept=".csv"
               showUploadList={false}
-              beforeUpload={file => {
+              beforeUpload={(file) => {
                 // Clear current words before importing new ones
-                setWords([])
-                return true // default upload behavior
+                setWords([]);
+                return true; // default upload behavior
               }}
-              customRequest={options => {
-                handleUpload(options.file)
+              customRequest={(options) => {
+                handleUpload(options.file);
               }}>
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
@@ -233,7 +233,7 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
         </Row>
       </Form>
     </Modal>
-  )
-}
+  );
+};
 
-export default AddWordsModal
+export default AddWordsModal;

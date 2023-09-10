@@ -1,5 +1,8 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import supertest from 'supertest';
+import { JwtService } from '@nestjs/jwt';
+import { UserWithTrainingSettings } from 'user';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/prisma/prisma.service';
 import {
@@ -18,10 +21,7 @@ import {
   mockInvalidWordsForCollectionDto,
   mockWordsForCollectionDto,
 } from './mockData';
-import supertest from 'supertest';
 import { UserDto } from '../src/user/dto';
-import { JwtService } from '@nestjs/jwt';
-import { UserWithTrainingSettings } from 'user';
 import { Tokens } from '../src/auth/types';
 import { generateRandomString } from '../src/common/utils';
 import { UserWordProgressExtended } from '../src/collection/dto';
@@ -67,39 +67,34 @@ describe('App e2e', () => {
 
   describe('Auth', () => {
     describe('Signup', () => {
-      it('should throw if no body provided', () => {
-        return unAuthedRequestAgent.post('/auth/signup').expect(400);
-      });
+      it('should throw if no body provided', () =>
+        unAuthedRequestAgent.post('/auth/signup').expect(400));
 
-      it('should throw if password empty', () => {
-        return unAuthedRequestAgent
+      it('should throw if password empty', () =>
+        unAuthedRequestAgent
           .post('/auth/signup')
           .send({
             email: mockSignUpDto.email,
           })
-          .expect(400);
-      });
+          .expect(400));
 
-      it('should throw if email is invalid', () => {
-        return unAuthedRequestAgent
+      it('should throw if email is invalid', () =>
+        unAuthedRequestAgent
           .post('/auth/signup')
           .send(mockSignUpDtoInvalidEmail)
-          .expect(400);
-      });
+          .expect(400));
 
-      it('should throw if name is invalid', () => {
-        return unAuthedRequestAgent
+      it('should throw if name is invalid', () =>
+        unAuthedRequestAgent
           .post('/auth/signup')
           .send(mockSignUpDtoInvalidName)
-          .expect(400);
-      });
+          .expect(400));
 
-      it('should throw if password is invalid', () => {
-        return unAuthedRequestAgent
+      it('should throw if password is invalid', () =>
+        unAuthedRequestAgent
           .post('/auth/signup')
           .send(mockSignUpDtoInvalidPassword)
-          .expect(400);
-      });
+          .expect(400));
 
       it('should signup', async () => {
         await unAuthedRequestAgent
@@ -110,7 +105,7 @@ describe('App e2e', () => {
             verifyAuthResponse(res, jwtService);
             user = res.body;
           });
-        //and second user for tests
+        // and second user for tests
         await requestAgentForSecondUser
           .post('/auth/signup')
           .send(mockSignUpSecondUser)
@@ -126,55 +121,49 @@ describe('App e2e', () => {
     });
 
     describe('Signin', () => {
-      it('should throw if no body provided', () => {
-        return unAuthedRequestAgent.post('/auth/signin').expect(400);
-      });
+      it('should throw if no body provided', () =>
+        unAuthedRequestAgent.post('/auth/signin').expect(400));
 
-      it('should throw if email empty', () => {
-        return unAuthedRequestAgent
+      it('should throw if email empty', () =>
+        unAuthedRequestAgent
           .post('/auth/signin')
           .send({
             password: mockSignUpDto.password,
           })
-          .expect(400);
-      });
+          .expect(400));
 
-      it('should throw if password empty', () => {
-        return unAuthedRequestAgent
+      it('should throw if password empty', () =>
+        unAuthedRequestAgent
           .post('/auth/signin')
           .send({
             email: mockSignUpDto.email,
           })
-          .expect(400);
-      });
+          .expect(400));
 
-      it('should throw if email is not valid', () => {
-        return unAuthedRequestAgent
+      it('should throw if email is not valid', () =>
+        unAuthedRequestAgent
           .post('/auth/signin')
           .send({
             ...mockSignUpDtoInvalidEmail,
           })
-          .expect(400);
-      });
+          .expect(400));
 
-      it('should throw if password length is less than 8', () => {
-        return unAuthedRequestAgent
+      it('should throw if password length is less than 8', () =>
+        unAuthedRequestAgent
           .post('/auth/signin')
           .send({
             ...mockSignUpDtoInvalidPassword,
           })
-          .expect(400);
-      });
+          .expect(400));
 
-      it('should throw if password does not contain a number', () => {
-        return unAuthedRequestAgent
+      it('should throw if password does not contain a number', () =>
+        unAuthedRequestAgent
           .post('/auth/signin')
           .send({
             email: mockSignUpDto.email,
             password: 'PasswordWithoutNumber',
           })
-          .expect(400);
-      });
+          .expect(400));
 
       it('should signin', async () => {
         await requestAgent
@@ -274,7 +263,7 @@ describe('App e2e', () => {
         mockRequestCollectionCreateDto.isPublic,
       );
       collectionId = response.body.id;
-      //and private collection for second user
+      // and private collection for second user
       await requestAgentForSecondUser
         .post('/collections')
         .send({ ...mockRequestCollectionCreateDto, isPublic: false })
@@ -289,14 +278,14 @@ describe('App e2e', () => {
     });
 
     it('should get only owned & public collections', async () => {
-      //should not get collection from second user
+      // should not get collection from second user
       await requestAgent
         .get('/collections')
         .expect(200)
         .expect((res) => {
           expect(res.body).toHaveLength(1);
         });
-      //second user should get his own and 1 public form first user
+      // second user should get his own and 1 public form first user
       await requestAgentForSecondUser
         .get('/collections')
         .expect(200)
@@ -306,7 +295,7 @@ describe('App e2e', () => {
     });
 
     it('should not update with invalid data', async () => {
-      //name is important
+      // name is important
       await requestAgent
         .put(`/collections/${collectionId}`)
         .send({ name: '' })
@@ -317,7 +306,7 @@ describe('App e2e', () => {
         .send({ name: 'AB' })
         .expect(400);
 
-      //all other fields are optional, but we validate them if provided
+      // all other fields are optional, but we validate them if provided
       await requestAgent
         .put(`/collections/${collectionId}`)
         .send(mockInvalidRequestCollectionUpdateDto)
@@ -372,7 +361,7 @@ describe('App e2e', () => {
     let collectionId: number;
     const words = mockWordsForCollectionDto;
 
-    //create collection
+    // create collection
     beforeAll(async () => {
       await requestAgent
         .post('/collections')
@@ -396,12 +385,12 @@ describe('App e2e', () => {
     it('should not add invalid words to collection', async () => {
       // no body provided
       await requestAgent.post(`/word/${collectionId}`).expect(404);
-      //empty values
+      // empty values
       await requestAgent
         .post(`/word/${collectionId}`)
         .send([mockInvalidWordsForCollectionDto[0]])
         .expect(400);
-      //length exceeds
+      // length exceeds
       await requestAgent
         .post(`/word/${collectionId}`)
         .send([mockInvalidWordsForCollectionDto[1]])
@@ -450,7 +439,7 @@ describe('App e2e', () => {
     let userWordProgress: UserWordProgressExtended[];
 
     beforeAll(async () => {
-      //create collection
+      // create collection
       await requestAgent
         .post('/collections')
         .send({ ...mockRequestCollectionCreateDto, name: 'for training' })
@@ -458,7 +447,7 @@ describe('App e2e', () => {
         .expect((res) => {
           collectionId = res.body.id;
         });
-      //add words to it
+      // add words to it
       await requestAgent
         .post(`/word/${collectionId}`)
         .send(mockWords)
@@ -504,7 +493,7 @@ describe('App e2e', () => {
           expect(res.body[1].collectionId).toEqual(collectionId);
           userWordProgress = res.body;
         });
-      //progress should have correct nextReview date according to user settings
+      // progress should have correct nextReview date according to user settings
       const { trainingSettings } = user;
       const nextReviewShouldBe = calculateNextTrainingDate(0, trainingSettings);
       // Convert both 'nextReviewShouldBe' and 'nextReviewFromResponse' to Date objects
@@ -523,7 +512,7 @@ describe('App e2e', () => {
     });
 
     it('should not update training progress with invalid data', async () => {
-      //it should always return actual userProgress even if sent data is not valid or ids is not correct
+      // it should always return actual userProgress even if sent data is not valid or ids is not correct
       await requestAgent
         .patch(`/collections/train`)
         .send([{ wordId: true, translationId: '0', sessionMistakes: null }])
@@ -550,7 +539,7 @@ describe('App e2e', () => {
         .expect(200)
         .expect((res) => {
           const updatedUserWordProgress: UserWordProgressExtended[] = res.body;
-          //backend is filtering progress by date, so it should return 1 less word
+          // backend is filtering progress by date, so it should return 1 less word
           expect(updatedUserWordProgress).toHaveLength(
             userWordProgress.length - 1,
           );
@@ -598,7 +587,7 @@ describe('App e2e', () => {
         .expect(400)
         .expect((res) => {
           const { message } = res.body;
-          //there should be a lot of validation errors inside message
+          // there should be a lot of validation errors inside message
           expect(message.length).toBeGreaterThanOrEqual(
             Object.keys(mockInvalidEditUserDto).length +
               Object.keys(mockInvalidEditUserDto.trainingSettings).length,
@@ -626,12 +615,12 @@ describe('App e2e', () => {
           const newTokensWithCookies = extractTokensFromCookies(
             res.headers['set-cookie'],
           );
-          //new auth token comparing with old one
+          // new auth token comparing with old one
           expect(newTokensWithCookies.accessToken).not.toEqual(
             currentTokensWithCookies.accessToken,
           );
           currentTokensWithCookies = newTokensWithCookies;
-          //check for updated user
+          // check for updated user
           user = res.body;
           expect(user.email).toBe(mockUpdatedUserDto.email);
           expect(user.name).toBe(mockUpdatedUserDto.name);
@@ -642,9 +631,8 @@ describe('App e2e', () => {
         });
     });
 
-    it('should not refresh tokens in cookies without valid cookies', async () => {
-      return unAuthedRequestAgent.get('/auth/refresh').expect(401);
-    });
+    it('should not refresh tokens in cookies without valid cookies', async () =>
+      unAuthedRequestAgent.get('/auth/refresh').expect(401));
 
     it('should refresh tokens', async () => {
       // wait for 1 second to make sure we get a new token

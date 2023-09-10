@@ -7,7 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AuthDto, SignUpDto, AuthResponse } from './dto';
 import { JwtPayload, Tokens } from './types';
 import excludeFields from './utils/exludeFields';
-import { handleError } from '../common/utils/';
+import { handleError } from '../common/utils';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +31,7 @@ export class AuthService {
         .catch((_) => {
           throw new ForbiddenException('Такой пользователь уже существует');
         });
-      //we create default training settings for the user
+      // we create default training settings for the user
       await this.prisma.userTrainingSettings.create({
         data: {
           userId: user.id,

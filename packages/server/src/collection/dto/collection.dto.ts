@@ -14,12 +14,16 @@ export class CollectionDto {
   @IsNotEmpty()
   @IsString()
   name: string;
+
   @IsString()
   description: string;
+
   @IsString()
   image: string;
+
   @IsNumber()
   userId: number;
+
   @IsBoolean()
   isPublic: boolean;
 }
@@ -29,13 +33,16 @@ export class RequestCollectionCreateDto {
   @IsString()
   @Length(3, 30)
   name: string;
+
   @IsString()
   @IsOptional()
   @Length(3, 100)
   description?: string;
+
   @IsString()
   @IsOptional()
   image?: string;
+
   @IsBoolean()
   @IsOptional()
   isPublic?: boolean;
@@ -53,6 +60,7 @@ export class CollectionWordDto {
   @IsNotEmpty()
   @IsNumber()
   collectionId: number;
+
   @IsNotEmpty()
   @IsNumber()
   wordId: number;

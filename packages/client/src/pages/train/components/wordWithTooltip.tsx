@@ -1,14 +1,14 @@
-import React from 'react'
-import { Tooltip } from 'antd'
-import createCn from '../../../utils/create-cn'
+import React from 'react';
+import { Tooltip } from 'antd';
+import createCn from '../../../utils/create-cn';
 
 type WordWithTooltipProps = {
-  collectionName: string | undefined
-  word: string
-  showCollectionNameHint: boolean
-  isWordNew: boolean
-}
-const cn = createCn('train-page')
+  collectionName: string | undefined;
+  word: string;
+  showCollectionNameHint: boolean;
+  isWordNew: boolean;
+};
+const cn = createCn('train-page');
 
 const WordWithTooltip: React.FC<WordWithTooltipProps> = ({
   collectionName,
@@ -18,7 +18,7 @@ const WordWithTooltip: React.FC<WordWithTooltipProps> = ({
 }) => {
   const showCollectionNameHintProp = showCollectionNameHint
     ? { open: true }
-    : {}
+    : {};
 
   return (
     <div className={cn('badge-container')}>
@@ -36,7 +36,7 @@ const WordWithTooltip: React.FC<WordWithTooltipProps> = ({
         </Tooltip>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default WordWithTooltip
+export default WordWithTooltip;

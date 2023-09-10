@@ -1,14 +1,12 @@
 @import '../../components/layout/mixins.css';
 
 .collections-page {
-
   &__box {
     @mixin box-style calc(100% - 4px), calc(100% - 4px);
     @mixin box-shadow;
     &:hover {
       box-shadow: none;
     }
-
   }
 
   &__card {
@@ -18,7 +16,6 @@
     justify-content: center;
     background: var(--surface);
     z-index: 10;
-
 
     &:hover {
       inset: 2px;
@@ -36,7 +33,6 @@
       text-overflow: ellipsis;
       margin: 5px;
     }
-
 
     &-image {
       width: 128px;
@@ -56,6 +52,5 @@
     &-author {
       margin-bottom: 16px;
     }
-
   }
 }

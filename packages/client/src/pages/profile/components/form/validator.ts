@@ -1,4 +1,4 @@
-import { Rule } from 'antd/lib/form'
+import { Rule } from 'antd/lib/form';
 
 const TRAINING_INTERVAL_RULES = [
   { required: true, message: 'Введите значение интервала' },
@@ -7,7 +7,7 @@ const TRAINING_INTERVAL_RULES = [
     min: 1,
     message: 'Не менее 1',
   },
-] as Rule[]
+] as Rule[];
 
 const TRAINING_COUNTDOWN_RULES = [
   {
@@ -19,7 +19,7 @@ const TRAINING_COUNTDOWN_RULES = [
     min: 5,
     message: 'Не менее 5 секунд',
   },
-] as Rule[]
+] as Rule[];
 
 const TRAINING_WORDS_PER_SESSION_RULES = [
   {
@@ -32,7 +32,7 @@ const TRAINING_WORDS_PER_SESSION_RULES = [
     max: 100,
     message: 'Не менее 1 и не более 100',
   },
-] as Rule[]
+] as Rule[];
 
 const TRAINING_ERROR_RULES = [
   {
@@ -44,7 +44,7 @@ const TRAINING_ERROR_RULES = [
     min: 0,
     message: 'Не менее 0',
   },
-] as Rule[]
+] as Rule[];
 
 const TRAINING_MISTYPE_RULES = [
   {
@@ -56,7 +56,7 @@ const TRAINING_MISTYPE_RULES = [
     min: 0,
     message: 'Не менее 0',
   },
-] as Rule[]
+] as Rule[];
 
 export {
   TRAINING_INTERVAL_RULES,
@@ -64,4 +64,4 @@ export {
   TRAINING_ERROR_RULES,
   TRAINING_COUNTDOWN_RULES,
   TRAINING_WORDS_PER_SESSION_RULES,
-}
+};

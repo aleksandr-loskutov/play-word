@@ -1,4 +1,4 @@
-@import "./mixins.css";
+@import './mixins.css';
 
 .train-page {
   display: flex;
@@ -8,7 +8,6 @@
   text-align: center;
   margin: 40px auto;
 
-
   &__text {
     font-size: 1.5rem;
     line-height: 25px;
@@ -16,7 +15,7 @@
   }
 
   &__word {
-    color:white;
+    color: white;
     font-size: 3rem;
   }
 
@@ -35,7 +34,7 @@
   }
 
   &__progress {
-   display: inline-block;
+    display: inline-block;
     width: 75%;
   }
 
@@ -50,12 +49,11 @@
     right: -25px;
     border: 1px solid var(--primary);
     opacity: 0.7;
-    color: var(--primary) ;
+    color: var(--primary);
     font-size: 10px;
     padding: 3px 3px;
     border-radius: 5px;
   }
-
 }
 
 .correct {
@@ -65,7 +63,6 @@
 .incorrect {
   @mixin disabled-style red;
 }
-
 
 .countdown {
   display: flex;
@@ -89,10 +86,3 @@
 .inactive-color {
   background-color: grey;
 }
-
-
-
-
-
-
-

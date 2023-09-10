@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import React, { useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -13,29 +13,32 @@ import {
   Popconfirm,
   Input,
   Modal,
-} from 'antd'
-import './styles.css'
-import { useAppDispatch, useAppSelector } from '../../../components/hooks/store'
-import Layout from '../../../components/layout'
-import createCn from '../../../utils/create-cn'
-import AddWordsModal from './modal'
+} from 'antd';
+import './styles.css';
+import {
+  useAppDispatch,
+  useAppSelector,
+} from '../../../components/hooks/store';
+import Layout from '../../../components/layout';
+import createCn from '../../../utils/create-cn';
+import AddWordsModal from './modal';
 import {
   AvatarSrcs,
   Collection,
   RequestCollectionUpdate,
   WordForCollection,
-} from '../../../types/collection'
-import { updateWordsInCollection } from '../../../store/action-creators/word'
+} from '../../../types/collection';
+import { updateWordsInCollection } from '../../../store/action-creators/word';
 import {
   addCollectionWordsForTraining,
   removeCollectionWordsFromTraining,
-} from '../../../store/action-creators/training'
+} from '../../../store/action-creators/training';
 import {
   createCollection,
   deleteCollection,
   updateCollection,
-} from '../../../store/action-creators/collection'
-import Meta from 'antd/lib/card/Meta'
+} from '../../../store/action-creators/collection';
+import Meta from 'antd/lib/card/Meta';
 import Icon, {
   DeleteOutlined,
   DeleteTwoTone,
@@ -45,96 +48,98 @@ import Icon, {
   PlayCircleOutlined,
   PlusOutlined,
   StopOutlined,
-} from '@ant-design/icons'
-import WithAuth from '../../../components/hoc/withAuth'
-import { customNotification } from '../../../components/custom-notification/customNotification'
-import PageLoader from '../../../components/page-loader'
-import { createImageFromInitials } from '../../../utils/image-from-string'
-import { useAuth } from '../../../components/hooks/auth'
+} from '@ant-design/icons';
+import WithAuth from '../../../components/hoc/withAuth';
+import { customNotification } from '../../../components/custom-notification/customNotification';
+import PageLoader from '../../../components/page-loader';
+import { createImageFromInitials } from '../../../utils/image-from-string';
+import { useAuth } from '../../../components/hooks/auth';
 
-const cn = createCn('collection-page')
-const { Title } = Typography
-const iconStyle = { fontSize: '24px' }
+const cn = createCn('collection-page');
+const { Title } = Typography;
+const iconStyle = { fontSize: '24px' };
 
 const CollectionPage: React.FC = () => {
-  const { id } = useParams()
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
-  const { user } = useAuth()
-  const [collectionEditModalOpen, setCollectionEditModalOpen] = useState(false)
-  const [editedCollectionName, setEditedCollectionName] = useState<string>('')
-  const { collections, isLoading } = useAppSelector(state => state.collections)
-  const collection = collections.find(c => c.id === Number(id))
+  const { id } = useParams();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [collectionEditModalOpen, setCollectionEditModalOpen] = useState(false);
+  const [editedCollectionName, setEditedCollectionName] = useState<string>('');
+  const { collections, isLoading } = useAppSelector(
+    (state) => state.collections,
+  );
+  const collection = collections.find((c) => c.id === Number(id));
 
-  const [showAddWordsModal, setShowAddWordsModal] = useState(false)
+  const [showAddWordsModal, setShowAddWordsModal] = useState(false);
 
   const handleAddWordsButton = () => {
-    setShowAddWordsModal(true)
-  }
+    setShowAddWordsModal(true);
+  };
   const handleTitleClick = () => {
     if (collection) {
-      setEditedCollectionName(collection.name)
+      setEditedCollectionName(collection.name);
     }
-    setCollectionEditModalOpen(true)
-  }
+    setCollectionEditModalOpen(true);
+  };
 
   const handleSubmitAddWords = (words: WordForCollection[]) => {
-    setShowAddWordsModal(false)
-    if (!collection || !words || words.length === 0) return
+    setShowAddWordsModal(false);
+    if (!collection || !words || words.length === 0) return;
     dispatch(updateWordsInCollection({ collectionId: collection.id, words }))
       .unwrap()
-      .then(_ => {
+      .then((_) => {
         customNotification({
           message: 'Успешно!',
           description: `Коллекция обновлена`,
           type: 'success',
-        })
+        });
       })
       .catch((e: any) => {
         customNotification({
           message: 'Ошибка!',
           description: `${e}`,
           type: 'error',
-        })
-      })
-  }
+        });
+      });
+  };
 
   const handleUpdateName = () => {
-    handleSubmitCollectionEdit({ id: Number(id), name: editedCollectionName })
-  }
+    handleSubmitCollectionEdit({ id: Number(id), name: editedCollectionName });
+  };
 
   const handleSubmitCollectionEdit = (
-    dataToUpdate: RequestCollectionUpdate
+    dataToUpdate: RequestCollectionUpdate,
   ) => {
-    handleCloseEditModal()
+    handleCloseEditModal();
     if (
       !collection ||
       !dataToUpdate.id ||
       dataToUpdate.name === '' ||
       dataToUpdate.name === collection.name
     )
-      return
+      return;
     dispatch(updateCollection(dataToUpdate))
       .unwrap()
-      .then(_ => {
+      .then((_) => {
         customNotification({
           message: 'Успешно!',
           description: 'Обновили коллекцию',
           type: 'success',
-        })
+        });
       })
-      .catch(_ => {
+      .catch((_) => {
         customNotification({
           message: 'Ошибка!',
           description: 'Не удалось обновить коллекцию',
           type: 'error',
-        })
-      })
-  }
+        });
+      });
+  };
 
   const handleCloseEditModal = () => {
-    setCollectionEditModalOpen(false)
-  }
+    setCollectionEditModalOpen(false);
+  };
 
   const handleAddWordsToTraining = () => {
     if (
@@ -142,15 +147,15 @@ const CollectionPage: React.FC = () => {
       !collection.words.length ||
       collection.words.length === 0
     )
-      return
+      return;
     dispatch(addCollectionWordsForTraining(collection.id))
       .unwrap()
-      .then(_ => {
+      .then((_) => {
         customNotification({
           message: 'Успешно!',
           description: 'Слова коллекции добавлены в тренировку',
           type: 'success',
-        })
+        });
       })
       .catch((error: any) => {
         customNotification({
@@ -158,9 +163,9 @@ const CollectionPage: React.FC = () => {
           description:
             error.message || 'Не удалось добавить слова в тренировку',
           type: 'error',
-        })
-      })
-  }
+        });
+      });
+  };
 
   const handleRemoveWordsFromTraining = () => {
     if (
@@ -168,59 +173,59 @@ const CollectionPage: React.FC = () => {
       !collection.words.length ||
       collection.words.length === 0
     )
-      return
+      return;
     dispatch(removeCollectionWordsFromTraining(collection.id))
       .unwrap()
-      .then(_ => {
+      .then((_) => {
         customNotification({
           message: 'Успешно!',
           description: 'Слова коллекции удалены из тренировки',
           type: 'success',
-        })
+        });
       })
-      .catch(_ => {
+      .catch((_) => {
         customNotification({
           message: 'Ошибка!',
           description: 'Не удалось удалить слова из тренировки',
           type: 'error',
-        })
-      })
-  }
+        });
+      });
+  };
 
   const isUserOwnsCollection = useMemo((): boolean => {
-    return collection?.userId === user?.id
-  }, [collection, user])
+    return collection?.userId === user?.id;
+  }, [collection, user]);
 
   const handleDeleteCollection = () => {
-    if (!collection) return
-    handleRemoveWordsFromTraining()
+    if (!collection) return;
+    handleRemoveWordsFromTraining();
     dispatch(deleteCollection(collection.id))
       .unwrap()
-      .then(_ => {
+      .then((_) => {
         customNotification({
           message: 'Успешно!',
           description: 'Коллекция удалена',
           type: 'success',
-        })
-        navigate('/collections')
+        });
+        navigate('/collections');
       })
-      .catch(_ => {
+      .catch((_) => {
         customNotification({
           message: 'Ошибка!',
           description: 'Не удалось удалить коллекцию',
           type: 'error',
-        })
-      })
-  }
+        });
+      });
+  };
 
   const handleCancel = () => {
-    setShowAddWordsModal(false)
-  }
+    setShowAddWordsModal(false);
+  };
   const avatarSrc = useMemo(() => {
     if (collection?.name) {
-      return createImageFromInitials(350, collection.name)
+      return createImageFromInitials(350, collection.name);
     }
-  }, [collection])
+  }, [collection]);
 
   return isLoading ? (
     <PageLoader />
@@ -245,7 +250,7 @@ const CollectionPage: React.FC = () => {
             okText={'сохранить'}>
             <Input
               value={editedCollectionName}
-              onChange={e => setEditedCollectionName(e.target.value)}
+              onChange={(e) => setEditedCollectionName(e.target.value)}
             />
           </Modal>
         </Col>
@@ -322,7 +327,7 @@ const CollectionPage: React.FC = () => {
     </section>
   ) : (
     <Title className={'title'}>Не удалось загрузить коллекцию</Title>
-  )
-}
+  );
+};
 
-export default WithAuth(CollectionPage)
+export default WithAuth(CollectionPage);

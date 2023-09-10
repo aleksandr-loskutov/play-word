@@ -4,11 +4,11 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import * as argon from 'argon2';
+import { UserWithTrainingSettings } from 'user';
 import { PrismaService } from '../prisma/prisma.service';
 import { EditUserDto, UserDto } from './dto';
-import * as argon from 'argon2';
 import excludeFields from '../auth/utils/exludeFields';
-import { UserWithTrainingSettings } from 'user';
 import { AuthService } from '../auth/auth.service';
 import { Tokens } from '../auth/types';
 import { handleError } from '../common/utils';
@@ -27,7 +27,7 @@ export class UserService {
   ): Promise<{ user: UserDto; tokens?: Tokens }> {
     try {
       let user = await this.getUserFromDb(userId);
-      let tokens; //will exist only if user is really updated and new tokens generated - needed for setting them in cookie by user controller
+      let tokens; // will exist only if user is really updated and new tokens generated - needed for setting them in cookie by user controller
       const shouldUpdateUser = await this.shouldUpdateUser(user, dto);
 
       if (shouldUpdateUser) {
@@ -119,7 +119,7 @@ export class UserService {
     try {
       // Check basic fields
       const basicFields = ['email', 'name'];
-      for (let field of basicFields) {
+      for (const field of basicFields) {
         if (dto[field] && dto[field] !== user[field]) {
           return true;
         }
@@ -137,7 +137,7 @@ export class UserService {
       if (dto.trainingSettings) {
         const { trainingSettings: currentTrainingSettings } = user;
 
-        for (let setting in dto.trainingSettings) {
+        for (const setting in dto.trainingSettings) {
           if (
             dto.trainingSettings[setting] !== currentTrainingSettings[setting]
           ) {

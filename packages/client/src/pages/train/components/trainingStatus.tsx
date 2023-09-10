@@ -1,14 +1,14 @@
-import React from 'react'
-import { Typography } from 'antd'
-import { UserWordProgress, WordInTraining } from '../../../types/training'
-const { Paragraph } = Typography
+import React from 'react';
+import { Typography } from 'antd';
+import { UserWordProgress, WordInTraining } from '../../../types/training';
+const { Paragraph } = Typography;
 
 type TrainingStatusProps = {
-  resultingProgress: UserWordProgress[]
-  queue: UserWordProgress[]
-  word: WordInTraining
-  totalErrorsCount: number
-}
+  resultingProgress: UserWordProgress[];
+  queue: UserWordProgress[];
+  word: WordInTraining;
+  totalErrorsCount: number;
+};
 
 const TrainingStatus: React.FC<TrainingStatusProps> = ({
   resultingProgress,
@@ -25,7 +25,7 @@ const TrainingStatus: React.FC<TrainingStatusProps> = ({
         Ошибок для слова: {word.errorCounter}. Ошибок всего: {totalErrorsCount}{' '}
       </Paragraph>
     </>
-  )
-}
+  );
+};
 
-export default TrainingStatus
+export default TrainingStatus;

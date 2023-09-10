@@ -1,27 +1,27 @@
-import React, { useCallback, useMemo } from 'react'
-import Title from 'antd/lib/typography/Title'
-import { WordStats } from '../../../types/training'
-import TrainingStatsTable from './trainingStatsTable'
-import { useAuth } from '../../../components/hooks/auth'
-import createCn from '../../../utils/create-cn'
-import { getTotalTimeSpent } from '../utils'
+import React, { useCallback, useMemo } from 'react';
+import Title from 'antd/lib/typography/Title';
+import { WordStats } from '../../../types/training';
+import TrainingStatsTable from './trainingStatsTable';
+import { useAuth } from '../../../components/hooks/auth';
+import createCn from '../../../utils/create-cn';
+import { getTotalTimeSpent } from '../utils';
 
 type TrainingStatsProps = {
-  trainingStats: WordStats[]
-}
-const cn = createCn('train-page')
+  trainingStats: WordStats[];
+};
+const cn = createCn('train-page');
 
 const TrainingStats: React.FC<TrainingStatsProps> = ({ trainingStats }) => {
-  const { training } = useAuth()
+  const { training } = useAuth();
   const extraStats = useMemo(() => {
     return {
       totalTimeSpent: getTotalTimeSpent(trainingStats),
       currentDayProgress: Math.round(
-        (trainingStats.length / (trainingStats.length + training.length)) * 100
+        (trainingStats.length / (trainingStats.length + training.length)) * 100,
       ),
       moreToLearn: training.length,
-    }
-  }, [trainingStats, training])
+    };
+  }, [trainingStats, training]);
 
   return trainingStats.length > 0 ? (
     <div className={cn()}>
@@ -33,7 +33,7 @@ const TrainingStats: React.FC<TrainingStatsProps> = ({ trainingStats }) => {
         extraStats={extraStats}
       />
     </div>
-  ) : null
-}
+  ) : null;
+};
 
-export default TrainingStats
+export default TrainingStats;

@@ -1,4 +1,4 @@
-@import "../../components/layout/mixins.css";
+@import '../../components/layout/mixins.css';
 .sign-up {
   margin: 0 auto;
   &__box {
@@ -6,7 +6,4 @@
   }
 
   @mixin form-style;
-
 }
-
-

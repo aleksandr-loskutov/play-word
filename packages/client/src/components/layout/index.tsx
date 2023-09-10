@@ -1,11 +1,11 @@
-import React, { useCallback, useMemo } from 'react'
-import { Avatar, Badge, Col, Layout, Menu, Row } from 'antd'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useAppDispatch } from '../hooks/store'
-import { useAuth } from '../hooks/auth'
-import createCn from '../../utils/create-cn'
-import { signOut } from '../../store/action-creators/auth'
-import './style.css'
+import React, { useCallback, useMemo } from 'react';
+import { Avatar, Badge, Col, Layout, Menu, Row } from 'antd';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../hooks/store';
+import { useAuth } from '../hooks/auth';
+import createCn from '../../utils/create-cn';
+import { signOut } from '../../store/action-creators/auth';
+import './style.css';
 import {
   AppstoreOutlined,
   BellOutlined,
@@ -17,43 +17,43 @@ import {
   SettingOutlined,
   UserAddOutlined,
   UserOutlined,
-} from '@ant-design/icons'
-import { getWordsReadyForTraining } from '../../pages/train/utils'
+} from '@ant-design/icons';
+import { getWordsReadyForTraining } from '../../pages/train/utils';
 
-const { Header, Content, Footer } = Layout
-const cn = createCn('layout')
+const { Header, Content, Footer } = Layout;
+const cn = createCn('layout');
 
 type LayoutProps = {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
 function MainLayout({ children }: LayoutProps): JSX.Element {
-  const { user, isLoggedIn, signOut, training } = useAuth()
+  const { user, isLoggedIn, signOut, training } = useAuth();
 
   const handleLogoutButtonClick = useCallback(() => {
-    signOut()
-  }, [])
+    signOut();
+  }, []);
 
   const wordsForTrainingCount = useMemo(() => {
-    return getWordsReadyForTraining(training)
-  }, [training])
+    return getWordsReadyForTraining(training);
+  }, [training]);
 
-  const location = useLocation()
+  const location = useLocation();
 
   const getActiveMenuKey = useCallback(() => {
     switch (location.pathname) {
       case '/':
-        return 'home'
+        return 'home';
       case '/train':
-        return 'train'
+        return 'train';
       case '/collections':
-        return 'collections'
+        return 'collections';
       case '/profile':
-        return isLoggedIn ? 'profile' : 'signin'
+        return isLoggedIn ? 'profile' : 'signin';
       default:
-        return ''
+        return '';
     }
-  }, [location, isLoggedIn])
+  }, [location, isLoggedIn]);
 
   const items = useMemo(() => {
     return [
@@ -138,8 +138,8 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
               },
             ],
       },
-    ]
-  }, [isLoggedIn, training])
+    ];
+  }, [isLoggedIn, training]);
 
   return (
     <Layout className={cn('')}>
@@ -167,7 +167,7 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
         </Footer>
       </div>
     </Layout>
-  )
+  );
 }
 
-export default MainLayout
+export default MainLayout;

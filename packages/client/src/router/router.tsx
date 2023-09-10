@@ -1,12 +1,12 @@
-import { Route, Routes } from 'react-router-dom'
-import SignInPage from '../pages/signIn'
-import SignUpPage from '../pages/signUp'
-import ProfilePage from '../pages/profile'
-import TrainPage from '../pages/train'
-import ErrorBoundary from '../components/error-boundary'
-import ErrorPage from '../pages/error'
-import NotFoundPage from '../pages/notFound'
-import CollectionsLayout from '../pages/collections/layout'
+import { Route, Routes } from 'react-router-dom';
+import SignInPage from '../pages/signIn';
+import SignUpPage from '../pages/signUp';
+import ProfilePage from '../pages/profile';
+import TrainPage from '../pages/train';
+import ErrorBoundary from '../components/error-boundary';
+import ErrorPage from '../pages/error';
+import NotFoundPage from '../pages/notFound';
+import CollectionsLayout from '../pages/collections/layout';
 
 function AppRouter() {
   return (
@@ -22,7 +22,7 @@ function AppRouter() {
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </ErrorBoundary>
-  )
+  );
 }
 
-export default AppRouter
+export default AppRouter;

@@ -1,49 +1,49 @@
-import axios from 'axios'
-import { ApiResponse, ResponseFormat } from '../types/api'
-import CONSTS from '../utils/consts'
-import { User } from '../types/user'
+import axios from 'axios';
+import { ApiResponse, ResponseFormat } from '../types/api';
+import CONSTS from '../utils/consts';
+import { User } from '../types/user';
 
 type RequestOptions<T> = {
-  method: string
-  url: string
-  data?: T
-  headers?: Record<string, string>
-}
+  method: string;
+  url: string;
+  data?: T;
+  headers?: Record<string, string>;
+};
 
 const axiosInstance = axios.create({
   baseURL: CONSTS.APP_URL,
-})
+});
 
 axiosInstance.interceptors.response.use(
-  config => {
-    return config
+  (config) => {
+    return config;
   },
-  async error => {
-    const originalRequest = error.config
+  async (error) => {
+    const originalRequest = error.config;
 
     if (
       error.response.status == 401 &&
       error.config &&
       !error.config._isRetry
     ) {
-      originalRequest._isRetry = true
+      originalRequest._isRetry = true;
       try {
         await axios.get<User>(
           `${CONSTS.APP_URL}${CONSTS.API_PATH}/auth/refresh`,
-          { withCredentials: true }
-        )
-        return axiosInstance.request(originalRequest)
+          { withCredentials: true },
+        );
+        return axiosInstance.request(originalRequest);
       } catch {}
     }
-    throw error
-  }
-)
+    throw error;
+  },
+);
 
 const handleApiError = (error: any): ResponseFormat<any> => ({
   //${error.message} is still there but we dont show it
   error: `${error.response?.data?.message}`,
   status: error.response?.status || 500,
-})
+});
 
 const createRequest = <T>(options: RequestOptions<T>) =>
   axiosInstance({
@@ -55,7 +55,7 @@ const createRequest = <T>(options: RequestOptions<T>) =>
     url: options.url,
     data: options.data,
     withCredentials: true,
-  })
+  });
 
 class HttpService {
   constructor(private endPoint: string) {}
@@ -66,15 +66,15 @@ class HttpService {
       url: `${this.endPoint}${url}`,
       headers,
     })
-      .then(response => ({ data: response.data, status: response.status }))
-      .catch(error => {
-        return handleApiError(error)
-      })
+      .then((response) => ({ data: response.data, status: response.status }))
+      .catch((error) => {
+        return handleApiError(error);
+      });
 
   post = <T, R>(
     url: string,
     data?: T,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): ApiResponse<R> =>
     createRequest<T>({
       method: 'POST',
@@ -82,15 +82,15 @@ class HttpService {
       data,
       headers,
     })
-      .then(response => ({ data: response.data, status: response.status }))
-      .catch(error => {
-        return handleApiError(error)
-      })
+      .then((response) => ({ data: response.data, status: response.status }))
+      .catch((error) => {
+        return handleApiError(error);
+      });
 
   put = <T, R>(
     url: string,
     data?: T,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): ApiResponse<R> =>
     createRequest<T>({
       method: 'PUT',
@@ -98,15 +98,15 @@ class HttpService {
       data,
       headers,
     })
-      .then(response => ({ data: response.data, status: response.status }))
-      .catch(error => {
-        return handleApiError(error)
-      })
+      .then((response) => ({ data: response.data, status: response.status }))
+      .catch((error) => {
+        return handleApiError(error);
+      });
 
   patch = <T, R>(
     url: string,
     data?: T,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): ApiResponse<R> =>
     createRequest<T>({
       method: 'PATCH',
@@ -114,24 +114,24 @@ class HttpService {
       data,
       headers,
     })
-      .then(response => ({ data: response.data, status: response.status }))
-      .catch(error => {
-        return handleApiError(error)
-      })
+      .then((response) => ({ data: response.data, status: response.status }))
+      .catch((error) => {
+        return handleApiError(error);
+      });
 
   delete = <T, R>(
     url: string,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): ApiResponse<R> =>
     createRequest<T>({
       method: 'DELETE',
       url: `${this.endPoint}${url}`,
       headers,
     })
-      .then(response => ({ data: response.data, status: response.status }))
-      .catch(error => {
-        return handleApiError(error)
-      })
+      .then((response) => ({ data: response.data, status: response.status }))
+      .catch((error) => {
+        return handleApiError(error);
+      });
 }
 
-export default HttpService
+export default HttpService;

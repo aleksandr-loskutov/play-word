@@ -8,14 +8,14 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
+import { UserWithTrainingSettings } from 'user';
+import { Response } from 'express';
 import { EditUserDto, UserDto } from './dto';
 import { UserService } from './user.service';
 import { AtGuard, RtGuard } from '../common/guards';
 import { GetCurrentUser } from '../common/decorators';
 import setCookieToken from '../auth/utils/setCookieToken';
-import { UserWithTrainingSettings } from 'user';
 import { JwtPayloadWithRt } from '../auth/types';
-import { Response } from 'express';
 import excludeFields from '../auth/utils/exludeFields';
 import { disableCache } from '../common/utils';
 

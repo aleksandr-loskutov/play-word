@@ -1,24 +1,24 @@
-import BaseAPI from './base'
-import { WordForCollection } from '../types/collection'
-import { Collection } from '../types/collection'
+import BaseAPI from './base';
+import { WordForCollection } from '../types/collection';
+import { Collection } from '../types/collection';
 
 class WordAPI extends BaseAPI {
   constructor() {
-    super('/word')
+    super('/word');
   }
 
   getWordsByCollection(collectionId: string) {
-    return this.httpService.get<Collection>(`/${collectionId}`)
+    return this.httpService.get<Collection>(`/${collectionId}`);
   }
 
   updateWordsInCollection(collectionId: number, data: WordForCollection[]) {
     return this.httpService.post<WordForCollection[], Collection>(
       `/${collectionId}`,
-      data
-    )
+      data,
+    );
   }
 }
 
-const wordAPI = new WordAPI()
+const wordAPI = new WordAPI();
 
-export default wordAPI
+export default wordAPI;

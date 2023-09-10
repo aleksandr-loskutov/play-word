@@ -1,29 +1,29 @@
-import { ChangeEvent, FC } from 'react'
-import { UploadOutlined } from '@ant-design/icons'
-import SkeletonImage from 'antd/lib/skeleton/Image'
-import createCn from '../../../../utils/create-cn'
-import { User } from '../../../../types/user'
-import { Nullable } from '../../../../types/common'
-import './style.css'
+import { ChangeEvent, FC } from 'react';
+import { UploadOutlined } from '@ant-design/icons';
+import SkeletonImage from 'antd/lib/skeleton/Image';
+import createCn from '../../../../utils/create-cn';
+import { User } from '../../../../types/user';
+import { Nullable } from '../../../../types/common';
+import './style.css';
 
 type ProfileAvatarImageProps = {
-  avatar?: string
-}
+  avatar?: string;
+};
 
 type ProfileAvatarProps = {
-  className?: string
-  user: Nullable<User>
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void // Specify input type
-}
+  className?: string;
+  user: Nullable<User>;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void; // Specify input type
+};
 
-const cn = createCn('profile-avatar')
+const cn = createCn('profile-avatar');
 
 const Image: FC<ProfileAvatarImageProps> = ({ avatar }) =>
   avatar ? (
     <img className={cn('image')} src={avatar} alt="avatar" />
   ) : (
     <SkeletonImage className={cn('image-placeholder')} />
-  )
+  );
 
 const ProfileAvatar: FC<ProfileAvatarProps> = ({
   user,
@@ -47,6 +47,6 @@ const ProfileAvatar: FC<ProfileAvatarProps> = ({
       </div>
     </label>
   </form>
-)
+);
 
-export default ProfileAvatar
+export default ProfileAvatar;

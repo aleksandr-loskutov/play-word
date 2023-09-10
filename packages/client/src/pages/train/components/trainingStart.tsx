@@ -1,17 +1,17 @@
-import React from 'react'
-import { Button, Typography } from 'antd'
-import { useAuth } from '../../../components/hooks/auth'
-import createCn from '../../../utils/create-cn'
-const { Paragraph } = Typography
+import React from 'react';
+import { Button, Typography } from 'antd';
+import { useAuth } from '../../../components/hooks/auth';
+import createCn from '../../../utils/create-cn';
+const { Paragraph } = Typography;
 
 type TrainingStartProps = {
-  handleStartTraining: () => void
-}
-const cn = createCn('train-page')
+  handleStartTraining: () => void;
+};
+const cn = createCn('train-page');
 const TrainingStart: React.FC<TrainingStartProps> = ({
   handleStartTraining,
 }) => {
-  const { user, training } = useAuth()
+  const { user, training } = useAuth();
   return (
     user && (
       <div>
@@ -36,7 +36,7 @@ const TrainingStart: React.FC<TrainingStartProps> = ({
         )}
       </div>
     )
-  )
-}
+  );
+};
 
-export default TrainingStart
+export default TrainingStart;

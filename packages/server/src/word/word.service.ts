@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { WordDto } from './dto';
 import { Response } from 'common';
 import { WordWithTranslations } from 'word';
+import { PrismaService } from '../prisma/prisma.service';
+import { WordDto } from './dto';
 import { CollectionWithWords } from '../collection/dto';
 import { handleError } from '../common/utils';
 
@@ -158,16 +158,16 @@ export class WordService {
           select: { wordId: true, translationId: true },
         });
 
-      const newWords = addedWords.filter((word) => {
-        return !existingWordsInCollection.some((existingWord) => {
-          return (
-            existingWord.wordId === word.id &&
-            word.translations?.some(
-              (translation) => existingWord.translationId === translation.id,
-            )
-          );
-        });
-      });
+      const newWords = addedWords.filter(
+        (word) =>
+          !existingWordsInCollection.some(
+            (existingWord) =>
+              existingWord.wordId === word.id &&
+              word.translations?.some(
+                (translation) => existingWord.translationId === translation.id,
+              ),
+          ),
+      );
 
       if (newWords.length > 0) {
         await this.prisma.wordForCollection.createMany({

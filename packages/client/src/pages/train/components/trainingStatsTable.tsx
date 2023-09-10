@@ -1,10 +1,10 @@
-import React from 'react'
-import { Col, Progress, Row, Table, Typography } from 'antd'
-import { TrainingStats, WordStats } from '../../../types/training'
-import createCn from '../../../utils/create-cn'
-const { Paragraph } = Typography
+import React from 'react';
+import { Col, Progress, Row, Table, Typography } from 'antd';
+import { TrainingStats, WordStats } from '../../../types/training';
+import createCn from '../../../utils/create-cn';
+const { Paragraph } = Typography;
 
-const cn = createCn('train-page')
+const cn = createCn('train-page');
 
 const TrainingStatsTable = ({ trainingStats, extraStats }: TrainingStats) => {
   const renderExtraHeader = () => (
@@ -29,7 +29,7 @@ const TrainingStatsTable = ({ trainingStats, extraStats }: TrainingStats) => {
         />
       </Col>
     </Row>
-  )
+  );
   const columns = [
     {
       title: 'Слово',
@@ -67,16 +67,16 @@ const TrainingStatsTable = ({ trainingStats, extraStats }: TrainingStats) => {
       dataIndex: 'nextReview',
       key: 'nextReview',
       render: (nextReview: Date) => {
-        const today = new Date()
+        const today = new Date();
         const timeDifferenceInMilliseconds =
-          nextReview.getTime() - today.getTime()
+          nextReview.getTime() - today.getTime();
         const timeDifferenceInDays = parseFloat(
-          (timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)).toFixed(1)
-        )
-        return `через ${timeDifferenceInDays} дней`
+          (timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)).toFixed(1),
+        );
+        return `через ${timeDifferenceInDays} дней`;
       },
     },
-  ]
+  ];
 
   return (
     <>
@@ -85,12 +85,12 @@ const TrainingStatsTable = ({ trainingStats, extraStats }: TrainingStats) => {
           dataSource={trainingStats}
           columns={columns}
           pagination={false}
-          rowKey={record => record.word}
+          rowKey={(record) => record.word}
           caption={renderExtraHeader()}
         />
       )}
     </>
-  )
-}
+  );
+};
 
-export default TrainingStatsTable
+export default TrainingStatsTable;

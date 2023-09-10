@@ -4,8 +4,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
 import { Collection } from '@prisma/client';
+import { Response } from 'common';
+import { PrismaService } from '../prisma/prisma.service';
 import { calculateNextTrainingDate } from './utils/calculateNextTrainingDate';
 
 import {
@@ -15,7 +16,6 @@ import {
   RequestUserTrainingUpdate,
   UserWordProgressExtended,
 } from './dto';
-import { Response } from 'common';
 import {
   handleError,
   validateUserTrainingUpdatePayloadArray,
@@ -101,7 +101,7 @@ export class CollectionService {
     }
   }
 
-  //soft delete
+  // soft delete
   async deleteCollection(
     collectionId: number,
     userId: number,
@@ -123,7 +123,7 @@ export class CollectionService {
     }
   }
 
-  //learn collection
+  // learn collection
   async addCollectionWordsToUserProgress(
     collectionId: number,
     userId: number,

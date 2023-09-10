@@ -1,30 +1,30 @@
 export type Collection = {
-  id: number
-  name: string
-  description: string
-  image: string
-  userId: number
-  isPublic: boolean
-  words: WordForCollection[]
-}
+  id: number;
+  name: string;
+  description: string;
+  image: string;
+  userId: number;
+  isPublic: boolean;
+  words: WordForCollection[];
+};
 
 export type WordForCollection = {
-  word: string
-  translation: string
-}
+  word: string;
+  translation: string;
+};
 
 export type RequestAddWordsToCollection = {
-  collectionId: number
-  words: WordForCollection[]
-}
+  collectionId: number;
+  words: WordForCollection[];
+};
 
 export type RequestCollectionCreate = {
-  name: string
-  description?: string
-  image?: string
-  isPublic?: boolean
-}
+  name: string;
+  description?: string;
+  image?: string;
+  isPublic?: boolean;
+};
 
-export type RequestCollectionUpdate = RequestCollectionCreate & { id: number }
+export type RequestCollectionUpdate = RequestCollectionCreate & { id: number };
 
-export type AvatarSrcs = { [key: number]: string | null }
+export type AvatarSrcs = { [key: number]: string | null };

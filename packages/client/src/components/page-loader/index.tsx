@@ -1,5 +1,5 @@
-import React from 'react'
-import { Col, Row } from 'antd'
+import React from 'react';
+import { Col, Row } from 'antd';
 
 function PageLoader() {
   return (
@@ -8,7 +8,7 @@ function PageLoader() {
         <div className={'spinner'}></div>
       </Col>
     </Row>
-  )
+  );
 }
 
-export default PageLoader
+export default PageLoader;

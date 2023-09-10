@@ -1,29 +1,29 @@
-import React, { useState } from 'react'
-import { Alert, Form, Input, Modal, Radio } from 'antd'
+import React, { useState } from 'react';
+import { Alert, Form, Input, Modal, Radio } from 'antd';
 
 type Values = {
-  name: string
-  description: string
-  isPublic: boolean
-}
+  name: string;
+  description: string;
+  isPublic: boolean;
+};
 
 type CollectionCreateFormProps = {
-  open: boolean
-  onCreate: (values: Values) => void
-  onCancel: () => void
-}
+  open: boolean;
+  onCreate: (values: Values) => void;
+  onCancel: () => void;
+};
 
 const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
   open,
   onCreate,
   onCancel,
 }) => {
-  const [isPublic, setIsPublic] = useState(false)
+  const [isPublic, setIsPublic] = useState(false);
 
   const handleRadioChange = (e: any) => {
-    setIsPublic(e.target.value)
-  }
-  const [form] = Form.useForm()
+    setIsPublic(e.target.value);
+  };
+  const [form] = Form.useForm();
   return (
     <Modal
       open={open}
@@ -34,13 +34,13 @@ const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
       onOk={() => {
         form
           .validateFields(['name'])
-          .then(values => {
-            form.resetFields()
-            onCreate(values)
+          .then((values) => {
+            form.resetFields();
+            onCreate(values);
           })
-          .catch(info => {
-            console.log('Ошибка валидации:', info)
-          })
+          .catch((info) => {
+            console.log('Ошибка валидации:', info);
+          });
       }}>
       <Form
         form={form}
@@ -84,7 +84,7 @@ const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
         </Form.Item>
       </Form>
     </Modal>
-  )
-}
+  );
+};
 
-export default CollectionCreateForm
+export default CollectionCreateForm;

@@ -1,52 +1,52 @@
-import React, { useCallback, useEffect, useState } from 'react'
-import { Form, Input, Button, Alert } from 'antd'
-import { useNavigate } from 'react-router'
-import { Rule } from 'antd/lib/form'
-import createCn from '../../utils/create-cn'
-import signUpRules from './validator'
-import './style.css'
-import { useAuth } from '../../components/hooks/auth'
-import { Link } from 'react-router-dom'
-import { Nullable } from '../../types/common'
-import { customNotification } from '../../components/custom-notification/customNotification'
+import React, { useCallback, useEffect, useState } from 'react';
+import { Form, Input, Button, Alert } from 'antd';
+import { useNavigate } from 'react-router';
+import { Rule } from 'antd/lib/form';
+import createCn from '../../utils/create-cn';
+import signUpRules from './validator';
+import './style.css';
+import { useAuth } from '../../components/hooks/auth';
+import { Link } from 'react-router-dom';
+import { Nullable } from '../../types/common';
+import { customNotification } from '../../components/custom-notification/customNotification';
 
 type FormData = {
-  email: string
-  name: string
-  password: string
-  passwordRepeat: string
-}
+  email: string;
+  name: string;
+  password: string;
+  passwordRepeat: string;
+};
 
-const cn = createCn('sign-up')
+const cn = createCn('sign-up');
 
 function SignUpPage(): JSX.Element {
-  const navigate = useNavigate()
-  const { isLoggedIn, signUp, error: formAlert } = useAuth()
-  const [error, setError] = useState<Nullable<string>>(null)
+  const navigate = useNavigate();
+  const { isLoggedIn, signUp, error: formAlert } = useAuth();
+  const [error, setError] = useState<Nullable<string>>(null);
   const handleSubmit = useCallback(
     (data: FormData): void => {
-      setError(null)
+      setError(null);
       signUp(data)
         .unwrap()
-        .then(_ => {
+        .then((_) => {
           customNotification({
             message: 'Успешно!',
             description: 'Регистрация прошла успешно.',
             type: 'success',
-          })
+          });
         })
         .catch((error: string) => {
-          setError(error)
-        })
+          setError(error);
+        });
     },
-    [signUp, formAlert]
-  )
+    [signUp, formAlert],
+  );
 
   useEffect(() => {
     if (isLoggedIn) {
-      navigate('/')
+      navigate('/');
     }
-  }, [isLoggedIn])
+  }, [isLoggedIn]);
 
   return (
     <section className={cn()}>
@@ -94,9 +94,9 @@ function SignUpPage(): JSX.Element {
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue('password') === value) {
-                    return Promise.resolve()
+                    return Promise.resolve();
                   }
-                  return Promise.reject(new Error('Пароли не совпадают'))
+                  return Promise.reject(new Error('Пароли не совпадают'));
                 },
               }),
             ]}>
@@ -125,7 +125,7 @@ function SignUpPage(): JSX.Element {
         </Form>
       </div>
     </section>
-  )
+  );
 }
 
-export default SignUpPage
+export default SignUpPage;

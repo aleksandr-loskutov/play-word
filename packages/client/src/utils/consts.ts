@@ -1,12 +1,12 @@
-import { Indexable } from '../types/common'
+import { Indexable } from '../types/common';
 
-const APP_URL = 'http://localhost:3001'
-const API_PATH = '/api'
-const IS_PRODUCTION = process.env.NODE_ENV === 'production'
-const PROD_URL = 'https://prod.online'
-const DEV_URL = `http://localhost:${__CLIENT_PORT__}`
+const APP_URL = 'http://localhost:3001';
+const API_PATH = '/api';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const PROD_URL = 'https://prod.online';
+const DEV_URL = `http://localhost:${__CLIENT_PORT__}`;
 const AVATAR_PLACEHOLDER =
-  'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
+  'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
 // OAuth providers
 export const OAUTH_PROVIDERS: Indexable<any> = {
   yandex: {
@@ -17,7 +17,7 @@ export const OAUTH_PROVIDERS: Indexable<any> = {
     getServiceIdURI: '',
     redirectURI: IS_PRODUCTION ? PROD_URL : DEV_URL,
   },
-}
+};
 //  Local storage keys
 export enum Locals {
   OAUTH_PROVIDER = 'oauth-provider',
@@ -41,7 +41,7 @@ const PALETTE = {
   onWarning: '#000000',
   onInfo: '#ffffff',
   transparent: 'transparent',
-}
+};
 
 // theme customization
 const THEME_CUSTOM_CSS_PROPS = {
@@ -61,14 +61,14 @@ const THEME_CUSTOM_CSS_PROPS = {
   colorText: PALETTE.onBackground,
   colorErrorBg: PALETTE.surface,
   colorBgHeader: PALETTE.transparent,
-}
+};
 
 const NOTIFICATION_SHADOWS = {
   success: `0 0 10px ${PALETTE.primary}, 0 0 1px ${PALETTE.primary}`,
   error: `0 0 10px ${PALETTE.error}, 0 0 1px ${PALETTE.error}`,
   warning: `0 0 10px ${PALETTE.warning}, 0 0 1px ${PALETTE.warning}`,
   info: `0 0 10px ${PALETTE.info}, 0 0 1px ${PALETTE.info}`,
-}
+};
 
 const THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS: string[] = [
   'Button',
@@ -84,7 +84,7 @@ const THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS: string[] = [
   'Card',
   'Form',
   'Alert',
-]
+];
 
 export default {
   APP_URL,
@@ -98,4 +98,4 @@ export default {
   THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS,
   PALETTE,
   NOTIFICATION_SHADOWS,
-}
+};

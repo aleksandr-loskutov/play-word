@@ -2,16 +2,16 @@ import {
   UserWordProgress,
   UserWordProgressResponse,
   RequestUserWordProgressUpdate,
-} from '../types/training'
+} from '../types/training';
 
 export const transformUserProgressResponse = (
-  userProgressResponse: UserWordProgressResponse[] | undefined
+  userProgressResponse: UserWordProgressResponse[] | undefined,
 ): UserWordProgress[] => {
   if (userProgressResponse && userProgressResponse.length > 0) {
-    return userProgressResponse.map(progress => {
+    return userProgressResponse.map((progress) => {
       const { translationId, nextReview, stage, collectionId, collection } =
-        progress
-      const { wordId, word, translation } = progress.translation
+        progress;
+      const { wordId, word, translation } = progress.translation;
       return {
         wordId,
         translationId,
@@ -26,21 +26,21 @@ export const transformUserProgressResponse = (
           sessionStage: stage === 0 ? 0 : 1,
           errorCounter: 0,
         },
-      }
-    })
+      };
+    });
   }
-  return []
-}
+  return [];
+};
 
 export const transformUserProgressToUpdateRequest = (
-  actualUserProgress: UserWordProgress[]
+  actualUserProgress: UserWordProgress[],
 ): RequestUserWordProgressUpdate[] => {
-  return actualUserProgress.map(progress => {
-    const { wordId, translationId, word } = progress
+  return actualUserProgress.map((progress) => {
+    const { wordId, translationId, word } = progress;
     return {
       wordId,
       translationId,
       sessionMistakes: word.errorCounter || 0,
-    }
-  })
-}
+    };
+  });
+};

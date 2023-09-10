@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect } from 'react'
-import { Button, Space, Popconfirm } from 'antd'
-import { UserWordProgress, WordInTraining } from '../../../types/training'
+import React, { useCallback, useEffect } from 'react';
+import { Button, Space, Popconfirm } from 'antd';
+import { UserWordProgress, WordInTraining } from '../../../types/training';
 
 type ActionButtonsProps = {
-  word: WordInTraining
-  onLearnedButtonClick: () => void
-  onNextButtonClick: () => void
-  showAnswer: boolean
-  resultingProgress: UserWordProgress[]
-  onFinishTraining: () => void
-}
+  word: WordInTraining;
+  onLearnedButtonClick: () => void;
+  onNextButtonClick: () => void;
+  showAnswer: boolean;
+  resultingProgress: UserWordProgress[];
+  onFinishTraining: () => void;
+};
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
   word,
@@ -22,19 +22,19 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   const handleKeyPress = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
-        onNextButtonClick()
+        onNextButtonClick();
       }
     },
-    [onNextButtonClick]
-  )
+    [onNextButtonClick],
+  );
 
   useEffect(() => {
-    document.addEventListener('keydown', handleKeyPress)
+    document.addEventListener('keydown', handleKeyPress);
 
     return () => {
-      document.removeEventListener('keydown', handleKeyPress)
-    }
-  }, [handleKeyPress])
+      document.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleKeyPress]);
 
   return (
     <Space>
@@ -56,9 +56,9 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         <Button
           type="primary"
           onClick={onNextButtonClick}
-          onKeyDown={e => {
+          onKeyDown={(e) => {
             if (e.key === 'Enter' || e.keyCode === 13) {
-              onNextButtonClick()
+              onNextButtonClick();
             }
           }}
           tabIndex={0}
@@ -67,7 +67,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         </Button>
       )}
     </Space>
-  )
-}
+  );
+};
 
-export default ActionButtons
+export default ActionButtons;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Button,
   Typography,
@@ -14,40 +14,42 @@ import {
   message,
   notification,
   Space,
-} from 'antd'
-import './styles.css'
-import Layout from '../../components/layout'
-import createCn from '../../utils/create-cn'
-import { useAppDispatch, useAppSelector } from '../../components/hooks/store'
-import { useNavigate, Link, useParams } from 'react-router-dom'
-import { useAuth } from '../../components/hooks/auth'
+} from 'antd';
+import './styles.css';
+import Layout from '../../components/layout';
+import createCn from '../../utils/create-cn';
+import { useAppDispatch, useAppSelector } from '../../components/hooks/store';
+import { useNavigate, Link, useParams } from 'react-router-dom';
+import { useAuth } from '../../components/hooks/auth';
 import {
   createCollection,
   getUserCollections,
-} from '../../store/action-creators/collection'
-import PageLoader from '../../components/page-loader'
-import withAuth from '../../components/hoc/withAuth'
-import Paragraph from 'antd/lib/typography/Paragraph'
-import WithAuth from '../../components/hoc/withAuth'
-import { AvatarSrcs, Collection } from '../../types/collection'
-import { Response } from '../../types/api'
-import { customNotification } from '../../components/custom-notification/customNotification'
-import { PlusOutlined } from '@ant-design/icons'
-import CollectionCreateForm from './modal'
-import { createImageFromInitials } from '../../utils/image-from-string'
+} from '../../store/action-creators/collection';
+import PageLoader from '../../components/page-loader';
+import withAuth from '../../components/hoc/withAuth';
+import Paragraph from 'antd/lib/typography/Paragraph';
+import WithAuth from '../../components/hoc/withAuth';
+import { AvatarSrcs, Collection } from '../../types/collection';
+import { Response } from '../../types/api';
+import { customNotification } from '../../components/custom-notification/customNotification';
+import { PlusOutlined } from '@ant-design/icons';
+import CollectionCreateForm from './modal';
+import { createImageFromInitials } from '../../utils/image-from-string';
 
-const { Title } = Typography
-const cn = createCn('collections-page')
+const { Title } = Typography;
+const cn = createCn('collections-page');
 
 function CollectionsPage(): JSX.Element {
-  const { collections, isLoading } = useAppSelector(state => state.collections)
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
-  const { user } = useAuth()
+  const { collections, isLoading } = useAppSelector(
+    (state) => state.collections,
+  );
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { user } = useAuth();
 
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const onCreate = (values: any) => {
-    setOpen(false)
+    setOpen(false);
     dispatch(createCollection(values))
       .unwrap()
       .then((createdCollection: Response<Collection> | undefined) => {
@@ -56,8 +58,8 @@ function CollectionsPage(): JSX.Element {
             message: 'Успешно!',
             description: 'Добавили коллекцию',
             type: 'success',
-          })
-          navigate(`/collections/${createdCollection.id}`)
+          });
+          navigate(`/collections/${createdCollection.id}`);
         }
       })
       .catch((error: any) => {
@@ -65,16 +67,16 @@ function CollectionsPage(): JSX.Element {
           message: 'Ошибка!',
           description: 'Не удалось создать коллекцию',
           type: 'error',
-        })
-      })
-  }
+        });
+      });
+  };
 
   const avatarSrcs = useMemo<AvatarSrcs>(() => {
     return collections.reduce((acc: AvatarSrcs, collection) => {
-      acc[collection.id] = createImageFromInitials(100, collection.name)
-      return acc
-    }, {})
-  }, [collections])
+      acc[collection.id] = createImageFromInitials(100, collection.name);
+      return acc;
+    }, {});
+  }, [collections]);
 
   return isLoading ? (
     <PageLoader />
@@ -88,7 +90,7 @@ function CollectionsPage(): JSX.Element {
           type="primary"
           icon={<PlusOutlined />}
           onClick={() => {
-            setOpen(true)
+            setOpen(true);
           }}>
           Добавить коллекцию
         </Button>
@@ -97,11 +99,11 @@ function CollectionsPage(): JSX.Element {
           open={open}
           onCreate={onCreate}
           onCancel={() => {
-            setOpen(false)
+            setOpen(false);
           }}
         />
         <Row gutter={[10, 15]} justify={'center'}>
-          {collections.map(collection => (
+          {collections.map((collection) => (
             <Col
               key={collection.id}
               xs={{ span: 24 }}
@@ -137,7 +139,7 @@ function CollectionsPage(): JSX.Element {
     </section>
   ) : (
     <Title className={'title'}>Нет коллекций</Title>
-  )
+  );
 }
 
-export default WithAuth(CollectionsPage)
+export default WithAuth(CollectionsPage);

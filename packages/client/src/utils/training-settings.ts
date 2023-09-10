@@ -1,8 +1,8 @@
 export type KeyMapping = {
   [key: string]: {
-    [inputChar: string]: string
-  }
-}
+    [inputChar: string]: string;
+  };
+};
 export const KEY_MAPPINGS: KeyMapping = {
   KeyA: { a: 'ф' },
   KeyB: { b: 'и' },
@@ -37,7 +37,7 @@ export const KEY_MAPPINGS: KeyMapping = {
   Period: { '': 'ю' },
   Comma: { '': 'б' },
   Space: { '': ' ' },
-}
+};
 
 export const TRAINING_SETTINGS = {
   wordErrorLimit: 5,
@@ -47,4 +47,4 @@ export const TRAINING_SETTINGS = {
   errorLetterShowTime: 1000,
   countdownTimeInSec: 60,
   countdownVisualBlocksLimit: 10,
-}
+};

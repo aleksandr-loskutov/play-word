@@ -6,43 +6,45 @@ function validateArrayForEmptyStringAndLength(
   arr: any[],
   fields: string[],
   minLength: number = 2,
-  maxLength: number = 45,
+  maxLength: number = 45
 ) {
-  for (let i = 0; i < arr.length; i++) {
-    const item = arr[i];
-    for (const field of fields) {
+  if (!Array.isArray(arr)) {
+    throw new BadRequestException(`Ошибка валидации: Input is not an array.`);
+  }
+  arr.forEach((item, i) => {
+    fields.forEach((field) => {
       // Check for empty string
       if (typeof item[field] === 'string' && item[field].trim() === '') {
         throw new BadRequestException(
-          `Ошибка валидации: ${field} в индексе ${i} не должно быть пустым`,
+          `Ошибка валидации: ${field} в индексе ${i} не должно быть пустым`
         );
       }
 
       // Check for min length
       if (typeof item[field] === 'string' && item[field].length < minLength) {
         throw new BadRequestException(
-          `Ошибка валидации: ${field} в индексе ${i} должно быть больше ${minLength} символов`,
+          `Ошибка валидации: ${field} в индексе ${i} должно быть больше ${minLength} символов`
         );
       }
 
       // Check for max length
       if (typeof item[field] === 'string' && item[field].length > maxLength) {
         throw new BadRequestException(
-          `Ошибка валидации: ${field} в индексе ${i} должно быть меньше ${maxLength} символов`,
+          `Ошибка валидации: ${field} в индексе ${i} должно быть меньше ${maxLength} символов`
         );
       }
-    }
-  }
+    });
+  });
 }
 
 export function validateUserTrainingUpdatePayloadArray(
-  requestUpdates: RequestUserTrainingUpdate[],
+  requestUpdates: RequestUserTrainingUpdate[]
 ): boolean {
   return requestUpdates.every(
     (update) =>
       typeof update.wordId === 'number' &&
       typeof update.translationId === 'number' &&
-      typeof update.sessionMistakes === 'number',
+      typeof update.sessionMistakes === 'number'
   );
 }
 

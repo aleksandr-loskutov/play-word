@@ -1,16 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
-import { Avatar, Badge, Col, Layout, Menu, Row } from 'antd';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAppDispatch } from '../hooks/store';
-import { useAuth } from '../hooks/auth';
-import createCn from '../../utils/create-cn';
-import { signOut } from '../../store/action-creators/auth';
-import './style.css';
+import { Badge, Col, Layout, Menu, Row } from 'antd';
+import { Link, useLocation } from 'react-router-dom';
 import {
   AppstoreOutlined,
-  BellOutlined,
   BookOutlined,
-  EllipsisOutlined,
   HomeOutlined,
   LoginOutlined,
   LogoutOutlined,
@@ -18,6 +11,10 @@ import {
   UserAddOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import { useAuth } from '../hooks/auth';
+import createCn from '../../utils/create-cn';
+import './style.css';
+
 import { getWordsReadyForTraining } from '../../pages/train/utils';
 
 const { Header, Content, Footer } = Layout;
@@ -34,9 +31,10 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
     signOut();
   }, []);
 
-  const wordsForTrainingCount = useMemo(() => {
-    return getWordsReadyForTraining(training);
-  }, [training]);
+  const wordsForTrainingCount = useMemo(
+    () => getWordsReadyForTraining(training),
+    [training]
+  );
 
   const location = useLocation();
 
@@ -55,8 +53,8 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
     }
   }, [location, isLoggedIn]);
 
-  const items = useMemo(() => {
-    return [
+  const items = useMemo(
+    () => [
       {
         label: (
           <Link to="/">
@@ -79,7 +77,8 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
                   color: 'black',
                   bottom: '11px',
                   right: '4px',
-                }}></Badge>
+                }}
+              />
             )}
           </Link>
         ),
@@ -112,6 +111,7 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
               },
               {
                 label: (
+                  // eslint-disable-next-line jsx-a11y/anchor-is-valid
                   <Link to="#" onClick={handleLogoutButtonClick}>
                     <LogoutOutlined /> Выйти
                   </Link>
@@ -138,8 +138,9 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
               },
             ],
       },
-    ];
-  }, [isLoggedIn, training]);
+    ],
+    [isLoggedIn, training]
+  );
 
   return (
     <Layout className={cn('')}>

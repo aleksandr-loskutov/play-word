@@ -1,27 +1,32 @@
 // Function to convert RGB to HSL
 const rgbToHSL = ([r, g, b]: number[]): [number, number, number] => {
-  r /= 255.0;
-  g /= 255.0;
-  b /= 255.0;
+  const rNormalized = r / 255.0;
+  const gNormalized = g / 255.0;
+  const bNormalized = b / 255.0;
 
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
+  const max = Math.max(rNormalized, gNormalized, bNormalized);
+  const min = Math.min(rNormalized, gNormalized, bNormalized);
 
-  let h,
-    s,
-    l = (max + min) / 2.0;
+  let h;
+  let s;
+  const l = (max + min) / 2.0;
 
   if (max === min) {
-    h = s = 0;
+    h = 0;
+    s = 0;
   } else {
     const diff = max - min;
     s = l > 0.5 ? diff / (2.0 - max - min) : diff / (max + min);
-    h =
-      (max === r
-        ? (g - b) / diff + (g < b ? 6 : 0)
-        : max === g
-        ? (b - r) / diff + 2
-        : (r - g) / diff + 4) * 60;
+    if (max === rNormalized) {
+      h =
+        (gNormalized - bNormalized) / diff +
+        (gNormalized < bNormalized ? 6 : 0);
+    } else if (max === gNormalized) {
+      h = (bNormalized - rNormalized) / diff + 2;
+    } else {
+      h = (rNormalized - gNormalized) / diff + 4;
+    }
+    h *= 60;
   }
 
   return [Math.round(h), Math.round(s * 100), Math.round(l * 100)];
@@ -31,28 +36,28 @@ const rgbToHSL = ([r, g, b]: number[]): [number, number, number] => {
 const hslToRGB = ([h, s, l]: [number, number, number]): [
   number,
   number,
-  number,
+  number
 ] => {
-  s /= 100;
-  l /= 100;
+  const sNormalized = s / 100;
+  const lNormalized = l / 100;
 
-  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const c = (1 - Math.abs(2 * lNormalized - 1)) * sNormalized;
   const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = l - c / 2;
+  const m = lNormalized - c / 2;
 
   let [r, g, b] = [0, 0, 0];
 
-  if (0 <= h && h < 60) {
+  if (h >= 0 && h < 60) {
     [r, g, b] = [c, x, 0];
-  } else if (60 <= h && h < 120) {
+  } else if (h >= 60 && h < 120) {
     [r, g, b] = [x, c, 0];
-  } else if (120 <= h && h < 180) {
+  } else if (h >= 120 && h < 180) {
     [r, g, b] = [0, c, x];
-  } else if (180 <= h && h < 240) {
+  } else if (h >= 180 && h < 240) {
     [r, g, b] = [0, x, c];
-  } else if (240 <= h && h < 300) {
+  } else if (h >= 240 && h < 300) {
     [r, g, b] = [x, 0, c];
-  } else if (300 <= h && h < 360) {
+  } else if (h >= 300 && h < 360) {
     [r, g, b] = [c, 0, x];
   }
 
@@ -63,6 +68,9 @@ const hslToRGB = ([h, s, l]: [number, number, number]): [
   return [r, g, b];
 };
 
+const rgbToHex = (rgb: number[]): string =>
+  `#${rgb.map((x) => x.toString(16).padStart(2, '0')).join('')}`;
+
 // Function to convert HSL to Hex
 const hslToHex = (hsl: [number, number, number]): string => {
   const rgb = hslToRGB(hsl);
@@ -72,24 +80,10 @@ const hslToHex = (hsl: [number, number, number]): string => {
 // Function to adjust lightness in HSL model
 const adjustLightness = (
   [h, s, l]: [number, number, number],
-  adjustment: number,
+  adjustment: number
 ): [number, number, number] => {
-  l = Math.min(100, Math.max(0, l + adjustment)); // Clamp to [0, 100]
-  return [h, s, l];
-};
-
-const getComplementaryColor = (rgb: number[]): number[] => {
-  return rgb.map((color) => 255 - color) as number[];
-};
-
-const rgbToHex = (rgb: number[]): string => {
-  return '#' + rgb.map((x) => x.toString(16).padStart(2, '0')).join('');
-};
-
-const getLuminance = (hex: string): number => {
-  const rgb = hexToRGB(hex);
-  const [r, g, b] = rgb;
-  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  const newL = Math.min(100, Math.max(0, l + adjustment)); // Clamp to [0, 100]
+  return [h, s, newL];
 };
 
 const hexToRGB = (hex: string): number[] => {
@@ -97,6 +91,12 @@ const hexToRGB = (hex: string): number[] => {
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
   return [r, g, b];
+};
+
+const getLuminance = (hex: string): number => {
+  const rgb = hexToRGB(hex);
+  const [r, g, b] = rgb;
+  return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
 };
 
 const getRandomColor = (): string =>
@@ -119,11 +119,11 @@ const getInitials = (name: string): string | null => {
   return `${first[0]}${last[0]}`.toUpperCase();
 };
 
-export const createImageFromInitials = (
-  size: number = 100,
+export default function createImageFromInitials(
   name: string,
-  color: string = getRandomColor(),
-): string | null => {
+  size: number = 100,
+  color: string = getRandomColor()
+): string | null {
   if (!name) return null;
 
   const initials = getInitials(name);
@@ -132,14 +132,11 @@ export const createImageFromInitials = (
   // Initialize canvas and context
   const canvas = document.createElement('canvas');
   const context = canvas.getContext('2d') as CanvasRenderingContext2D;
-  canvas.width = canvas.height = size;
+  canvas.width = size;
+  canvas.height = size;
 
   const luminance = getLuminance(color);
 
-  //complimentary color feature
-  // const rgb = hexToRGB(color)
-  // const complementaryRGB = getComplementaryColor(rgb)
-  // let textColor = rgbToHex(complementaryRGB)
   let textColor = color; // Default text color
 
   if (luminance < 0.4) {
@@ -171,4 +168,4 @@ export const createImageFromInitials = (
   context.fillText(initials, size / 2, size / 2);
 
   return canvas.toDataURL();
-};
+}

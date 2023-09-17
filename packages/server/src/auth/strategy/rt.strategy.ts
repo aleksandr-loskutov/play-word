@@ -6,7 +6,10 @@ import { ConfigService } from '@nestjs/config';
 import { JwtPayload, JwtPayloadWithRt } from '../types';
 
 @Injectable()
-export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export default class RtStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh'
+) {
   constructor(config: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([RtStrategy.extractJWT]),
@@ -30,16 +33,17 @@ export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
         .split(';')
         .map((cookie) => cookie.trim());
       const refreshTokenCookie = cookies.find((cookie) =>
-        cookie.startsWith('refresh_token='),
+        cookie.startsWith('refresh_token=')
       );
       if (refreshTokenCookie) {
-        token = refreshTokenCookie.split('=')[1];
+        [, token] = refreshTokenCookie.split('=');
       }
     }
 
     return token && token.length > 0 ? token : null;
   }
 
+  // eslint-disable-next-line class-methods-use-this
   validate(request: RequestType, payload: JwtPayload): JwtPayloadWithRt {
     const token = RtStrategy.extractJWT(request);
 

@@ -9,7 +9,6 @@ import {
   Divider,
   Select,
 } from 'antd';
-const { Option } = Select;
 import signUpRules from '../../../signUp/validator';
 import createCn from '../../../../utils/create-cn';
 import { RequestUserDataUpdate, User } from '../../../../types/user';
@@ -22,6 +21,8 @@ import {
   TRAINING_MISTYPE_RULES,
   TRAINING_WORDS_PER_SESSION_RULES,
 } from './validator';
+
+const { Option } = Select;
 
 type ProfileFormProps = {
   error: Nullable<string>;
@@ -98,6 +99,8 @@ function ProfileForm({ user, error, onSubmit }: ProfileFormProps) {
                   if (!value || getFieldValue('password') === value) {
                     return Promise.resolve();
                   }
+                  // The Ant Design Form component's validation expects a string as a rejection reason for custom validators.
+                  // eslint-disable-next-line prefer-promise-reject-errors
                   return Promise.reject('Пароли не совпадают');
                 },
               }),

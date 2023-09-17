@@ -1,14 +1,11 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
-interface BeamHighlightProps {
+type BeamHighlightProps = {
   animate: boolean;
   speed?: number;
-}
+};
 
-const BeamHighlight: React.FC<BeamHighlightProps> = ({
-  animate,
-  speed = 1000,
-}) => {
+function BeamHighlight({ animate, speed = 1000 }: BeamHighlightProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [dimensions, setDimensions] = useState<{
     width: number;
@@ -37,12 +34,13 @@ const BeamHighlight: React.FC<BeamHighlightProps> = ({
     if (!ctx) return;
 
     let start: number | null = null;
+    let animationFrameId: number;
 
     const gradient = ctx.createLinearGradient(
       0,
       0,
       canvas.width,
-      canvas.height,
+      canvas.height
     );
     gradient.addColorStop(0, 'rgba(69,243,255,0)');
     gradient.addColorStop(0.25, 'rgba(69,243,255,0.51)');
@@ -75,7 +73,7 @@ const BeamHighlight: React.FC<BeamHighlightProps> = ({
         ctx.lineTo(canvas.width, canvas.height);
         ctx.lineTo(
           canvas.width - canvas.width * (progress - 0.5) * 4,
-          canvas.height,
+          canvas.height
         );
         ctx.stroke();
       } else if (progress < 1) {
@@ -93,8 +91,9 @@ const BeamHighlight: React.FC<BeamHighlightProps> = ({
       }
     };
 
-    let animationFrameId = requestAnimationFrame(draw);
+    animationFrameId = requestAnimationFrame(draw);
 
+    // eslint-disable-next-line consistent-return
     return () => {
       window.cancelAnimationFrame(animationFrameId);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -114,6 +113,10 @@ const BeamHighlight: React.FC<BeamHighlightProps> = ({
       }}
     />
   );
+}
+
+BeamHighlight.defaultProps = {
+  speed: 1000,
 };
 
 export default BeamHighlight;

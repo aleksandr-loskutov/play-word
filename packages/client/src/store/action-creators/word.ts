@@ -9,15 +9,15 @@ export const updateWordsInCollection = createAsyncThunk(
   (payload: RequestAddWordsToCollection, thunkAPI) =>
     handleAPICall(
       WordAPI.updateWordsInCollection(payload.collectionId, payload.words),
-      thunkAPI,
-    ),
+      thunkAPI
+    )
 );
 
 // Get words by collection
 export const getWordsByCollection = createAsyncThunk(
   'word/getWordsByCollection',
   (collectionId: string, thunkAPI) =>
-    handleAPICall(WordAPI.getWordsByCollection(collectionId), thunkAPI),
+    handleAPICall(WordAPI.getWordsByCollection(collectionId), thunkAPI)
 );
 
 const actions = {

@@ -78,13 +78,13 @@ export type UserWordProgressExtended = UserWordProgress & {
 export class RequestUserTrainingUpdate {
   @IsNotEmpty()
   @IsNumber()
-  wordId;
+  wordId: number;
 
   @IsNotEmpty()
   @IsNumber()
-  translationId;
+  translationId: number;
 
   @IsNotEmpty()
   @IsNumber()
-  sessionMistakes;
+  sessionMistakes: number;
 }

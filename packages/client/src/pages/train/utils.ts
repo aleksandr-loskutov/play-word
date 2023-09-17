@@ -1,24 +1,20 @@
-import {
-  UserWordProgress,
-  WordStats,
-  WordInTraining,
-} from '../../types/training';
+import { UserWordProgress, WordStats } from '../../types/training';
 import { UserTrainingSettings } from '../../types/user';
 
 function getWordsReadyForTraining(training: UserWordProgress[]): number {
   if (training.length === 0) return 0;
   const now = new Date();
   const wordsReadyForTraining = training.filter(
-    (word) => new Date(word.nextReview) <= now,
+    (word) => new Date(word.nextReview) <= now
   );
   return wordsReadyForTraining.length;
 }
 
-//deprecated
+// deprecated
 const prepareTrainingArray = (
-  trainingArray: UserWordProgress[],
-): UserWordProgress[] => {
-  return trainingArray.map((wordProgress) => ({
+  trainingArray: UserWordProgress[]
+): UserWordProgress[] =>
+  trainingArray.map((wordProgress) => ({
     ...wordProgress,
     word: {
       ...wordProgress.word,
@@ -26,10 +22,9 @@ const prepareTrainingArray = (
       errorCounter: 0,
     },
   }));
-};
 
 const sortUserWordProgressByDate = (
-  userWordProgresses: UserWordProgress[],
+  userWordProgresses: UserWordProgress[]
 ): UserWordProgress[] => {
   const sortedProgressArray = [...userWordProgresses].sort((a, b) => {
     const nextReviewA = new Date(a.nextReview);
@@ -40,30 +35,55 @@ const sortUserWordProgressByDate = (
 };
 
 const sortUserWordProgressBySessionStage = (
-  progressArray: UserWordProgress[],
+  progressArray: UserWordProgress[]
 ): UserWordProgress[] => {
   const sortedProgressArray = progressArray.sort(
-    (a, b) => a.word.sessionStage - b.word.sessionStage,
+    (a, b) => a.word.sessionStage - b.word.sessionStage
   );
   return sortedProgressArray;
 };
 
+function calculateNextTrainingDate(
+  stage: number,
+  userSettings: UserTrainingSettings
+) {
+  const stageIntervals = [
+    0, // Stage 0 has an immediate review
+    userSettings.stageOneInterval,
+    userSettings.stageTwoInterval,
+    userSettings.stageThreeInterval,
+    userSettings.stageFourInterval,
+    userSettings.stageFiveInterval,
+  ];
+
+  const interval = stageIntervals[Math.min(stage, stageIntervals.length - 1)];
+  return new Date(Date.now() + interval * 24 * 3600 * 1000);
+}
+
 const reverseWordAndTranslation = (
-  userWordProgress: UserWordProgress,
-): UserWordProgress => {
-  return {
-    ...userWordProgress,
-    word: {
-      ...userWordProgress.word,
-      word: userWordProgress.word.translation,
-      translation: userWordProgress.word.word,
-    },
-  };
-};
+  userWordProgress: UserWordProgress
+): UserWordProgress => ({
+  ...userWordProgress,
+  word: {
+    ...userWordProgress.word,
+    word: userWordProgress.word.translation,
+    translation: userWordProgress.word.word,
+  },
+});
+
+function getNextStage(stage: number, sessionMistakes: number): number {
+  if (stage === 0) {
+    return 1;
+  }
+  if (sessionMistakes === 0) {
+    return stage + 1;
+  }
+  return stage;
+}
 
 const getWordStats = (
   arr: UserWordProgress[],
-  userSettings: UserTrainingSettings,
+  userSettings: UserTrainingSettings
 ): WordStats[] => {
   const trainingStatsArray: WordStats[] = arr.map((item) => {
     const {
@@ -75,7 +95,7 @@ const getWordStats = (
     } = item;
     const { translation } = word;
 
-    const nextStage = stage === 0 ? 1 : errorCounter === 0 ? stage + 1 : stage;
+    const nextStage = getNextStage(stage, errorCounter);
     const oneDayFromNow = new Date(Date.now() + 24 * 3600 * 1000);
     const nextReview =
       errorCounter === 0
@@ -96,26 +116,8 @@ const getWordStats = (
   return trainingStatsArray;
 };
 
-function calculateNextTrainingDate(
-  stage: number,
-  userSettings: UserTrainingSettings,
-) {
-  const stageIntervals = [
-    0, // Stage 0 has an immediate review
-    userSettings.stageOneInterval,
-    userSettings.stageTwoInterval,
-    userSettings.stageThreeInterval,
-    userSettings.stageFourInterval,
-    userSettings.stageFiveInterval,
-  ];
-
-  const interval = stageIntervals[Math.min(stage, stageIntervals.length - 1)];
-  return new Date(Date.now() + interval * 24 * 3600 * 1000);
-}
-
-const getTotalTimeSpent = (words: WordStats[]): number => {
-  return words.reduce((total, word) => total + word.timeSpent, 0);
-};
+const getTotalTimeSpent = (words: WordStats[]): number =>
+  words.reduce((total, word) => total + word.timeSpent, 0);
 
 export {
   getWordsReadyForTraining,
@@ -126,4 +128,5 @@ export {
   getWordStats,
   calculateNextTrainingDate,
   getTotalTimeSpent,
+  getNextStage,
 };

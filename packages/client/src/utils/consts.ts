@@ -1,6 +1,7 @@
 import { Indexable } from '../types/common';
 
 const APP_URL = 'http://localhost:3001';
+
 const API_PATH = '/api';
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const PROD_URL = 'https://prod.online';

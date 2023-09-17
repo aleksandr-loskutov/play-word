@@ -6,29 +6,32 @@ import {
 } from '@nestjs/common';
 import * as argon from 'argon2';
 import { UserWithTrainingSettings } from 'user';
-import { PrismaService } from '../prisma/prisma.service';
-import { EditUserDto, UserDto } from './dto';
+import PrismaService from '../prisma/prisma.service';
+import { EditUserDto, TrainingSettingsDto, UserDto } from './dto';
 import excludeFields from '../auth/utils/exludeFields';
-import { AuthService } from '../auth/auth.service';
+import AuthService from '../auth/auth.service';
 import { Tokens } from '../auth/types';
 import { handleError } from '../common/utils';
 
+type CommonFields = keyof EditUserDto & keyof UserWithTrainingSettings;
+type TrainingSettingKeys = keyof TrainingSettingsDto;
+
 @Injectable()
-export class UserService {
+export default class UserService {
   constructor(
     private prisma: PrismaService,
-    private authService: AuthService,
+    private authService: AuthService
   ) {}
 
   async updateUser(
     userId: number,
     dto: EditUserDto,
-    refreshToken: string,
+    refreshToken: string
   ): Promise<{ user: UserDto; tokens?: Tokens }> {
     try {
       let user = await this.getUserFromDb(userId);
       let tokens; // will exist only if user is really updated and new tokens generated - needed for setting them in cookie by user controller
-      const shouldUpdateUser = await this.shouldUpdateUser(user, dto);
+      const shouldUpdateUser = await UserService.shouldUpdateUser(user, dto);
 
       if (shouldUpdateUser) {
         if (dto.email !== user.email) {
@@ -48,7 +51,7 @@ export class UserService {
           }
           if (dto.password.length < 8 || !/\d/.test(dto.password)) {
             throw new BadRequestException(
-              'Password must be at least 8 characters long and contain at least one number',
+              'Password must be at least 8 characters long and contain at least one number'
             );
           }
           const hashedPassword = await argon.hash(dto.password);
@@ -74,7 +77,7 @@ export class UserService {
           }
           if (!trainingSettings) {
             throw new BadRequestException(
-              'Could not create or update training settings',
+              'Could not create or update training settings'
             );
           }
         }
@@ -85,7 +88,7 @@ export class UserService {
         });
         const authRes = await this.authService.refreshTokens(
           userId,
-          refreshToken,
+          refreshToken
         );
         tokens = authRes.tokens;
       }
@@ -94,6 +97,7 @@ export class UserService {
       return { user, tokens };
     } catch (error: any) {
       handleError(error);
+      throw new BadRequestException('Something went wrong');
     }
   }
 
@@ -109,16 +113,19 @@ export class UserService {
       return user;
     } catch (error: any) {
       handleError(error);
+      throw new BadRequestException('Something went wrong');
     }
   }
 
-  async shouldUpdateUser(
+  private static async shouldUpdateUser(
     user: UserWithTrainingSettings,
-    dto: EditUserDto,
+    dto: EditUserDto
   ): Promise<boolean> {
     try {
       // Check basic fields
-      const basicFields = ['email', 'name'];
+      const basicFields: CommonFields[] = ['email', 'name'];
+
+      // eslint-disable-next-line no-restricted-syntax
       for (const field of basicFields) {
         if (dto[field] && dto[field] !== user[field]) {
           return true;
@@ -136,8 +143,10 @@ export class UserService {
       // Check training settings
       if (dto.trainingSettings) {
         const { trainingSettings: currentTrainingSettings } = user;
-
-        for (const setting in dto.trainingSettings) {
+        // eslint-disable-next-line no-restricted-syntax
+        for (const setting of Object.keys(
+          dto.trainingSettings
+        ) as TrainingSettingKeys[]) {
           if (
             dto.trainingSettings[setting] !== currentTrainingSettings[setting]
           ) {
@@ -149,6 +158,7 @@ export class UserService {
       return false;
     } catch (error: any) {
       handleError(error);
+      return false;
     }
   }
 }

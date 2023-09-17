@@ -3,8 +3,8 @@ import { Test } from '@nestjs/testing';
 import supertest from 'supertest';
 import { JwtService } from '@nestjs/jwt';
 import { UserWithTrainingSettings } from 'user';
-import { AppModule } from '../src/app.module';
-import { PrismaService } from '../src/prisma/prisma.service';
+import AppModule from '../src/app.module';
+import PrismaService from '../src/prisma/prisma.service';
 import {
   mockInvalidEditUserDto,
   mockRequestCollectionCreateDto,
@@ -25,7 +25,8 @@ import { UserDto } from '../src/user/dto';
 import { Tokens } from '../src/auth/types';
 import { generateRandomString } from '../src/common/utils';
 import { UserWordProgressExtended } from '../src/collection/dto';
-import { calculateNextTrainingDate } from '../src/collection/utils/calculateNextTrainingDate';
+import calculateNextTrainingDate from '../src/collection/utils/calculateNextTrainingDate';
+import { extractTokensFromCookies, verifyAuthResponse } from './utils';
 
 describe('App e2e', () => {
   let app: INestApplication;
@@ -46,7 +47,7 @@ describe('App e2e', () => {
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
-      }),
+      })
     );
     await app.init();
     await app.listen(3333);
@@ -174,7 +175,7 @@ describe('App e2e', () => {
             verifyAuthResponse(res, jwtService);
             // Extract cookies from the response
             currentTokensWithCookies = extractTokensFromCookies(
-              res.headers['set-cookie'],
+              res.headers['set-cookie']
             );
           });
       });
@@ -257,10 +258,10 @@ describe('App e2e', () => {
 
       expect(response.body.name).toEqual(mockRequestCollectionCreateDto.name);
       expect(response.body.description).toEqual(
-        mockRequestCollectionCreateDto.description,
+        mockRequestCollectionCreateDto.description
       );
       expect(response.body.isPublic).toEqual(
-        mockRequestCollectionCreateDto.isPublic,
+        mockRequestCollectionCreateDto.isPublic
       );
       collectionId = response.body.id;
       // and private collection for second user
@@ -314,7 +315,7 @@ describe('App e2e', () => {
         .expect((res) => {
           const { message } = res.body;
           expect(message.length).toBeGreaterThanOrEqual(
-            Object.keys(mockInvalidRequestCollectionUpdateDto).length,
+            Object.keys(mockInvalidRequestCollectionUpdateDto).length
           );
         });
     });
@@ -327,7 +328,7 @@ describe('App e2e', () => {
         .expect((res) => {
           expect(res.body.name).toEqual(mockRequestCollectionUpdateDto.name);
           expect(res.body.description).toEqual(
-            mockRequestCollectionUpdateDto.description,
+            mockRequestCollectionUpdateDto.description
           );
           expect(res.body.image).toEqual(mockRequestCollectionUpdateDto.image);
         });
@@ -376,15 +377,21 @@ describe('App e2e', () => {
       await unAuthedRequestAgent.get(`/word/${collectionId}`).expect(401);
     });
     it('should not add words to collection if not authenticated', async () => {
-      await unAuthedRequestAgent.post(`/word/${collectionId}`).expect(401);
+      await unAuthedRequestAgent
+        .post(`/word/${collectionId}`)
+        .send([mockWordsForCollectionDto])
+        .expect(401);
     });
     it('should not add words to not owned collection', async () => {
-      await requestAgentForSecondUser.post(`/word/${collectionId}`).expect(403);
+      await requestAgentForSecondUser
+        .post(`/word/${collectionId}`)
+        .send([mockWordsForCollectionDto])
+        .expect(403);
     });
 
     it('should not add invalid words to collection', async () => {
       // no body provided
-      await requestAgent.post(`/word/${collectionId}`).expect(404);
+      await requestAgent.post(`/word/${collectionId}`).expect(400);
       // empty values
       await requestAgent
         .post(`/word/${collectionId}`)
@@ -458,7 +465,7 @@ describe('App e2e', () => {
           expect(collectionWords).toHaveLength(mockWords.length);
           expect(collectionWords[0].word).toEqual(mockWords[0].word);
           expect(collectionWords[0].translation).toEqual(
-            mockWords[0].translation,
+            mockWords[0].translation
           );
         });
     });
@@ -499,11 +506,11 @@ describe('App e2e', () => {
       // Convert both 'nextReviewShouldBe' and 'nextReviewFromResponse' to Date objects
       const nextReviewShouldBeDate = new Date(nextReviewShouldBe);
       const nextReviewFromResponseDate = new Date(
-        userWordProgress[0].nextReview,
+        userWordProgress[0].nextReview
       );
       // Calculate date difference in milliseconds
       const dateDifference = Math.abs(
-        nextReviewFromResponseDate.getTime() - nextReviewShouldBeDate.getTime(),
+        nextReviewFromResponseDate.getTime() - nextReviewShouldBeDate.getTime()
       );
       // Tolerance
       const toleranceInMilliseconds = 5000;
@@ -541,12 +548,11 @@ describe('App e2e', () => {
           const updatedUserWordProgress: UserWordProgressExtended[] = res.body;
           // backend is filtering progress by date, so it should return 1 less word
           expect(updatedUserWordProgress).toHaveLength(
-            userWordProgress.length - 1,
+            userWordProgress.length - 1
           );
           const wordProgress: UserWordProgressExtended =
             updatedUserWordProgress.find(
-              (x: UserWordProgressExtended) =>
-                x.translationId === translationId,
+              (x: UserWordProgressExtended) => x.translationId === translationId
             );
           expect(wordProgress).toBeUndefined();
         });
@@ -590,7 +596,7 @@ describe('App e2e', () => {
           // there should be a lot of validation errors inside message
           expect(message.length).toBeGreaterThanOrEqual(
             Object.keys(mockInvalidEditUserDto).length +
-              Object.keys(mockInvalidEditUserDto.trainingSettings).length,
+              Object.keys(mockInvalidEditUserDto.trainingSettings).length
           );
         });
     });
@@ -613,11 +619,11 @@ describe('App e2e', () => {
         .expect((res) => {
           expect(res.headers['set-cookie']).toBeTruthy();
           const newTokensWithCookies = extractTokensFromCookies(
-            res.headers['set-cookie'],
+            res.headers['set-cookie']
           );
           // new auth token comparing with old one
           expect(newTokensWithCookies.accessToken).not.toEqual(
-            currentTokensWithCookies.accessToken,
+            currentTokensWithCookies.accessToken
           );
           currentTokensWithCookies = newTokensWithCookies;
           // check for updated user
@@ -626,7 +632,7 @@ describe('App e2e', () => {
           expect(user.name).toBe(mockUpdatedUserDto.name);
           expect(user.trainingSettings).toBeDefined();
           expect(user.trainingSettings).toEqual(
-            expect.objectContaining(mockTrainingSettingsDto),
+            expect.objectContaining(mockTrainingSettingsDto)
           );
         });
     });
@@ -647,7 +653,7 @@ describe('App e2e', () => {
         .expect(200)
         .expect((res) => {
           const newTokensWithCookies = extractTokensFromCookies(
-            res.headers['set-cookie'],
+            res.headers['set-cookie']
           );
           expect(newTokensWithCookies).not.toEqual(currentTokensWithCookies);
           currentTokensWithCookies = newTokensWithCookies;
@@ -662,80 +668,12 @@ describe('App e2e', () => {
           // Check if cookies were cleared
           const cookies = res.headers['set-cookie'];
           expect(
-            cookies.some((cookie) => cookie.includes('access_token=;')),
+            cookies.some((cookie: string) => cookie.includes('access_token=;'))
           ).toBeTruthy();
           expect(
-            cookies.some((cookie) => cookie.includes('refresh_token=;')),
+            cookies.some((cookie: string) => cookie.includes('refresh_token=;'))
           ).toBeTruthy();
         });
     });
   });
 });
-
-function verifyAuthResponse(
-  { body, headers }: { body: Partial<UserDto>; headers: any },
-  jwtService: JwtService,
-) {
-  expect(typeof body.id).toBe('number');
-  expect(body.email).toBe(mockSignUpDto.email);
-  expect(body.name).toBe(mockSignUpDto.name);
-  expect(typeof body.createdAt).toBe('string');
-  expect(body.trainingSettings).toBeDefined();
-
-  // Verify cookies
-  const cookies = headers['set-cookie'];
-  expect(cookies).toBeDefined();
-
-  expect(
-    cookies.some((cookie: string) => cookie.startsWith('access_token=')),
-  ).toBe(true);
-
-  expect(
-    cookies.some((cookie: string) => cookie.startsWith('refresh_token=')),
-  ).toBe(true);
-
-  // Check for httpOnly flag
-  expect(cookies.some((cookie: string) => cookie.includes('HttpOnly'))).toBe(
-    true,
-  );
-
-  // Decode JWT token and verify
-  const accessTokenCookie = cookies.find((cookie: string) =>
-    cookie.startsWith('access_token='),
-  );
-  const accessToken = accessTokenCookie.split(';')[0].split('=')[1];
-  const decodedToken: any = jwtService.decode(accessToken);
-
-  if (typeof decodedToken === 'object') {
-    expect(decodedToken.id).toBe(body.id);
-    expect(decodedToken.email).toBe(mockSignUpDto.email);
-    expect(decodedToken.name).toBe(mockSignUpDto.name);
-    expect(decodedToken.trainingSettings).toBeDefined();
-  } else {
-    throw new Error('JWT did not decode to an object');
-  }
-}
-
-function extractTokensFromCookies(
-  cookies: string[],
-): Tokens & { cookiesString: string } {
-  expect(cookies).toBeTruthy();
-  const accessTokenCookie = cookies.find((cookie: string) =>
-    cookie.startsWith('access_token='),
-  );
-
-  const refreshTokenCookie = cookies.find((cookie: string) =>
-    cookie.startsWith('refresh_token='),
-  );
-  const accessToken = accessTokenCookie.split(';')[0].split('=')[1];
-  const refreshToken = refreshTokenCookie.split(';')[0].split('=')[1];
-
-  expect(accessToken).toBeTruthy();
-  expect(refreshToken).toBeTruthy();
-
-  const cookiesString = cookies
-    .map((cookie) => cookie.split(';')[0])
-    .join('; ');
-
-  return { accessToken, refreshToken, cookiesString };
-}

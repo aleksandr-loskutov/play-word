@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { Collection } from '@prisma/client';
 import { Response } from 'common';
-import { PrismaService } from '../prisma/prisma.service';
-import { calculateNextTrainingDate } from './utils/calculateNextTrainingDate';
+import PrismaService from '../prisma/prisma.service';
+import calculateNextTrainingDate from './utils/calculateNextTrainingDate';
 
 import {
   CollectionWithWords,
@@ -20,14 +20,15 @@ import {
   handleError,
   validateUserTrainingUpdatePayloadArray,
 } from '../common/utils';
-import { cacheManager } from '../common/utils/memCache';
+import cacheManager from '../common/utils/memCache';
+import getNextStage from './utils/getNextStage';
 
 @Injectable()
-export class CollectionService {
+export default class CollectionService {
   constructor(private prisma: PrismaService) {}
 
   async getCollections(
-    userId: number,
+    userId: number
   ): Promise<Response<CollectionWithWords[]>> {
     try {
       const data = await this.prisma.collection.findMany({
@@ -60,12 +61,13 @@ export class CollectionService {
       return collectionsWithWords;
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 
   async createCollection(
     collection: RequestCollectionCreateDto,
-    userId: number,
+    userId: number
   ): Promise<Response<CollectionWithWords>> {
     try {
       const data = await this.prisma.collection.create({
@@ -77,6 +79,7 @@ export class CollectionService {
       return { ...data, words: [] };
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 
@@ -98,13 +101,14 @@ export class CollectionService {
       return data;
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 
   // soft delete
   async deleteCollection(
     collectionId: number,
-    userId: number,
+    userId: number
   ): Promise<Response<Collection>> {
     try {
       const isOwner = await this.isUserOwnsCollection(userId, collectionId);
@@ -120,13 +124,14 @@ export class CollectionService {
       return deletedCollection;
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 
   // learn collection
   async addCollectionWordsToUserProgress(
     collectionId: number,
-    userId: number,
+    userId: number
   ): Promise<Response<UserWordProgressExtended[]>> {
     try {
       const collection = await this.prisma.collection.findUnique({
@@ -138,7 +143,7 @@ export class CollectionService {
         },
       });
 
-      this.checkUserAccessToCollection(collection, userId);
+      CollectionService.checkUserAccessToCollection(collection, userId);
 
       const collectionWords = await this.prisma.wordForCollection.findMany({
         where: { collectionId },
@@ -156,10 +161,10 @@ export class CollectionService {
 
       const newWordProgresses = collectionWords
         .filter((cw) => !existingIds.includes(cw.translationId))
-        .map(({ translationId, collectionId }) => ({
+        .map(({ translationId, collectionId: collId }) => ({
           userId,
           translationId,
-          collectionId,
+          collectionId: collId,
           nextReview: new Date(),
           stage: 0,
         }));
@@ -171,14 +176,15 @@ export class CollectionService {
       return userProgress;
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 
-  checkUserAccessToCollection(
+  private static checkUserAccessToCollection(
     collection: Partial<Collection> & {
       words: { translationId?: number; wordId?: number }[];
     },
-    userId: number,
+    userId: number
   ): void {
     if (!collection) {
       throw new NotFoundException(`Коллекция не найдена.`);
@@ -188,13 +194,13 @@ export class CollectionService {
     }
     // Check if user owns the collection or it's public
     if (collection.userId !== userId && !collection.isPublic) {
-      throw new ForbiddenException('Доступ запрещен!!');
+      throw new ForbiddenException('Доступ запрещен!');
     }
   }
 
   async deleteCollectionWordsFromUserProgress(
     collectionId: number,
-    userId: number,
+    userId: number
   ): Promise<Response<UserWordProgressExtended[]>> {
     try {
       const collection = await this.prisma.collection.findUnique({
@@ -205,7 +211,7 @@ export class CollectionService {
           words: { select: { translationId: true } },
         },
       });
-      this.checkUserAccessToCollection(collection, userId);
+      CollectionService.checkUserAccessToCollection(collection, userId);
 
       await this.prisma.userWordProgress.deleteMany({
         where: {
@@ -220,11 +226,12 @@ export class CollectionService {
       return userProgress;
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 
   async getUserTraining(
-    userId: number,
+    userId: number
   ): Promise<Response<UserWordProgressExtended[]>> {
     try {
       const userProgress = await this.getUserProgress(userId);
@@ -232,12 +239,13 @@ export class CollectionService {
       return userProgress;
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 
   async updateUserTraining(
     trainingToUpdate: RequestUserTrainingUpdate[],
-    userId: number,
+    userId: number
   ): Promise<Response<UserWordProgressExtended[]>> {
     try {
       const userSettings = await this.prisma.userTrainingSettings.findUnique({
@@ -252,18 +260,17 @@ export class CollectionService {
       )
         return userProgress;
 
-      for (const trainingItem of trainingToUpdate) {
+      const updatePromises = trainingToUpdate.map(async (trainingItem) => {
         const { wordId, translationId, sessionMistakes } = trainingItem;
         const progressToUpdate = userProgress.find(
           (progress) =>
             progress.translation.id === translationId &&
-            progress.translation.wordId === wordId,
+            progress.translation.wordId === wordId
         );
 
         if (progressToUpdate) {
           const { stage, mistakes } = progressToUpdate;
-          const nextStage =
-            stage === 0 ? 1 : sessionMistakes === 0 ? stage + 1 : stage;
+          const nextStage = getNextStage(stage, sessionMistakes);
           const updatedMistakes = mistakes + sessionMistakes;
           const oneDayFromNow = new Date(Date.now() + 24 * 3600 * 1000);
           const nextReview =
@@ -283,18 +290,20 @@ export class CollectionService {
             userProgress.splice(userProgress.indexOf(progressToUpdate), 1);
           }
         }
-      }
+      });
+      await Promise.all(updatePromises);
 
       return userProgress;
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 
   async updateCollection(
     collectionId: number,
     userId: number,
-    payload: RequestCollectionUpdateDto,
+    payload: RequestCollectionUpdateDto
   ): Promise<Response<Collection>> {
     try {
       const collection = await this.prisma.collection.findUnique({
@@ -302,7 +311,7 @@ export class CollectionService {
       });
       if (!collection || collection.userId !== userId) {
         throw new ForbiddenException(
-          `"Коллекция ${collectionId}" не найдена или у вас нет доступа.`,
+          `"Коллекция ${collectionId}" не найдена или у вас нет доступа.`
         );
       }
       const data = await this.prisma.collection.update({
@@ -329,6 +338,7 @@ export class CollectionService {
       return collectionWithWords;
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 
@@ -360,12 +370,13 @@ export class CollectionService {
       return userProgress;
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 
   async isUserOwnsCollection(
     userId: number,
-    collectionId: number,
+    collectionId: number
   ): Promise<boolean> {
     try {
       const collection = await this.prisma.collection.findFirst({
@@ -377,6 +388,7 @@ export class CollectionService {
       return Boolean(collection);
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Неизвестная ошибка.');
     }
   }
 }

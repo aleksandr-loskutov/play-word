@@ -18,7 +18,7 @@ describe('createCn', () => {
   describe('with an element and modifier', () => {
     it('should return the block and element names concatenated with the modifier when it is true', () => {
       expect(cn('element', { modifier: true })).toBe(
-        'block__element block__element_modifier',
+        'block__element block__element_modifier'
       );
     });
 
@@ -28,13 +28,13 @@ describe('createCn', () => {
 
     it('should handle multiple modifiers', () => {
       expect(cn('element', { mod1: true, mod2: true })).toBe(
-        'block__element block__element_mod1 block__element_mod2',
+        'block__element block__element_mod1 block__element_mod2'
       );
     });
 
     it('should skip false modifiers when multiple modifiers are provided', () => {
       expect(cn('element', { mod1: true, mod2: false })).toBe(
-        'block__element block__element_mod1',
+        'block__element block__element_mod1'
       );
     });
   });

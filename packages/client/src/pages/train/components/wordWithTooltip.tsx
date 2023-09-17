@@ -10,33 +10,27 @@ type WordWithTooltipProps = {
 };
 const cn = createCn('train-page');
 
-const WordWithTooltip: React.FC<WordWithTooltipProps> = ({
+function WordWithTooltip({
   collectionName,
   word,
   showCollectionNameHint,
   isWordNew,
-}) => {
-  const showCollectionNameHintProp = showCollectionNameHint
-    ? { open: true }
-    : {};
-
+}: WordWithTooltipProps): React.ReactElement {
   return (
     <div className={cn('badge-container')}>
       <Tooltip
         title={collectionName}
         color="cyan"
-        {...showCollectionNameHintProp}>
+        open={showCollectionNameHint ? true : undefined}>
         <span className={cn('word')}>{word.toUpperCase()}</span>
       </Tooltip>
       {isWordNew && (
-        <Tooltip
-          title={'для новых слов кол-во ошибок игнорируется'}
-          color="cyan">
+        <Tooltip title="для новых слов кол-во ошибок игнорируется" color="cyan">
           <div className={cn('badge')}>new</div>{' '}
         </Tooltip>
       )}
     </div>
   );
-};
+}
 
 export default WordWithTooltip;

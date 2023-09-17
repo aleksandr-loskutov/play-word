@@ -18,7 +18,7 @@ abstract class Storage<T extends string> {
         setItem: () => {},
         removeItem: () => {},
       };
-    },
+    }
   ) {
     this.storage = getStorage();
   }

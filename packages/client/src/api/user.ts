@@ -14,8 +14,9 @@ class UserAPI extends BaseAPI {
   public updateProfile(body: RequestUserDataUpdate): ApiResponse<User> {
     return this.httpService.patch('/', body);
   }
-  //not used
-  public updateAvatar(body): ApiResponse<User> {
+
+  // not used
+  public updateAvatar(body: RequestUserDataUpdate): ApiResponse<User> {
     return this.httpService.put('/avatar', body);
   }
 }

@@ -1,11 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-interface CountdownProps {
+type CountdownProps = {
   seconds: number;
   onComplete: () => void;
-}
+};
 
-const Countdown: React.FC<CountdownProps> = ({ seconds, onComplete }) => {
+function Countdown({
+  seconds,
+  onComplete,
+}: CountdownProps): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState(seconds);
   const [dimensions, setDimensions] = useState<{
@@ -41,7 +44,7 @@ const Countdown: React.FC<CountdownProps> = ({ seconds, onComplete }) => {
       0,
       0,
       canvas.width,
-      canvas.height,
+      canvas.height
     );
     gradient.addColorStop(0, '#1b8aab');
     gradient.addColorStop(1, '#45f3ff');
@@ -67,13 +70,13 @@ const Countdown: React.FC<CountdownProps> = ({ seconds, onComplete }) => {
         if (newTime <= 0.1) {
           clearInterval(timer);
           return 0;
-        } else {
-          draw();
-          return newTime;
         }
+        draw();
+        return newTime;
       });
     }, 100);
 
+    // eslint-disable-next-line consistent-return
     return () => {
       clearInterval(timer);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -99,6 +102,6 @@ const Countdown: React.FC<CountdownProps> = ({ seconds, onComplete }) => {
       }}
     />
   );
-};
+}
 
 export default Countdown;

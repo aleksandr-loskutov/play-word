@@ -1,2 +1,2 @@
-export * from './at.strategy';
-export * from './rt.strategy';
+export { default as AtStrategy } from './at.strategy';
+export { default as RtStrategy } from './rt.strategy';

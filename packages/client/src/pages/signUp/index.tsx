@@ -1,14 +1,14 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Form, Input, Button, Alert } from 'antd';
 import { useNavigate } from 'react-router';
 import { Rule } from 'antd/lib/form';
+import { Link } from 'react-router-dom';
 import createCn from '../../utils/create-cn';
 import signUpRules from './validator';
 import './style.css';
 import { useAuth } from '../../components/hooks/auth';
-import { Link } from 'react-router-dom';
 import { Nullable } from '../../types/common';
-import { customNotification } from '../../components/custom-notification/customNotification';
+import customNotification from '../../components/custom-notification/customNotification';
 
 type FormData = {
   email: string;
@@ -28,18 +28,18 @@ function SignUpPage(): JSX.Element {
       setError(null);
       signUp(data)
         .unwrap()
-        .then((_) => {
+        .then(() => {
           customNotification({
             message: 'Успешно!',
             description: 'Регистрация прошла успешно.',
             type: 'success',
           });
         })
-        .catch((error: string) => {
-          setError(error);
+        .catch((e: string) => {
+          setError(e);
         });
     },
-    [signUp, formAlert],
+    [signUp, formAlert]
   );
 
   useEffect(() => {

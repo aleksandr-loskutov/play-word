@@ -9,8 +9,8 @@ export const getTraining = createAsyncThunk('training/get', (_, thunkAPI) =>
   handleAPICall(
     CollectionsAPI.getTraining(),
     thunkAPI,
-    transformUserProgressResponse,
-  ),
+    transformUserProgressResponse
+  )
 );
 
 // Add Collection Words For Training
@@ -20,8 +20,8 @@ export const addCollectionWordsForTraining = createAsyncThunk(
     handleAPICall(
       CollectionsAPI.addCollectionWordsToTraining(id),
       thunkAPI,
-      transformUserProgressResponse,
-    ),
+      transformUserProgressResponse
+    )
 );
 
 // Remove Collection Words From Training
@@ -31,8 +31,8 @@ export const removeCollectionWordsFromTraining = createAsyncThunk(
     handleAPICall(
       CollectionsAPI.removeCollectionWordsFromTraining(id),
       thunkAPI,
-      transformUserProgressResponse,
-    ),
+      transformUserProgressResponse
+    )
 );
 
 // Update Training
@@ -42,6 +42,6 @@ export const updateTraining = createAsyncThunk(
     handleAPICall(
       CollectionsAPI.updateTraining(payload),
       thunkAPI,
-      transformUserProgressResponse,
-    ),
+      transformUserProgressResponse
+    )
 );

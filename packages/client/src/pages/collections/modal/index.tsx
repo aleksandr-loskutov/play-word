@@ -13,11 +13,11 @@ type CollectionCreateFormProps = {
   onCancel: () => void;
 };
 
-const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
+function CollectionCreateForm({
   open,
   onCreate,
   onCancel,
-}) => {
+}: CollectionCreateFormProps): React.ReactElement {
   const [isPublic, setIsPublic] = useState(false);
 
   const handleRadioChange = (e: any) => {
@@ -39,7 +39,7 @@ const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
             onCreate(values);
           })
           .catch((info) => {
-            console.log('Ошибка валидации:', info);
+            console.warn('Ошибка валидации:', info);
           });
       }}>
       <Form
@@ -69,7 +69,7 @@ const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
           <>
             <Radio.Group onChange={handleRadioChange}>
               <Radio value={false}>Личная</Radio>
-              <Radio value={true}>Публичная</Radio>
+              <Radio value>Публичная</Radio>
             </Radio.Group>
             {isPublic && (
               <Alert
@@ -85,6 +85,6 @@ const CollectionCreateForm: React.FC<CollectionCreateFormProps> = ({
       </Form>
     </Modal>
   );
-};
+}
 
 export default CollectionCreateForm;

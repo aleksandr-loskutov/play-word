@@ -1,6 +1,7 @@
 import React from 'react';
 import { Typography } from 'antd';
 import { UserWordProgress, WordInTraining } from '../../../types/training';
+
 const { Paragraph } = Typography;
 
 type TrainingStatusProps = {
@@ -10,12 +11,12 @@ type TrainingStatusProps = {
   totalErrorsCount: number;
 };
 
-const TrainingStatus: React.FC<TrainingStatusProps> = ({
+function TrainingStatus({
   resultingProgress,
   queue,
   word,
   totalErrorsCount,
-}) => {
+}: TrainingStatusProps): React.ReactElement {
   return (
     <>
       <Paragraph>
@@ -26,6 +27,6 @@ const TrainingStatus: React.FC<TrainingStatusProps> = ({
       </Paragraph>
     </>
   );
-};
+}
 
 export default TrainingStatus;

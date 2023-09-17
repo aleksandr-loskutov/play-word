@@ -27,48 +27,48 @@ const trainingSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(
       getTraining.fulfilled.type,
-      setFulfilledTraining<TrainingState, UserWordProgress[]>,
+      setFulfilledTraining<TrainingState, UserWordProgress[]>
     );
     builder.addCase(getTraining.pending.type, setPending<TrainingState>);
     builder.addCase(
       getTraining.rejected.type,
-      setRejected<TrainingState, string>,
+      setRejected<TrainingState, string>
     );
 
     builder.addCase(
       addCollectionWordsForTraining.fulfilled.type,
-      setFulfilledTraining<TrainingState, UserWordProgress[]>,
+      setFulfilledTraining<TrainingState, UserWordProgress[]>
     );
     builder.addCase(
       addCollectionWordsForTraining.pending.type,
-      setPending<TrainingState>,
+      setPending<TrainingState>
     );
     builder.addCase(
       addCollectionWordsForTraining.rejected.type,
-      setRejected<TrainingState, string>,
+      setRejected<TrainingState, string>
     );
 
     builder.addCase(
       removeCollectionWordsFromTraining.fulfilled.type,
-      setFulfilledTraining<TrainingState, UserWordProgress[]>,
+      setFulfilledTraining<TrainingState, UserWordProgress[]>
     );
     builder.addCase(
       removeCollectionWordsFromTraining.pending.type,
-      setPending<TrainingState>,
+      setPending<TrainingState>
     );
     builder.addCase(
       removeCollectionWordsFromTraining.rejected.type,
-      setRejected<TrainingState, string>,
+      setRejected<TrainingState, string>
     );
 
     builder.addCase(
       updateTraining.fulfilled.type,
-      setFulfilledTraining<TrainingState, UserWordProgress[]>,
+      setFulfilledTraining<TrainingState, UserWordProgress[]>
     );
     builder.addCase(updateTraining.pending.type, setPending<TrainingState>);
     builder.addCase(
       updateTraining.rejected.type,
-      setRejected<TrainingState, string>,
+      setRejected<TrainingState, string>
     );
   },
 });

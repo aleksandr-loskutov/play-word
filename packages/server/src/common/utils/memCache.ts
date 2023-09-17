@@ -3,7 +3,9 @@ class CacheManager<T> {
 
   private cache: { [key: string]: { data: T; lastFetched: Date } } = {};
 
-  private constructor() {}
+  private constructor() {
+    // intentionally left empty to enforce singleton behavior
+  }
 
   public static getInstance(): CacheManager<any> {
     if (!CacheManager.instance) {
@@ -38,5 +40,6 @@ class CacheManager<T> {
     );
   }
 }
+const cacheManager = CacheManager.getInstance();
 
-export const cacheManager = CacheManager.getInstance();
+export default cacheManager;

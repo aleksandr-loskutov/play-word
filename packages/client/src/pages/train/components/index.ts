@@ -1,12 +1,11 @@
 import Countdown from './countdown';
-import useQueue from './queue';
-import TrainingInput from './trainingInput';
-import TrainingStatsTable from './trainingStatsTable';
+import TrainingStatus from './trainingStatus';
 import TrainingStart from './trainingStart';
 import TrainingStats from './trainingStats';
-import TrainingStatus from './trainingStatus';
+import TrainingStatsTable from './trainingStatsTable';
 import ActionButtons from './actionButtons';
 import WordWithTooltip from './wordWithTooltip';
+import useQueue from './queue';
 
 export {
   Countdown,
@@ -14,7 +13,6 @@ export {
   TrainingStart,
   TrainingStats,
   TrainingStatsTable,
-  TrainingInput,
   ActionButtons,
   WordWithTooltip,
   useQueue,

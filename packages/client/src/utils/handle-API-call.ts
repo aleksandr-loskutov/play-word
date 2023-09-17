@@ -8,7 +8,7 @@ type ThunkAPI = {
 const handleAPICall = async <T, R>(
   apiCall: ApiResponse<T>,
   thunkAPI: ThunkAPI,
-  transformer?: (data: T) => R,
+  transformer?: (data: T) => R
 ): Promise<R | void> => {
   try {
     const { data, error: httpReqError } = await apiCall;

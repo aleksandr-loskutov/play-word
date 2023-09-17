@@ -6,7 +6,7 @@ import { Request as RequestType } from 'express';
 import { JwtPayload } from '../types';
 
 @Injectable()
-export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export default class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
   constructor(config: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([AtStrategy.extractJWT]),
@@ -16,6 +16,7 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   // user object will append to request (req.user) and can be used further like in express
+  // eslint-disable-next-line class-methods-use-this
   validate(payload: JwtPayload) {
     if (!payload) throw new ForbiddenException('Access token malformed');
     return payload;
@@ -35,10 +36,10 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
         .split(';')
         .map((cookie) => cookie.trim());
       const accessTokenCookie = cookies.find((cookie) =>
-        cookie.startsWith('access_token='),
+        cookie.startsWith('access_token=')
       );
       if (accessTokenCookie) {
-        token = accessTokenCookie.split('=')[1];
+        [, token] = accessTokenCookie.split('=');
       }
     }
 

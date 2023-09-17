@@ -1,4 +1,4 @@
-import { Collection, WordForCollection } from './collection';
+import { WordForCollection } from './collection';
 import { EntityId } from './common';
 
 export type UserWordProgress = {
@@ -14,7 +14,7 @@ export type UserWordProgress = {
 
 export type Word = WordForCollection;
 
-//{ sessionStage: number; errorCounter: number }
+// { sessionStage: number; errorCounter: number }
 export type WordInTraining = WordForCollection &
   EntityId & { sessionStage: number; errorCounter: number };
 

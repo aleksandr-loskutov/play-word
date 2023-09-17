@@ -6,17 +6,15 @@ import {
   Form,
   Input,
   Upload,
-  message,
-  Space,
   Col,
   Row,
+  InputRef,
 } from 'antd';
 import { DeleteOutlined, InboxOutlined, PlusOutlined } from '@ant-design/icons';
 import Papa from 'papaparse';
 import { WordForCollection } from '../../../../types/collection';
-import { customNotification } from '../../../../components/custom-notification/customNotification';
-import Title from 'antd/lib/typography/Title';
-import { validateArrayForEmptyStringAndLength } from '../../../../utils/validate-array';
+import customNotification from '../../../../components/custom-notification/customNotification';
+import validateArrayForEmptyStringAndLength from '../../../../utils/validate-array';
 
 const { Dragger } = Upload;
 
@@ -27,22 +25,22 @@ type AddWordsModalProps = {
   initialWords: WordForCollection[];
 };
 
-const AddWordsModal: React.FC<AddWordsModalProps> = ({
+function AddWordsModal({
   visible,
   onClose,
   onSubmit,
   initialWords,
-}) => {
+}: AddWordsModalProps): React.ReactElement {
   const [form] = Form.useForm();
   const [words, setWords] = useState<WordForCollection[]>(
-    initialWords.length > 0 ? initialWords : [{ word: '', translation: '' }],
+    initialWords.length > 0 ? initialWords : [{ word: '', translation: '' }]
   );
-  const wordsRef = useRef([]);
+  const wordsRef = useRef<InputRef[]>([]);
   const handleAddWordRow = () => {
     setWords([...words, { word: '', translation: '' }]);
   };
   const anyRowIsEmpty = words.some(
-    (row) => row.word === '' || row.translation === '',
+    (row) => row.word === '' || row.translation === ''
   );
   useEffect(() => {
     wordsRef.current.length = words.length;
@@ -53,7 +51,7 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
   }, [words.length]);
 
   useEffect(() => {
-    const handleEnterKeyDown = (event) => {
+    const handleEnterKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter' && !anyRowIsEmpty) {
         handleAddWordRow();
       }
@@ -67,15 +65,15 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
   const handleOk = () => {
     // Filter out empty rows
     const validWords = words.filter(
-      (row) => row.word !== '' && row.translation !== '',
+      (row) => row.word !== '' && row.translation !== ''
     );
-    //we are temporarily is not using antd form validation
+    // we are temporarily is not using antd form validation
     const isValid = validateArrayForEmptyStringAndLength(validWords, [
       'word',
       'translation',
     ]);
     if (!isValid) return;
-    //TODO use antd form validation
+    // TODO use antd form validation
     form
       .validateFields()
       .then((values: any) => {
@@ -98,14 +96,14 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
 
   const handleWordChange = (value: string, index: number) => {
     const newWords = words.map((word, i) =>
-      i === index ? { ...word, word: value } : word,
+      i === index ? { ...word, word: value } : word
     );
     setWords(newWords);
   };
 
   const handleTranslationChange = (value: string, index: number) => {
     const newWords = words.map((word, i) =>
-      i === index ? { ...word, translation: value } : word,
+      i === index ? { ...word, translation: value } : word
     );
     setWords(newWords);
   };
@@ -117,7 +115,7 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
     }
 
     Papa.parse(file, {
-      complete: function (results) {
+      complete(results) {
         // Process CSV data
         const importedWords = results.data
           .filter((row: any) => row.length === 2)
@@ -130,7 +128,7 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
           type: 'success',
         });
       },
-      error: function () {
+      error() {
         customNotification({
           message: 'Ошибка!',
           description: `Проблема при чтении файла`,
@@ -150,10 +148,10 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
       open={visible}
       onCancel={handleCancel}
       onOk={handleOk}
-      cancelText={'Отмена'}
-      okText={'Сохранить'}>
+      cancelText="Отмена"
+      okText="Сохранить">
       <Form form={form}>
-        <Row gutter={[10, 10]} justify={'center'} align={'middle'}>
+        <Row gutter={[10, 10]} justify="center" align="middle">
           <Col span={24}>
             <Table
               dataSource={words.map((row, index) => ({ ...row, key: index }))}
@@ -167,7 +165,11 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
                       value={text}
                       placeholder={index === 0 ? 'Apple' : ''}
                       onChange={(e) => handleWordChange(e.target.value, index)}
-                      ref={(el) => (wordsRef.current[index] = el)}
+                      ref={(el) => {
+                        if (el) {
+                          wordsRef.current[index] = el;
+                        }
+                      }}
                     />
                   ),
                 },
@@ -189,7 +191,7 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
                   title: 'Удалить',
                   key: 'action',
                   render: (_text, _record, index) => (
-                    <div className={'text-center'}>
+                    <div className="text-center">
                       <DeleteOutlined
                         onClick={() => handleDeleteWordRow(index)}
                       />
@@ -202,7 +204,7 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
           </Col>
           <Col span={8}>
             <Button
-              type={'default'}
+              type="default"
               onClick={handleAddWordRow}
               icon={<PlusOutlined />}
               disabled={anyRowIsEmpty}>
@@ -213,13 +215,15 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
             <Dragger
               accept=".csv"
               showUploadList={false}
-              beforeUpload={(file) => {
+              beforeUpload={() => {
                 // Clear current words before importing new ones
                 setWords([]);
                 return true; // default upload behavior
               }}
               customRequest={(options) => {
-                handleUpload(options.file);
+                if (options.file instanceof File) {
+                  handleUpload(options.file);
+                }
               }}>
               <p className="ant-upload-drag-icon">
                 <InboxOutlined />
@@ -234,6 +238,6 @@ const AddWordsModal: React.FC<AddWordsModalProps> = ({
       </Form>
     </Modal>
   );
-};
+}
 
 export default AddWordsModal;

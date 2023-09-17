@@ -1,22 +1,21 @@
-import React, { useCallback, ChangeEvent, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import Title from 'antd/lib/typography/Title';
 import createCn from '../../utils/create-cn';
 import { updateProfile } from '../../store/action-creators/profile';
-import { RequestUserData, RequestUserDataUpdate } from '../../types/user';
+import { RequestUserDataUpdate } from '../../types/user';
 import ProfileForm from './components/form';
-import Title from 'antd/lib/typography/Title';
 import { useAppDispatch } from '../../components/hooks/store';
 import { useAuth } from '../../components/hooks/auth';
 import withAuth from '../../components/hoc/withAuth';
-import { customNotification } from '../../components/custom-notification/customNotification';
-import { Col, Row } from 'antd';
+import customNotification from '../../components/custom-notification/customNotification';
 import './style.css';
 import { Nullable } from '../../types/common';
 
-//TODO Добавить форму для редактирования аватара
+// TODO Добавить форму для редактирования аватара
 
 const cn = createCn('profile-page');
 
-const ProfilePage: React.FC = () => {
+function ProfilePage(): React.ReactElement {
   const dispatch = useAppDispatch();
   const { user } = useAuth();
   const [error, setError] = useState<Nullable<string>>(null);
@@ -25,15 +24,15 @@ const ProfilePage: React.FC = () => {
       setError(null);
       dispatch(updateProfile(data))
         .unwrap()
-        .then((_) => {
+        .then(() => {
           customNotification({
             message: 'Успешно!',
             description: 'Настройки обновлены.',
             type: 'success',
           });
         })
-        .catch((error: string) => {
-          setError(error);
+        .catch((e: string) => {
+          setError(e);
           customNotification({
             message: 'Ошибка!',
             description: 'Не удалось обновить.',
@@ -41,17 +40,17 @@ const ProfilePage: React.FC = () => {
           });
         });
     },
-    [dispatch],
+    [dispatch]
   );
 
   return (
     <section className={cn('')}>
-      <Title level={2} className={'title'}>
+      <Title level={2} className="title">
         Профиль
       </Title>
       <ProfileForm user={user} error={error} onSubmit={handleFormSubmit} />
     </section>
   );
-};
+}
 
 export default withAuth(ProfilePage);

@@ -58,7 +58,7 @@ export class TrainingSettingsDto {
   // this max number also is using in updateUserTraining method for payload validation
   @Min(1)
   @Max(100)
-  wordsPerSession;
+  wordsPerSession: number;
 
   @IsBoolean()
   synthVoiceAutoStart: boolean;

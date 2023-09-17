@@ -1,48 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './styles.css';
-import { message } from 'antd';
 import { useAppDispatch } from '../../components/hooks/store';
-import Layout from '../../components/layout';
 import createCn from '../../utils/create-cn';
 import { useAuth } from '../../components/hooks/auth';
-import { TRAINING_SETTINGS } from '../../utils/training-settings';
 import { updateTraining } from '../../store/action-creators/training';
 import { transformUserProgressToUpdateRequest } from '../../utils/transform-user-progress';
-import PageLoader from '../../components/page-loader';
-import { getWordStats, sortUserWordProgressByDate } from './utils';
+import { sortUserWordProgressByDate } from './utils';
 import { UserWordProgress, WordStats } from '../../types/training';
-const { countdownVisualBlocksLimit } = TRAINING_SETTINGS;
-import {
-  WordWithTooltip,
-  TrainingInput,
-  Countdown,
-  useQueue,
-  ActionButtons,
-  TrainingStats,
-  TrainingStart,
-  TrainingStatus,
-} from './components';
+import { TrainingStats, TrainingStart } from './components';
 import WithAuth from '../../components/hoc/withAuth';
-import { customNotification } from '../../components/custom-notification/customNotification';
+import customNotification from '../../components/custom-notification/customNotification';
+import TrainingInput from './components/trainingInput';
 
 const cn = createCn('train-page');
 
-const TrainPage = () => {
+function TrainPage() {
   const dispatch = useAppDispatch();
-  const { user, isLoading, training, isLoadingTraining } = useAuth();
+  const { user, training } = useAuth();
   const [queue, setQueue] = useState<UserWordProgress[]>([]);
-  const [showAnswer, setShowAnswer] = useState<boolean>(false);
-  const [nextButton, setNextButton] = useState(false);
   const [trainingStats, setTrainingStats] = useState<WordStats[]>([]);
-  const isLoaded = user && !isLoading && !isLoadingTraining;
 
   const handleFinishTraining = (
     resultingProgress: UserWordProgress[],
-    trainingStats: WordStats[],
+    stats: WordStats[]
   ) => {
     if (resultingProgress.length === 0) return;
     dispatch(
-      updateTraining(transformUserProgressToUpdateRequest(resultingProgress)),
+      updateTraining(transformUserProgressToUpdateRequest(resultingProgress))
     )
       .unwrap()
       .then(() => {
@@ -52,7 +36,7 @@ const TrainPage = () => {
           type: 'success',
         });
       })
-      .catch((error: any) => {
+      .catch(() => {
         customNotification({
           message: 'Ошибка!',
           description: 'Не удалось сохранить тренировку.',
@@ -60,8 +44,8 @@ const TrainPage = () => {
         });
       })
       .finally(() => {
-        if (resultingProgress.length > 0 && trainingStats.length > 0) {
-          setTrainingStats(trainingStats);
+        if (resultingProgress.length > 0 && stats.length > 0) {
+          setTrainingStats(stats);
         }
       });
   };
@@ -70,7 +54,7 @@ const TrainPage = () => {
     if (!user || training.length === 0) return;
     const sortedAndSlicedProgress = sortUserWordProgressByDate(training).slice(
       0,
-      user.trainingSettings.wordsPerSession,
+      user.trainingSettings.wordsPerSession
     );
     setQueue(sortedAndSlicedProgress);
   };
@@ -88,6 +72,6 @@ const TrainPage = () => {
       )}
     </section>
   );
-};
+}
 
 export default WithAuth(TrainPage);

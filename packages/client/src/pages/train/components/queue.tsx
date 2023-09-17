@@ -17,14 +17,6 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
     setQueue((prevQueue) => [...prevQueue, wordProgress]);
   };
 
-  const dequeue = (withSave: boolean = true): UserWordProgress | undefined => {
-    if (isEmpty()) return undefined;
-    const [currentProgress, ...remainingProgress] = queue;
-    setQueue(remainingProgress);
-    if (withSave) saveToResultingArray(currentProgress);
-    return currentProgress;
-  };
-
   useEffect(() => {
     if (queue.length > 0) {
       const firstElement = queue[0];
@@ -40,7 +32,7 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
         const spentTime = new Date().getTime() - timeStamp.getTime();
         const totalTime = (timeSpent.get(wordId) || 0) + spentTime;
         setTimeSpent((prevTimeSpent) =>
-          new Map(prevTimeSpent).set(wordId, totalTime),
+          new Map(prevTimeSpent).set(wordId, totalTime)
         );
         currentWordTimeStampRef.current = {
           wordId: currentWordId,
@@ -77,6 +69,16 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
       return newTimeSpent;
     });
   };
+
+  const setQueueItems = (queueToSet: UserWordProgress[]) => {
+    setQueue(queueToSet);
+  };
+
+  const peek = (): UserWordProgress => queue[0];
+
+  const word: WordInTraining = peek()?.word;
+
+  const isEmpty = (): boolean => queue.length === 0;
 
   const processQueueByAnswer = (isCorrect: boolean, maxErrorLimit: number) => {
     if (isEmpty()) return;
@@ -131,27 +133,17 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
     }
   };
 
-  const setQueueItems = (queueToSet: UserWordProgress[]) => {
-    setQueue(queueToSet);
-  };
-
-  const peek = (): UserWordProgress => {
-    return queue[0];
-  };
-
-  const word: WordInTraining = peek()?.word;
-
-  const isEmpty = (): boolean => {
-    return queue.length === 0;
+  const dequeue = (withSave: boolean = true): UserWordProgress | undefined => {
+    if (isEmpty()) return undefined;
+    const [currentProgress, ...remainingProgress] = queue;
+    setQueue(remainingProgress);
+    if (withSave) saveToResultingArray(currentProgress);
+    return currentProgress;
   };
 
   const clear = () => {
     setQueue([]);
     setResultingProgress([]);
-  };
-
-  const log = () => {
-    console.log('queue:', queue);
   };
 
   return {
@@ -165,7 +157,6 @@ const useQueue = (initialQueue: UserWordProgress[] = []) => {
     peekQueue: peek,
     isEmptyQueue: isEmpty,
     clearQueue: clear,
-    logQueue: log,
   };
 };
 

@@ -14,7 +14,7 @@ import {
 import { Collection } from '@prisma/client';
 import { Response } from 'common';
 import { AtGuard } from '../common/guards';
-import { CollectionService } from './collection.service';
+import CollectionService from './collection.service';
 import { GetCurrentUserId, Public } from '../common/decorators';
 import {
   CollectionWithWords,
@@ -26,14 +26,14 @@ import {
 
 @UseGuards(AtGuard)
 @Controller('collections')
-export class CollectionController {
+export default class CollectionController {
   constructor(private collectionService: CollectionService) {}
 
   @Post('/')
   @HttpCode(HttpStatus.CREATED)
   createCollection(
     @Body() payload: RequestCollectionCreateDto,
-    @GetCurrentUserId() userId: number,
+    @GetCurrentUserId() userId: number
   ): Promise<Response<CollectionWithWords>> {
     return this.collectionService.createCollection(payload, userId);
   }
@@ -43,19 +43,19 @@ export class CollectionController {
   updateCollection(
     @Body() payload: RequestCollectionUpdateDto,
     @Param('collectionId') collectionId: string,
-    @GetCurrentUserId() userId: number,
+    @GetCurrentUserId() userId: number
   ): Promise<Response<Collection>> {
     return this.collectionService.updateCollection(
-      parseInt(collectionId),
+      parseInt(collectionId, 10),
       userId,
-      payload,
+      payload
     );
   }
 
   @Get('/train')
   @HttpCode(HttpStatus.OK)
   getUserTraining(
-    @GetCurrentUserId() userId: number,
+    @GetCurrentUserId() userId: number
   ): Promise<Response<UserWordProgressExtended[]>> {
     return this.collectionService.getUserTraining(userId);
   }
@@ -64,7 +64,7 @@ export class CollectionController {
   @HttpCode(HttpStatus.OK)
   updateUserTraining(
     @Body() payload: RequestUserTrainingUpdate[],
-    @GetCurrentUserId() userId: number,
+    @GetCurrentUserId() userId: number
   ): Promise<Response<UserWordProgressExtended[]>> {
     return this.collectionService.updateUserTraining(payload, userId);
   }
@@ -73,11 +73,11 @@ export class CollectionController {
   @HttpCode(HttpStatus.OK)
   trainCollectionWords(
     @Param('collectionId') collectionId: string,
-    @GetCurrentUserId() userId: number,
+    @GetCurrentUserId() userId: number
   ): Promise<Response<UserWordProgressExtended[]>> {
     return this.collectionService.addCollectionWordsToUserProgress(
-      parseInt(collectionId),
-      userId,
+      parseInt(collectionId, 10),
+      userId
     );
   }
 
@@ -85,18 +85,18 @@ export class CollectionController {
   @HttpCode(HttpStatus.OK)
   unTrainCollectionWords(
     @Param('collectionId') collectionId: string,
-    @GetCurrentUserId() userId: number,
+    @GetCurrentUserId() userId: number
   ): Promise<Response<UserWordProgressExtended[]>> {
     return this.collectionService.deleteCollectionWordsFromUserProgress(
-      parseInt(collectionId),
-      userId,
+      parseInt(collectionId, 10),
+      userId
     );
   }
 
   @Get('/')
   @HttpCode(HttpStatus.OK)
   getUserCollections(
-    @GetCurrentUserId() userId: number,
+    @GetCurrentUserId() userId: number
   ): Promise<Response<CollectionWithWords[]>> {
     return this.collectionService.getCollections(userId);
   }
@@ -105,11 +105,11 @@ export class CollectionController {
   @HttpCode(HttpStatus.OK)
   deleteCollection(
     @Param('collectionId') collectionId: string,
-    @GetCurrentUserId() userId: number,
+    @GetCurrentUserId() userId: number
   ): Promise<Response<Collection>> {
     return this.collectionService.deleteCollection(
-      parseInt(collectionId),
-      userId,
+      parseInt(collectionId, 10),
+      userId
     );
   }
 

@@ -15,6 +15,7 @@ class AuthAPI extends BaseAPI {
   public signUp(data: SignUpDTO): ApiResponse<User> {
     return this.httpService.post<SignUpDTO, User>('/signup', data);
   }
+
   public refreshToken(): ApiResponse<User> {
     return this.httpService.get('/refresh');
   }

@@ -8,7 +8,7 @@ import CollectionPage from '../collection';
 import CollectionsPage from '../index';
 import { getUserCollections } from '../../../store/action-creators/collection';
 
-const CollectionsLayout: React.FC = () => {
+function CollectionsLayout(): React.ReactElement {
   const { id } = useParams();
   const dispatch = useAppDispatch();
 
@@ -19,6 +19,6 @@ const CollectionsLayout: React.FC = () => {
   const { isLoading } = useAppSelector((state) => state.collections);
 
   return !isLoading && id ? <CollectionPage /> : <CollectionsPage />;
-};
+}
 
 export default CollectionsLayout;

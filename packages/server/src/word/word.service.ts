@@ -1,13 +1,13 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { Response } from 'common';
 import { WordWithTranslations } from 'word';
-import { PrismaService } from '../prisma/prisma.service';
+import PrismaService from '../prisma/prisma.service';
 import { WordDto } from './dto';
 import { CollectionWithWords } from '../collection/dto';
 import { handleError } from '../common/utils';
 
 @Injectable()
-export class WordService {
+export default class WordService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getWordsByCollection(collectionId: number): Promise<WordDto[]> {
@@ -31,20 +31,19 @@ export class WordService {
       }));
     } catch (error: any) {
       handleError(error);
+      return [];
     }
   }
 
   async addWords(words: WordDto[]): Promise<WordWithTranslations[]> {
     try {
       const uniqueWords = Array.from(
-        new Set(words.map((word) => JSON.stringify(word))),
+        new Set(words.map((word) => JSON.stringify(word)))
       )
         .map((word) => JSON.parse(word))
         .filter((word) => Object.keys(word).length > 0);
 
-      const newWords: WordWithTranslations[] = [];
-
-      for (const word of uniqueWords) {
+      const promises = uniqueWords.map(async (word) => {
         const existingWord = await this.prisma.word.findFirst({
           where: {
             word: word.word,
@@ -59,7 +58,7 @@ export class WordService {
         });
 
         if (!existingWord) {
-          const createdWord = await this.prisma.word.create({
+          return this.prisma.word.create({
             data: {
               word: word.word,
               translations: {
@@ -72,9 +71,8 @@ export class WordService {
               translations: true,
             },
           });
-
-          newWords.push(createdWord);
-        } else if (!existingWord.translations.length) {
+        }
+        if (!existingWord.translations.length) {
           const createdTranslation = await this.prisma.translation.create({
             data: {
               wordId: existingWord.id,
@@ -82,30 +80,32 @@ export class WordService {
             },
           });
           existingWord.translations.push(createdTranslation);
-          newWords.push(existingWord);
-        } else {
-          newWords.push(existingWord);
+          return existingWord;
         }
-      }
+        return existingWord;
+      });
+      const newWords: WordWithTranslations[] = await Promise.all(promises);
+
       return newWords;
     } catch (error: any) {
       handleError(error);
+      return [];
     }
   }
 
   async updateCollectionWords(
     collectionId: number,
     words: WordDto[],
-    userId: number,
+    userId: number
   ): Promise<Response<CollectionWithWords>> {
     try {
       const isUserOwnsCollection = await this.isUserOwnsCollection(
         collectionId,
-        userId,
+        userId
       );
       if (!isUserOwnsCollection) {
         throw new ForbiddenException(
-          `Доступ запрещен для коллекции: ${collectionId}`,
+          `Доступ запрещен для коллекции: ${collectionId}`
         );
       }
       // Adds or finds words and their translations in one go
@@ -124,9 +124,9 @@ export class WordService {
               (newWord) =>
                 newWord.id === current.wordId &&
                 newWord.translations?.some(
-                  (translation) => translation.id === current.translationId,
-                ),
-            ),
+                  (translation) => translation.id === current.translationId
+                )
+            )
         )
         .map((item) => item.wordId);
 
@@ -140,10 +140,8 @@ export class WordService {
       // Add the new words
       const translationIds = addedWords.reduce((ids: number[], word) => {
         if (word.translations && Array.isArray(word.translations)) {
-          const translationIds = word.translations.map(
-            (translation) => translation.id,
-          );
-          return [...ids, ...translationIds];
+          const tIds = word.translations.map((translation) => translation.id);
+          return [...ids, ...tIds];
         }
         return ids;
       }, []);
@@ -164,16 +162,16 @@ export class WordService {
             (existingWord) =>
               existingWord.wordId === word.id &&
               word.translations?.some(
-                (translation) => existingWord.translationId === translation.id,
-              ),
-          ),
+                (translation) => existingWord.translationId === translation.id
+              )
+          )
       );
 
       if (newWords.length > 0) {
         await this.prisma.wordForCollection.createMany({
           data: newWords.map((word: WordWithTranslations) => {
             const translation = word.translations.find(
-              (translation) => translation.wordId === word.id,
+              (t) => t.wordId === word.id
             );
             return {
               collectionId,
@@ -209,12 +207,13 @@ export class WordService {
       return collectionWithWords;
     } catch (error: any) {
       handleError(error);
+      return { error: error.message };
     }
   }
 
   async isUserOwnsCollection(
     collectionId: number,
-    userId: number,
+    userId: number
   ): Promise<boolean> {
     const collection = await this.prisma.collection.findFirst({
       where: {

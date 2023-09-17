@@ -15,9 +15,7 @@ class OAuthYandexAPI extends BaseAPI {
   }
 
   getServiceId(query: string): ApiResponse<OAuthServiceIdDTO> {
-    return this.httpService.get(`/service-id?redirect_uri=${query}`, {
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return this.httpService.get(`/service-id?redirect_uri=${query}`);
   }
 }
 

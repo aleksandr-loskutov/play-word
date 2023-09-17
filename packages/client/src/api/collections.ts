@@ -6,7 +6,6 @@ import {
 } from '../types/collection';
 import {
   RequestUserWordProgressUpdate,
-  UserWordProgress,
   UserWordProgressResponse,
 } from '../types/training';
 
@@ -18,14 +17,14 @@ class CollectionsAPI extends BaseAPI {
   create(data: RequestCollectionCreate) {
     return this.httpService.post<RequestCollectionCreate, Collection>(
       '/',
-      data,
+      data
     );
   }
 
   update(id: number, data: RequestCollectionUpdate) {
     return this.httpService.put<RequestCollectionUpdate, Collection>(
       `/${id}`,
-      data,
+      data
     );
   }
 

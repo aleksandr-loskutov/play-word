@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Input, InputRef, message, Space } from 'antd';
-import {
-  UserWordProgress,
-  WordInTraining,
-  WordStats,
-} from '../../../types/training';
+import { Input, InputRef, Space } from 'antd';
+import { UserWordProgress, WordStats } from '../../../types/training';
 import {
   KEY_MAPPINGS,
   TRAINING_SETTINGS,
@@ -22,20 +18,23 @@ import {
 } from './index';
 import { getWordStats } from '../utils';
 import BeamHighlight from './beamHighlight';
-const { successWordShowTime, errorLetterShowTime, countdownVisualBlocksLimit } =
-  TRAINING_SETTINGS;
+
+const { successWordShowTime, errorLetterShowTime } = TRAINING_SETTINGS;
 
 type InputProps = {
   initialQueue: UserWordProgress[];
   onFinish: (
     resultingProgress: UserWordProgress[],
-    trainingStats: WordStats[],
+    trainingStats: WordStats[]
   ) => void;
 };
 
 const cn = createCn('train-page');
 
-const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
+function TrainingInput({
+  initialQueue,
+  onFinish,
+}: InputProps): React.ReactElement | null {
   const [inputValue, setInputValue] = useState<string>('');
   const [showAnswer, setShowAnswer] = useState<boolean>(false);
   const [lockInput, setLockInput] = useState<boolean>(false);
@@ -44,7 +43,7 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
   const [timerSeconds, setTimerSeconds] = useState(60);
   const inputRef = useRef<InputRef>(null);
   const isSpeechRecognizerSetInput = useRef<boolean>(false);
-  const { user, isLoading, training, isLoadingTraining } = useAuth();
+  const { user, isLoading, isLoadingTraining } = useAuth();
   const {
     queue,
     setQueue,
@@ -59,33 +58,26 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
   const isLoaded = user && currentWord && !isLoading && !isLoadingTraining;
 
   useEffect(() => {
-    if (currentWord) {
-      trainWord();
-    }
-  }, [currentWord]);
-
-  useEffect(() => {
     if (initialQueue.length > 0 && isEmptyQueue()) {
       setQueue(initialQueue);
     }
   }, [initialQueue]);
+
+  const handleFinishTraining = () => {
+    if (resultingProgress.length > 0 && user) {
+      onFinish(
+        resultingProgress,
+        getWordStats(resultingProgress, user.trainingSettings)
+      );
+      clearQueue();
+    }
+  };
 
   useEffect(() => {
     if (isEmptyQueue() && resultingProgress.length > 0) {
       handleFinishTraining();
     }
   }, [queue.length]);
-
-  const handleFinishTraining = () => {
-    if (resultingProgress.length > 0 && user) {
-      console.log('handleFinishTraining');
-      onFinish(
-        resultingProgress,
-        getWordStats(resultingProgress, user.trainingSettings),
-      );
-      clearQueue();
-    }
-  };
 
   useEffect(() => {
     if (isLoaded) {
@@ -103,13 +95,38 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
     setLockInput(isShowAnswer);
   };
 
+  useEffect(() => {
+    if (currentWord) {
+      trainWord();
+    }
+  }, [currentWord]);
+
+  const useCountDown = !!(
+    user &&
+    user.trainingSettings.useCountdown &&
+    !isZeroStage &&
+    !showAnswer
+  );
+
+  const restartTimer = () => {
+    if (!user) return;
+    setTimerSeconds(user.trainingSettings.countdownTimeInSec);
+    // Update resetKey to trigger Countdown component reset
+    setResetKey((prevKey) => prevKey + 1);
+  };
+
+  const handleAnswer = (isCorrect: boolean) => {
+    // isCorrect ? message.success('Ok!') : message.error('Incorrect!')
+    const { wordErrorLimit } = user?.trainingSettings ?? { wordErrorLimit: 3 };
+    processQueueByAnswer(isCorrect, wordErrorLimit);
+  };
+
   const processAnswer = (isCorrect: boolean) => {
     setLockInput(true);
-    console.log('input', inputValue);
     setInputValue(currentWord.translation);
     setShowAnswer(true);
     setMistypeCount(0);
-    //таймаут не нужен если первое касание со словом
+    // таймаут не нужен если первое касание со словом
     const timeout = currentWord.sessionStage === 0 ? 0 : successWordShowTime;
     setTimeout(() => {
       setLockInput(false);
@@ -119,29 +136,10 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
     }, timeout);
   };
 
-  const handleAnswer = (isCorrect: boolean) => {
-    // isCorrect ? message.success('Ok!') : message.error('Incorrect!')
-    const { wordErrorLimit } = user?.trainingSettings ?? { wordErrorLimit: 3 };
-    processQueueByAnswer(isCorrect, wordErrorLimit);
-  };
-
   const handleLearned = () => {
     handleAnswer(true);
     setShowAnswer(false);
   };
-
-  const setIncorrectTemporaryInputValue = (character: string) => {
-    setLockInput(true);
-    setInputValue((prevInputValue) => {
-      const newInputValue = prevInputValue + character;
-      setTimeout(() => {
-        restoreCorrectInputValue();
-      }, errorLetterShowTime);
-
-      return newInputValue;
-    });
-  };
-
   const restoreCorrectInputValue = () => {
     setInputValue((prevInputValue) => {
       const correctInputValue = prevInputValue
@@ -157,23 +155,21 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
     setLockInput(false);
     inputRef?.current?.focus();
   };
+  const setIncorrectTemporaryInputValue = (character: string) => {
+    setLockInput(true);
+    setInputValue((prevInputValue) => {
+      const newInputValue = prevInputValue + character;
+      setTimeout(() => {
+        restoreCorrectInputValue();
+      }, errorLetterShowTime);
+
+      return newInputValue;
+    });
+  };
 
   const handleSpeech = (text: string) => {
     isSpeechRecognizerSetInput.current = true;
     setInputValue(text.toLowerCase());
-  };
-
-  const validateInput = () => {
-    if (inputValue === currentWord.translation) {
-      processAnswer(true);
-    } else if (inputValue.length >= currentWord.translation.length / 2) {
-      if (currentWord.translation.startsWith(inputValue)) {
-        processAnswer(true);
-      } else {
-        //incorrect input from speech recognizer
-        processIncorrectInput('');
-      }
-    }
   };
 
   const processIncorrectInput = (incorrectChar: string) => {
@@ -189,6 +185,29 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
     if (inputValue.length < currentWord.translation.length) {
       setIncorrectTemporaryInputValue(incorrectChar);
     }
+  };
+
+  const validateInput = () => {
+    if (inputValue === currentWord.translation) {
+      processAnswer(true);
+    } else if (inputValue.length >= currentWord.translation.length / 2) {
+      if (currentWord.translation.startsWith(inputValue)) {
+        processAnswer(true);
+      } else {
+        // incorrect input from speech recognizer
+        processIncorrectInput('');
+      }
+    }
+  };
+
+  const backspaceEmulation = () => {
+    setInputValue((prevInputValue) => {
+      if (prevInputValue.length === 0) {
+        return prevInputValue;
+      }
+
+      return prevInputValue.slice(0, -1);
+    });
   };
 
   const handleNextButtonClick = () => {
@@ -209,7 +228,7 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
 
     if (lockInput) return;
 
-    if (KEY_MAPPINGS.hasOwnProperty(keyCode)) {
+    if (Object.prototype.hasOwnProperty.call(KEY_MAPPINGS, keyCode)) {
       const keyMappings = Object.entries(KEY_MAPPINGS[keyCode])[0];
       const translationChar = currentWord.translation.charAt(inputValue.length);
 
@@ -218,13 +237,13 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
         validateInput();
       } else {
         let switchedIncorrectCharacterByLang = pressedKey;
-        //подмена ввода ( для ошибочных букв  с неверной раскладкой)
+        // подмена ввода ( для ошибочных букв  с неверной раскладкой)
         if (keyMappings.includes(pressedKey)) {
           if (currentWord.sessionStage === 1) {
-            switchedIncorrectCharacterByLang = keyMappings[1];
+            [, switchedIncorrectCharacterByLang] = keyMappings;
           }
           if (currentWord.sessionStage === 2) {
-            switchedIncorrectCharacterByLang = keyMappings[0];
+            [switchedIncorrectCharacterByLang] = keyMappings;
           }
         }
         processIncorrectInput(switchedIncorrectCharacterByLang);
@@ -245,42 +264,24 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
     };
   }, [inputValue, currentWord]);
 
-  const backspaceEmulation = () => {
-    setInputValue((prevInputValue) => {
-      if (prevInputValue.length === 0) {
-        return prevInputValue;
-      }
-
-      return prevInputValue.slice(0, -1);
-    });
-  };
-
   const handleTimerComplete = () => {
     processAnswer(false);
-  };
-
-  const restartTimer = () => {
-    if (!user) return;
-    setTimerSeconds(user.trainingSettings.countdownTimeInSec);
-    // Update resetKey to trigger Countdown component reset
-    setResetKey((prevKey) => prevKey + 1);
   };
 
   const userSpeechLang = currentWord?.sessionStage === 1 ? 'ru-RU' : 'en-US';
   const synthSpeechLang = currentWord?.sessionStage <= 1 ? 'en-US' : 'ru-RU';
 
-  const inputClassName = !lockInput
-    ? ''
-    : showAnswer && inputValue === currentWord?.translation
-    ? 'correct'
-    : 'incorrect';
+  const getInputClassName = () => {
+    if (!lockInput) {
+      return '';
+    }
+    if (showAnswer && inputValue === currentWord?.translation) {
+      return 'correct';
+    }
+    return 'incorrect';
+  };
 
-  const useCountDown = !!(
-    user &&
-    user.trainingSettings.useCountdown &&
-    !isZeroStage &&
-    !showAnswer
-  );
+  const inputClassName = getInputClassName();
 
   const useSpeechRecognizer = !isZeroStage && !showAnswer;
 
@@ -292,11 +293,11 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
   const getTotalErrorsCount = (): number => {
     const errorsFromResultingProgress = getTrainingStats().reduce(
       (accumulator, word) => accumulator + word.errorCounter,
-      0,
+      0
     );
     const errorsFromQueue = queue.reduce(
       (accumulator, word) => accumulator + word.word.errorCounter,
-      0,
+      0
     );
     return errorsFromResultingProgress + errorsFromQueue;
   };
@@ -307,68 +308,66 @@ const TrainingInput: React.FC<InputProps> = ({ initialQueue, onFinish }) => {
   const collectionName = peekQueue()?.collectionName;
   const isWordNew = peekQueue()?.stage === 0;
 
-  return (
-    isLoaded && (
-      <div className={cn('input-wrapper')}>
-        <WordWithTooltip
-          word={currentWord.word}
-          collectionName={collectionName}
-          showCollectionNameHint={user.trainingSettings.showCollectionNameHint}
-          isWordNew={isWordNew}
+  return isLoaded ? (
+    <div className={cn('input-wrapper')}>
+      <WordWithTooltip
+        word={currentWord.word}
+        collectionName={collectionName}
+        showCollectionNameHint={user.trainingSettings.showCollectionNameHint}
+        isWordNew={isWordNew}
+      />
+      <div style={{ position: 'relative', marginTop: 15 }}>
+        <Input
+          placeholder="перевод"
+          value={inputValue}
+          disabled={lockInput}
+          className={cn(`train-input ${inputClassName}`)}
+          ref={inputRef}
+          autoFocus
+          bordered={false}
         />
-        <div style={{ position: 'relative', marginTop: 15 }}>
-          <Input
-            placeholder="перевод"
-            value={inputValue}
-            disabled={lockInput}
-            className={cn(`train-input ${inputClassName}`)}
-            ref={inputRef}
-            autoFocus
-            bordered={false}
+        <BeamHighlight animate={inputClassName === 'correct'} />
+        {useCountDown && (
+          <Countdown
+            key={resetKey}
+            seconds={timerSeconds}
+            onComplete={handleTimerComplete}
           />
-          <BeamHighlight animate={inputClassName === 'correct'} />
-          {useCountDown && (
-            <Countdown
-              key={resetKey}
-              seconds={timerSeconds}
-              onComplete={handleTimerComplete}
-            />
-          )}
-        </div>
-        <Space direction="horizontal" size={10}>
-          <WordPlayer
-            word={currentWord.word}
-            lang={synthSpeechLang}
-            autoPlay={user.trainingSettings.synthVoiceAutoStart}
-            play={false}
-          />
-          <SpeechRecognizer
-            word={currentWord.word}
-            onResult={handleSpeech}
-            lang={userSpeechLang}
-            autoStart={user.trainingSettings.speechRecognizerAutoStart}
-            isReady={useSpeechRecognizer}
-          />
-        </Space>
-        <br />
-        <ActionButtons
-          word={currentWord}
-          onLearnedButtonClick={handleLearned}
-          onNextButtonClick={handleNextButtonClick}
-          showAnswer={showAnswer}
-          resultingProgress={resultingProgress}
-          onFinishTraining={handleFinishTraining}
-        />
-        <br /> <br />
-        <TrainingStatus
-          resultingProgress={resultingProgress}
-          queue={queue}
-          word={currentWord}
-          totalErrorsCount={totalErrorsCount}
-        />
+        )}
       </div>
-    )
-  );
-};
+      <Space direction="horizontal" size={10}>
+        <WordPlayer
+          word={currentWord.word}
+          lang={synthSpeechLang}
+          autoPlay={user.trainingSettings.synthVoiceAutoStart}
+          play={false}
+        />
+        <SpeechRecognizer
+          word={currentWord.word}
+          onResult={handleSpeech}
+          lang={userSpeechLang}
+          autoStart={user.trainingSettings.speechRecognizerAutoStart}
+          isReady={useSpeechRecognizer}
+        />
+      </Space>
+      <br />
+      <ActionButtons
+        word={currentWord}
+        onLearnedButtonClick={handleLearned}
+        onNextButtonClick={handleNextButtonClick}
+        showAnswer={showAnswer}
+        resultingProgress={resultingProgress}
+        onFinishTraining={handleFinishTraining}
+      />
+      <br /> <br />
+      <TrainingStatus
+        resultingProgress={resultingProgress}
+        queue={queue}
+        word={currentWord}
+        totalErrorsCount={totalErrorsCount}
+      />
+    </div>
+  ) : null;
+}
 
 export default TrainingInput;

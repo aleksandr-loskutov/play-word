@@ -1,6 +1,5 @@
 import BaseAPI from './base';
-import { WordForCollection } from '../types/collection';
-import { Collection } from '../types/collection';
+import { WordForCollection, Collection } from '../types/collection';
 
 class WordAPI extends BaseAPI {
   constructor() {
@@ -14,7 +13,7 @@ class WordAPI extends BaseAPI {
   updateWordsInCollection(collectionId: number, data: WordForCollection[]) {
     return this.httpService.post<WordForCollection[], Collection>(
       `/${collectionId}`,
-      data,
+      data
     );
   }
 }

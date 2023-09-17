@@ -1,12 +1,15 @@
-import React from 'react';
 import { Col, Progress, Row, Table, Typography } from 'antd';
-import { TrainingStats, WordStats } from '../../../types/training';
+import { TrainingStats } from '../../../types/training';
 import createCn from '../../../utils/create-cn';
+
 const { Paragraph } = Typography;
 
 const cn = createCn('train-page');
 
-const TrainingStatsTable = ({ trainingStats, extraStats }: TrainingStats) => {
+function TrainingStatsTable({
+  trainingStats,
+  extraStats,
+}: TrainingStats): React.ReactElement | null {
   const renderExtraHeader = () => (
     <Row gutter={24}>
       <Col span={6}>
@@ -71,26 +74,22 @@ const TrainingStatsTable = ({ trainingStats, extraStats }: TrainingStats) => {
         const timeDifferenceInMilliseconds =
           nextReview.getTime() - today.getTime();
         const timeDifferenceInDays = parseFloat(
-          (timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)).toFixed(1),
+          (timeDifferenceInMilliseconds / (1000 * 60 * 60 * 24)).toFixed(1)
         );
         return `через ${timeDifferenceInDays} дней`;
       },
     },
   ];
 
-  return (
-    <>
-      {trainingStats.length > 0 && (
-        <Table
-          dataSource={trainingStats}
-          columns={columns}
-          pagination={false}
-          rowKey={(record) => record.word}
-          caption={renderExtraHeader()}
-        />
-      )}
-    </>
-  );
-};
+  return trainingStats.length > 0 ? (
+    <Table
+      dataSource={trainingStats}
+      columns={columns}
+      pagination={false}
+      rowKey={(record) => record.word}
+      caption={renderExtraHeader()}
+    />
+  ) : null;
+}
 
 export default TrainingStatsTable;

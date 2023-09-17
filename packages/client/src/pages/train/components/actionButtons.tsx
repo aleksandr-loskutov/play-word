@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Button, Space, Popconfirm } from 'antd';
 import { UserWordProgress, WordInTraining } from '../../../types/training';
 
@@ -11,21 +11,21 @@ type ActionButtonsProps = {
   onFinishTraining: () => void;
 };
 
-const ActionButtons: React.FC<ActionButtonsProps> = ({
+function ActionButtons({
   word,
   onLearnedButtonClick,
   onNextButtonClick,
   showAnswer,
   resultingProgress,
   onFinishTraining,
-}) => {
+}: ActionButtonsProps) {
   const handleKeyPress = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
         onNextButtonClick();
       }
     },
-    [onNextButtonClick],
+    [onNextButtonClick]
   );
 
   useEffect(() => {
@@ -68,6 +68,6 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       )}
     </Space>
   );
-};
+}
 
 export default ActionButtons;

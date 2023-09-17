@@ -1,20 +1,28 @@
-import { customNotification } from '../components/custom-notification/customNotification';
+import customNotification from '../components/custom-notification/customNotification';
 
-export function validateArrayForEmptyStringAndLength(
-  arr,
-  fields,
+export default function validateArrayForEmptyStringAndLength(
+  arr: any[],
+  fields: string[],
   minLength = 2,
-  maxLength = 45,
-) {
-  const errors = [];
+  maxLength = 45
+): boolean {
+  const errors: string[] = [];
 
-  for (let i = 0; i < arr.length; i++) {
-    const item = arr[i];
-    for (const field of fields) {
+  if (!Array.isArray(arr)) {
+    customNotification({
+      message: 'Ошибка!',
+      description: 'Input is not an array.',
+      type: 'error',
+    });
+    return false;
+  }
+
+  arr.forEach((item, i) => {
+    fields.forEach((field) => {
       // Check for empty string
       if (typeof item[field] === 'string' && item[field].trim() === '') {
         errors.push(
-          `Ошибка валидации: ${field} на строке ${i + 1} не должно быть пустым`,
+          `Ошибка валидации: ${field} на строке ${i + 1} не должно быть пустым`
         );
       }
 
@@ -23,20 +31,20 @@ export function validateArrayForEmptyStringAndLength(
         errors.push(
           `Ошибка валидации: ${field} на строке ${
             i + 1
-          } должно быть больше ${minLength} символов`,
+          } должно быть больше ${minLength} символов`
         );
       }
 
       // Check for max length
       if (typeof item[field] === 'string' && item[field].length > maxLength) {
         errors.push(
-          `Ошибка валидации: ${field}  на строке ${
+          `Ошибка валидации: ${field} на строке ${
             i + 1
-          } должно быть меньше ${maxLength} символов`,
+          } должно быть меньше ${maxLength} символов`
         );
       }
-    }
-  }
+    });
+  });
 
   if (errors.length > 0) {
     customNotification({

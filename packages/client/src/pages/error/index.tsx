@@ -1,8 +1,7 @@
-import React from 'react';
 import { Button, Typography } from 'antd';
+import { Link } from 'react-router-dom';
 import createCn from '../../utils/create-cn';
 import './error.css';
-import { Link } from 'react-router-dom';
 
 const cn = createCn('error-page');
 

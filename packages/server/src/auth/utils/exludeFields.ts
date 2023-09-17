@@ -1,9 +1,12 @@
 export default function excludeFields<T, Key extends keyof T>(
   object: T,
-  keys: Key[],
+  keys: Key[]
 ): Omit<T, Key> {
+  const clone = { ...object };
+  // eslint-disable-next-line no-restricted-syntax
   for (const key of keys) {
-    delete object[key];
+    // this can be refactored without for, but it's more readable now and does not req types gymnastic
+    delete clone[key];
   }
-  return object;
+  return clone;
 }

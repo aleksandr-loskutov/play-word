@@ -1,8 +1,13 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
-import { PrismaService } from '../prisma/prisma.service';
+import { UserWithTrainingSettings } from 'user';
+import PrismaService from '../prisma/prisma.service';
 
 import { AuthDto, SignUpDto, AuthResponse } from './dto';
 import { JwtPayload, Tokens } from './types';
@@ -10,11 +15,11 @@ import excludeFields from './utils/exludeFields';
 import { handleError } from '../common/utils';
 
 @Injectable()
-export class AuthService {
+export default class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private config: ConfigService,
+    private config: ConfigService
   ) {}
 
   async signupLocal(dto: SignUpDto): Promise<AuthResponse> {
@@ -52,6 +57,7 @@ export class AuthService {
       return { user: userWithSettings, tokens };
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Unknown error.');
     }
   }
 
@@ -77,6 +83,7 @@ export class AuthService {
       return { user, tokens };
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Unknown error.');
     }
   }
 
@@ -96,6 +103,7 @@ export class AuthService {
       return true;
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Unknown error.');
     }
   }
 
@@ -119,6 +127,7 @@ export class AuthService {
       return { user, tokens };
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Unknown error.');
     }
   }
 
@@ -144,7 +153,7 @@ export class AuthService {
     name,
     createdAt,
     trainingSettings,
-  }): Promise<Tokens> {
+  }: UserWithTrainingSettings): Promise<Tokens> {
     try {
       const jwtPayload: JwtPayload = {
         id,
@@ -171,6 +180,7 @@ export class AuthService {
       };
     } catch (error: any) {
       handleError(error);
+      throw new NotFoundException('Unknown error.');
     }
   }
 }

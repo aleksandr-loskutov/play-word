@@ -1,5 +1,4 @@
 import React, { useEffect, useContext, createContext } from 'react';
-import { NavigateFunction } from 'react-router';
 import { useAppDispatch, useAppSelector } from './store';
 import {
   fetchUser,
@@ -12,7 +11,6 @@ import { Nullable } from '../../types/common';
 import { SignInDTO, SignUpDTO } from '../../types/auth';
 import { getTraining } from '../../store/action-creators/training';
 import { UserWordProgress } from '../../types/training';
-import { Response } from '../../types/api';
 import { setUserInitialized } from '../../store/reducers/user';
 
 type Props = {
@@ -23,12 +21,13 @@ type AuthContextProps = {
   user: Nullable<User>;
   signUp: (credentials: SignUpDTO) => any;
   signIn: (credentials: SignInDTO) => any;
-  signOut: () => any;
+  signOut: () => void;
   error: string | null;
   isLoading: boolean | null;
   isLoggedIn: boolean;
-  isLoadingTraining: boolean;
+  isLoadingTraining: boolean | null;
   training: UserWordProgress[];
+  errorTraining: string | null;
 };
 
 const authContext = createContext<AuthContextProps>({} as AuthContextProps);
@@ -38,7 +37,7 @@ function useAuthProvider() {
   const dispatch = useAppDispatch();
 
   const { user, error, isLoading, isLoggedIn } = useAppSelector(
-    (state) => state.user,
+    (state) => state.user
   );
   const {
     error: errorTraining,
@@ -46,17 +45,11 @@ function useAuthProvider() {
     training,
   } = useAppSelector((state) => state.training);
 
-  const signUp = (credentials: SignUpDTO) => {
-    return dispatch(register(credentials));
-  };
+  const signUp = (credentials: SignUpDTO) => dispatch(register(credentials));
 
-  const signIn = (credentials: SignInDTO) => {
-    return dispatch(login(credentials));
-  };
+  const signIn = (credentials: SignInDTO) => dispatch(login(credentials));
 
-  const signOut = () => {
-    return dispatch(logout());
-  };
+  const signOut = () => dispatch(logout());
 
   useEffect(() => {
     if (user && !isLoadingTraining) {

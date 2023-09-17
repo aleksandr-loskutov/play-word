@@ -5,7 +5,7 @@ import {
 } from '../types/training';
 
 export const transformUserProgressResponse = (
-  userProgressResponse: UserWordProgressResponse[] | undefined,
+  userProgressResponse: UserWordProgressResponse[] | undefined
 ): UserWordProgress[] => {
   if (userProgressResponse && userProgressResponse.length > 0) {
     return userProgressResponse.map((progress) => {
@@ -33,9 +33,9 @@ export const transformUserProgressResponse = (
 };
 
 export const transformUserProgressToUpdateRequest = (
-  actualUserProgress: UserWordProgress[],
-): RequestUserWordProgressUpdate[] => {
-  return actualUserProgress.map((progress) => {
+  actualUserProgress: UserWordProgress[]
+): RequestUserWordProgressUpdate[] =>
+  actualUserProgress.map((progress) => {
     const { wordId, translationId, word } = progress;
     return {
       wordId,
@@ -43,4 +43,3 @@ export const transformUserProgressToUpdateRequest = (
       sessionMistakes: word.errorCounter || 0,
     };
   });
-};

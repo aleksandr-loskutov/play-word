@@ -1,26 +1,26 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Button, message } from 'antd';
+import { useState, useEffect, useRef } from 'react';
+import { Button } from 'antd';
 import { AudioOutlined } from '@ant-design/icons';
-import { customNotification } from '../../../components/custom-notification/customNotification';
+import customNotification from '../../../components/custom-notification/customNotification';
 
-interface SpeechRecognitionProps {
+type SpeechRecognitionProps = {
   lang: string;
   onResult: (text: string) => void;
   autoStart?: boolean;
   isReady?: boolean;
   word: string;
-}
+};
 
-const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
+function SpeechRecognizer({
   lang,
   onResult,
   autoStart,
   isReady,
   word,
-}) => {
+}: SpeechRecognitionProps): React.ReactElement {
   const [isListening, setIsListening] = useState<boolean>(false);
-  const [transcript, setTranscript] = useState<string>('');
-  const recognitionRef = useRef<any>(null);
+  // const [transcript, setTranscript] = useState<string>('');
+  const recognitionRef = useRef<typeof window.webkitSpeechRecognition>(null);
 
   useEffect(() => {
     // Check for browser compatibility
@@ -32,6 +32,7 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
       });
       return;
     }
+    // eslint-disable-next-line new-cap
     recognitionRef.current = new window.webkitSpeechRecognition();
     recognitionRef.current.continuous = false;
     recognitionRef.current.interimResults = true;
@@ -41,22 +42,21 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
       resultIndex: any;
       results: string | any[];
     }) => {
-      let interim_transcript = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
+      // let interim_transcript = '';
+      for (let i = event.resultIndex; i < event.results.length; i += 1) {
+        const { transcript } = event.results[i][0];
         if (event.results[i].isFinal) {
-          setTranscript(transcript);
+          // setTranscript(transcript);
+          // setTranscript((prevTranscript) => prevTranscript + ' ' + transcript);
           if (onResult) {
             onResult(transcript);
           }
-        } else {
-          interim_transcript += transcript;
         }
       }
       setIsListening(false);
     };
 
-    recognitionRef.current.onerror = (event: { error: any }) => {
+    recognitionRef.current.onerror = () => {
       setIsListening(false);
     };
 
@@ -70,6 +70,7 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
       startListening();
     }
 
+    // eslint-disable-next-line consistent-return
     return () => {
       recognitionRef.current.stop();
     };
@@ -88,17 +89,34 @@ const SpeechRecognizer: React.FC<SpeechRecognitionProps> = ({
     }
   };
 
+  let buttonType:
+    | 'default'
+    | 'primary'
+    | 'link'
+    | 'text'
+    | 'ghost'
+    | 'dashed'
+    | undefined;
+
+  if (isReady) {
+    buttonType = isListening ? 'primary' : 'default';
+  }
+
   return (
     <Button
       size="large"
-      title={'распознать речь'}
+      title="распознать речь"
       icon={<AudioOutlined />}
       onClick={handleToggle}
       disabled={!isReady}
-      type={
-        isReady ? (isListening ? 'primary' : 'default') : 'default'
-      }></Button>
+      type={buttonType}
+    />
   );
+}
+
+SpeechRecognizer.defaultProps = {
+  autoStart: false,
+  isReady: false,
 };
 
 export default SpeechRecognizer;

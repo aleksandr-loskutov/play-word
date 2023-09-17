@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Title from 'antd/lib/typography/Title';
 import { WordStats } from '../../../types/training';
 import TrainingStatsTable from './trainingStatsTable';
@@ -11,17 +11,20 @@ type TrainingStatsProps = {
 };
 const cn = createCn('train-page');
 
-const TrainingStats: React.FC<TrainingStatsProps> = ({ trainingStats }) => {
+function TrainingStats({
+  trainingStats,
+}: TrainingStatsProps): React.ReactElement | null {
   const { training } = useAuth();
-  const extraStats = useMemo(() => {
-    return {
+  const extraStats = useMemo(
+    () => ({
       totalTimeSpent: getTotalTimeSpent(trainingStats),
       currentDayProgress: Math.round(
-        (trainingStats.length / (trainingStats.length + training.length)) * 100,
+        (trainingStats.length / (trainingStats.length + training.length)) * 100
       ),
       moreToLearn: training.length,
-    };
-  }, [trainingStats, training]);
+    }),
+    [trainingStats, training]
+  );
 
   return trainingStats.length > 0 ? (
     <div className={cn()}>
@@ -34,6 +37,6 @@ const TrainingStats: React.FC<TrainingStatsProps> = ({ trainingStats }) => {
       />
     </div>
   ) : null;
-};
+}
 
 export default TrainingStats;

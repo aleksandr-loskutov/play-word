@@ -15,10 +15,10 @@ type NotificationOptions = {
   type?: NotificationType;
 };
 
-export function customNotification(options: NotificationOptions) {
+export default function customNotification(options: NotificationOptions) {
   const { message, description, type = 'info' } = options;
 
-  let bgColor = PALETTE.background;
+  const bgColor = PALETTE.background;
   let color = PALETTE.primary;
   let boxShadow;
   let icon;
@@ -50,7 +50,7 @@ export function customNotification(options: NotificationOptions) {
   notification[type]({
     message: CustomMessage,
     description,
-    icon: icon,
+    icon,
     style: {
       color,
       backgroundColor: bgColor,

@@ -1,30 +1,30 @@
 import React, { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
-  Button,
   Card,
-  Avatar,
   Row,
   Col,
-  Space,
   Typography,
-  message,
   Tooltip,
   Popconfirm,
   Input,
   Modal,
 } from 'antd';
 import './styles.css';
+import Meta from 'antd/lib/card/Meta';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlayCircleOutlined,
+  StopOutlined,
+} from '@ant-design/icons';
 import {
   useAppDispatch,
   useAppSelector,
 } from '../../../components/hooks/store';
-import Layout from '../../../components/layout';
 import createCn from '../../../utils/create-cn';
 import AddWordsModal from './modal';
 import {
-  AvatarSrcs,
-  Collection,
   RequestCollectionUpdate,
   WordForCollection,
 } from '../../../types/collection';
@@ -34,32 +34,20 @@ import {
   removeCollectionWordsFromTraining,
 } from '../../../store/action-creators/training';
 import {
-  createCollection,
   deleteCollection,
   updateCollection,
 } from '../../../store/action-creators/collection';
-import Meta from 'antd/lib/card/Meta';
-import Icon, {
-  DeleteOutlined,
-  DeleteTwoTone,
-  EditOutlined,
-  EditTwoTone,
-  MinusOutlined,
-  PlayCircleOutlined,
-  PlusOutlined,
-  StopOutlined,
-} from '@ant-design/icons';
 import WithAuth from '../../../components/hoc/withAuth';
-import { customNotification } from '../../../components/custom-notification/customNotification';
+import customNotification from '../../../components/custom-notification/customNotification';
 import PageLoader from '../../../components/page-loader';
-import { createImageFromInitials } from '../../../utils/image-from-string';
+import createImageFromInitials from '../../../utils/image-from-string';
 import { useAuth } from '../../../components/hooks/auth';
 
 const cn = createCn('collection-page');
 const { Title } = Typography;
 const iconStyle = { fontSize: '24px' };
 
-const CollectionPage: React.FC = () => {
+function CollectionPage(): React.ReactElement {
   const { id } = useParams();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -67,7 +55,7 @@ const CollectionPage: React.FC = () => {
   const [collectionEditModalOpen, setCollectionEditModalOpen] = useState(false);
   const [editedCollectionName, setEditedCollectionName] = useState<string>('');
   const { collections, isLoading } = useAppSelector(
-    (state) => state.collections,
+    (state) => state.collections
   );
   const collection = collections.find((c) => c.id === Number(id));
 
@@ -88,7 +76,7 @@ const CollectionPage: React.FC = () => {
     if (!collection || !words || words.length === 0) return;
     dispatch(updateWordsInCollection({ collectionId: collection.id, words }))
       .unwrap()
-      .then((_) => {
+      .then(() => {
         customNotification({
           message: 'Успешно!',
           description: `Коллекция обновлена`,
@@ -104,12 +92,12 @@ const CollectionPage: React.FC = () => {
       });
   };
 
-  const handleUpdateName = () => {
-    handleSubmitCollectionEdit({ id: Number(id), name: editedCollectionName });
+  const handleCloseEditModal = () => {
+    setCollectionEditModalOpen(false);
   };
 
   const handleSubmitCollectionEdit = (
-    dataToUpdate: RequestCollectionUpdate,
+    dataToUpdate: RequestCollectionUpdate
   ) => {
     handleCloseEditModal();
     if (
@@ -121,14 +109,14 @@ const CollectionPage: React.FC = () => {
       return;
     dispatch(updateCollection(dataToUpdate))
       .unwrap()
-      .then((_) => {
+      .then(() => {
         customNotification({
           message: 'Успешно!',
           description: 'Обновили коллекцию',
           type: 'success',
         });
       })
-      .catch((_) => {
+      .catch(() => {
         customNotification({
           message: 'Ошибка!',
           description: 'Не удалось обновить коллекцию',
@@ -137,8 +125,8 @@ const CollectionPage: React.FC = () => {
       });
   };
 
-  const handleCloseEditModal = () => {
-    setCollectionEditModalOpen(false);
+  const handleUpdateName = () => {
+    handleSubmitCollectionEdit({ id: Number(id), name: editedCollectionName });
   };
 
   const handleAddWordsToTraining = () => {
@@ -150,7 +138,7 @@ const CollectionPage: React.FC = () => {
       return;
     dispatch(addCollectionWordsForTraining(collection.id))
       .unwrap()
-      .then((_) => {
+      .then(() => {
         customNotification({
           message: 'Успешно!',
           description: 'Слова коллекции добавлены в тренировку',
@@ -176,14 +164,14 @@ const CollectionPage: React.FC = () => {
       return;
     dispatch(removeCollectionWordsFromTraining(collection.id))
       .unwrap()
-      .then((_) => {
+      .then(() => {
         customNotification({
           message: 'Успешно!',
           description: 'Слова коллекции удалены из тренировки',
           type: 'success',
         });
       })
-      .catch((_) => {
+      .catch(() => {
         customNotification({
           message: 'Ошибка!',
           description: 'Не удалось удалить слова из тренировки',
@@ -192,16 +180,17 @@ const CollectionPage: React.FC = () => {
       });
   };
 
-  const isUserOwnsCollection = useMemo((): boolean => {
-    return collection?.userId === user?.id;
-  }, [collection, user]);
+  const isUserOwnsCollection = useMemo(
+    (): boolean => collection?.userId === user?.id,
+    [collection, user]
+  );
 
   const handleDeleteCollection = () => {
     if (!collection) return;
     handleRemoveWordsFromTraining();
     dispatch(deleteCollection(collection.id))
       .unwrap()
-      .then((_) => {
+      .then(() => {
         customNotification({
           message: 'Успешно!',
           description: 'Коллекция удалена',
@@ -209,7 +198,7 @@ const CollectionPage: React.FC = () => {
         });
         navigate('/collections');
       })
-      .catch((_) => {
+      .catch(() => {
         customNotification({
           message: 'Ошибка!',
           description: 'Не удалось удалить коллекцию',
@@ -221,113 +210,113 @@ const CollectionPage: React.FC = () => {
   const handleCancel = () => {
     setShowAddWordsModal(false);
   };
-  const avatarSrc = useMemo(() => {
-    if (collection?.name) {
-      return createImageFromInitials(350, collection.name);
-    }
-  }, [collection]);
+  const avatarSrc = useMemo(
+    () =>
+      collection?.name ? createImageFromInitials(collection.name, 350) : null,
+    [collection]
+  );
 
-  return isLoading ? (
-    <PageLoader />
-  ) : collections.length > 0 && collection ? (
-    <section className={cn('')}>
-      <Row>
-        <Col span={24}>
-          <Tooltip title="изменить название">
-            <Title
-              level={2}
-              className={cn('title title')}
-              onClick={() => handleTitleClick()}>
-              {collection.name}
-            </Title>
-          </Tooltip>
-          <Modal
-            title="Название коллекции"
-            open={collectionEditModalOpen}
-            onCancel={handleCloseEditModal}
-            onOk={handleUpdateName}
-            cancelText={'отмена'}
-            okText={'сохранить'}>
-            <Input
-              value={editedCollectionName}
-              onChange={(e) => setEditedCollectionName(e.target.value)}
-            />
-          </Modal>
-        </Col>
-        <Col span={24}>
-          <Card
-            className={cn('card')}
-            cover={
-              <img
-                alt={collection.name}
-                src={avatarSrc || ''}
-                className={cn('card-image')}
-                style={{ borderRadius: '10px' }}
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  if (collections.length > 0 && collection) {
+    return (
+      <section className={cn('')}>
+        <Row>
+          <Col span={24}>
+            <Tooltip title="изменить название">
+              <Title
+                level={2}
+                className={cn('title title')}
+                onClick={() => handleTitleClick()}>
+                {collection.name}
+              </Title>
+            </Tooltip>
+            <Modal
+              title="Название коллекции"
+              open={collectionEditModalOpen}
+              onCancel={handleCloseEditModal}
+              onOk={handleUpdateName}
+              cancelText="отмена"
+              okText="сохранить">
+              <Input
+                value={editedCollectionName}
+                onChange={(e) => setEditedCollectionName(e.target.value)}
               />
-            }
-            actions={[
-              isUserOwnsCollection ? (
-                <Tooltip title="Добавить / Изменить слова">
-                  <EditOutlined
-                    key="edit"
-                    onClick={handleAddWordsButton}
-                    style={iconStyle}
-                  />
-                </Tooltip>
-              ) : null,
-              <Popconfirm
-                title="Начать изучать слова этой коллекции?"
-                description={'В тренировку будут добавлены все слова коллекции'}
-                okText="Да"
-                cancelText="Нет"
-                onConfirm={handleAddWordsToTraining}
-                zIndex={2000}>
-                <PlayCircleOutlined key="add-to-training" style={iconStyle} />
-              </Popconfirm>,
-              <Popconfirm
-                title="Убрать все слова коллекции из тренировки?"
-                description={
-                  'Прогресс слов коллекции будет удален из тренировок'
-                }
-                okText="Да"
-                cancelText="Нет"
-                onConfirm={handleRemoveWordsFromTraining}
-                zIndex={2000}>
-                <StopOutlined key="remove-from-training" style={iconStyle} />
-              </Popconfirm>,
-              isUserOwnsCollection ? (
+            </Modal>
+          </Col>
+          <Col span={24}>
+            <Card
+              className={cn('card')}
+              cover={
+                <img
+                  alt={collection.name}
+                  src={avatarSrc || ''}
+                  className={cn('card-image')}
+                  style={{ borderRadius: '10px' }}
+                />
+              }
+              actions={[
+                isUserOwnsCollection ? (
+                  <Tooltip title="Добавить / Изменить слова">
+                    <EditOutlined
+                      key="edit"
+                      onClick={handleAddWordsButton}
+                      style={iconStyle}
+                    />
+                  </Tooltip>
+                ) : null,
                 <Popconfirm
-                  title="Удалить коллекцию?"
-                  description={
-                    'Все слова коллекции также будут удалены из тренировок'
-                  }
+                  title="Начать изучать слова этой коллекции?"
+                  description="В тренировку будут добавлены все слова коллекции"
                   okText="Да"
                   cancelText="Нет"
-                  onConfirm={handleDeleteCollection}
+                  onConfirm={handleAddWordsToTraining}
                   zIndex={2000}>
-                  <DeleteOutlined key="delete" style={iconStyle} />
-                </Popconfirm>
-              ) : null,
-            ]}>
-            <Meta
-              title={collection.name}
-              description={collection.description || 'без описания'}
+                  <PlayCircleOutlined key="add-to-training" style={iconStyle} />
+                </Popconfirm>,
+                <Popconfirm
+                  title="Убрать все слова коллекции из тренировки?"
+                  description="Прогресс слов коллекции будет удален из тренировок"
+                  okText="Да"
+                  cancelText="Нет"
+                  onConfirm={handleRemoveWordsFromTraining}
+                  zIndex={2000}>
+                  <StopOutlined key="remove-from-training" style={iconStyle} />
+                </Popconfirm>,
+                isUserOwnsCollection ? (
+                  <Popconfirm
+                    title="Удалить коллекцию?"
+                    description="Все слова коллекции также будут удалены из тренировок"
+                    okText="Да"
+                    cancelText="Нет"
+                    onConfirm={handleDeleteCollection}
+                    zIndex={2000}>
+                    <DeleteOutlined key="delete" style={iconStyle} />
+                  </Popconfirm>
+                ) : null,
+              ]}>
+              <Meta
+                title={collection.name}
+                description={collection.description || 'без описания'}
+              />
+            </Card>
+          </Col>
+          <Col span={24}>
+            <AddWordsModal
+              onSubmit={handleSubmitAddWords}
+              visible={showAddWordsModal}
+              onClose={handleCancel}
+              initialWords={collection.words}
             />
-          </Card>
-        </Col>
-        <Col span={24}>
-          <AddWordsModal
-            onSubmit={handleSubmitAddWords}
-            visible={showAddWordsModal}
-            onClose={handleCancel}
-            initialWords={collection.words}
-          />
-        </Col>
-      </Row>
-    </section>
-  ) : (
-    <Title className={'title'}>Не удалось загрузить коллекцию</Title>
-  );
-};
+          </Col>
+        </Row>
+      </section>
+    );
+  }
+
+  return <Title className="title">Не удалось загрузить коллекцию</Title>;
+}
 
 export default WithAuth(CollectionPage);

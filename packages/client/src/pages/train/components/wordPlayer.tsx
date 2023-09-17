@@ -9,19 +9,14 @@ type WordPlayerProps = {
   play: boolean;
 };
 
-const WordPlayer: React.FC<WordPlayerProps> = ({
+function WordPlayer({
   word,
   lang,
   autoPlay,
   play,
-}) => {
+}: WordPlayerProps): React.ReactElement {
   const lastWordRef = useRef<string | null>(null);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
-
-  const handlePlayWord = () => {
-    setIsPlaying(true);
-    pronounceWord();
-  };
 
   const pronounceWord = () => {
     const synth = window.speechSynthesis;
@@ -29,6 +24,11 @@ const WordPlayer: React.FC<WordPlayerProps> = ({
     utterance.lang = lang;
     utterance.onend = () => setIsPlaying(false); // Set isPlaying to false when pronunciation ends
     synth.speak(utterance);
+  };
+
+  const handlePlayWord = () => {
+    setIsPlaying(true);
+    pronounceWord();
   };
 
   useEffect(() => {
@@ -47,11 +47,12 @@ const WordPlayer: React.FC<WordPlayerProps> = ({
   return (
     <Button
       size="large"
-      title={'Воспроизвести'}
+      title="Воспроизвести"
       icon={<SoundOutlined />}
       onClick={handlePlayWord}
-      type={isPlaying ? 'primary' : 'default'}></Button>
+      type={isPlaying ? 'primary' : 'default'}
+    />
   );
-};
+}
 
 export default WordPlayer;

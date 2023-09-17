@@ -1,8 +1,8 @@
 import { UserTrainingSettings } from '@prisma/client';
 
-export function calculateNextTrainingDate(
+export default function calculateNextTrainingDate(
   stage: number,
-  userSettings: UserTrainingSettings,
+  userSettings: UserTrainingSettings
 ) {
   const stageIntervals = [
     0, // Stage 0 has an immediate review

@@ -11,7 +11,7 @@ import {
 import { UserWithTrainingSettings } from 'user';
 import { Response } from 'express';
 import { EditUserDto, UserDto } from './dto';
-import { UserService } from './user.service';
+import UserService from './user.service';
 import { AtGuard, RtGuard } from '../common/guards';
 import { GetCurrentUser } from '../common/decorators';
 import setCookieToken from '../auth/utils/setCookieToken';
@@ -20,20 +20,21 @@ import excludeFields from '../auth/utils/exludeFields';
 import { disableCache } from '../common/utils';
 
 @Controller('user')
-export class UserController {
+export default class UserController {
   constructor(private userService: UserService) {}
 
+  // eslint-disable-next-line class-methods-use-this
   @Get()
   @UseGuards(AtGuard)
   @HttpCode(HttpStatus.OK)
   getMe(
     @GetCurrentUser()
     user: UserWithTrainingSettings,
-    @Res() response,
-  ): UserDto {
+    @Res() response: Response
+  ): void {
     excludeFields(user, ['iat', 'exp']);
     disableCache(response);
-    return response.json(user);
+    response.json(user);
   }
 
   @Patch()
@@ -42,14 +43,14 @@ export class UserController {
   async updateUser(
     @Res() response: Response,
     @Body() payload: EditUserDto,
-    @GetCurrentUser() { id: userId, refreshToken }: JwtPayloadWithRt,
-  ) {
+    @GetCurrentUser() { id: userId, refreshToken }: JwtPayloadWithRt
+  ): Promise<void> {
     const { user, tokens } = await this.userService.updateUser(
       userId,
       payload,
-      refreshToken,
+      refreshToken
     );
     if (tokens) setCookieToken(response, tokens);
-    return response.json(user);
+    response.json(user);
   }
 }

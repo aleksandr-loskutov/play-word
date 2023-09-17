@@ -32,7 +32,7 @@ export const setPending = <T extends LoadingState>(state: T) => {
 
 export const setRejected = <T extends LoadingState, A extends Nullable<string>>(
   state: T,
-  action: ActionPayload<A>,
+  action: ActionPayload<A>
 ) => {
   state.isLoading = false;
   state.error = action.payload;
@@ -40,7 +40,7 @@ export const setRejected = <T extends LoadingState, A extends Nullable<string>>(
 
 export const setFulfilled = <T extends UserState, A extends User>(
   state: T,
-  action: ActionPayload<A>,
+  action: ActionPayload<A>
 ) => {
   state.isLoading = false;
   state.error = null;
@@ -50,10 +50,10 @@ export const setFulfilled = <T extends UserState, A extends User>(
 
 export const setFulfilledTraining = <
   T extends TrainingState,
-  A extends UserWordProgress[],
+  A extends UserWordProgress[]
 >(
   state: T,
-  action: ActionPayload<A>,
+  action: ActionPayload<A>
 ) => {
   state.training = action.payload;
   state.isLoading = false;

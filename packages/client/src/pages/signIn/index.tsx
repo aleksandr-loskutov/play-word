@@ -5,7 +5,7 @@ import createCn from '../../utils/create-cn';
 import signUpRules from '../signUp/validator';
 import './style.css';
 import { useAuth } from '../../components/hooks/auth';
-import { customNotification } from '../../components/custom-notification/customNotification';
+import customNotification from '../../components/custom-notification/customNotification';
 import { Nullable } from '../../types/common';
 
 type FormData = {
@@ -27,18 +27,18 @@ function SignInPage(): JSX.Element {
         password: data.password,
       })
         .unwrap()
-        .then((_) => {
+        .then(() => {
           customNotification({
             message: 'Успешно!',
             description: 'Вошли в аккаунт.',
             type: 'success',
           });
         })
-        .catch((error: string) => {
-          setError(error);
+        .catch((e: string) => {
+          setError(e);
         });
     },
-    [signIn],
+    [signIn]
   );
 
   useEffect(() => {

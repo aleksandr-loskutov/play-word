@@ -3,6 +3,7 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "noImplicitAny": true,
     "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": false,
@@ -14,6 +15,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+    "noUnusedLocals": true,
     "jsx": "react-jsx"
   },
   "include": ["src", "public"],

@@ -1,6 +1,5 @@
 jest.config.js
 vite.config.ts
 client.d.ts
-init.js
 **/node_modules/**
 **/dist/**

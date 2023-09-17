@@ -3,6 +3,5 @@
   "semi": true,
   "arrowParens": "always",
   "bracketSameLine": true,
-  "width": 50,
-  "trailingComma": "all"
+  "width": 50
 }

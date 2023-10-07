@@ -5,8 +5,8 @@ import {
   Length,
   Matches,
 } from 'class-validator';
-import { UserTrainingSettings } from '@prisma/client';
-import { Tokens } from '../types';
+import type { UserTrainingSettings } from '@prisma/client';
+import type { Tokens } from '../types';
 
 export class AuthDto {
   @IsString()

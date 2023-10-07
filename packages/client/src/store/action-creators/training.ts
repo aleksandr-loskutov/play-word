@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import CollectionsAPI from '../../api/collections';
-import { RequestUserWordProgressUpdate } from '../../types/training';
+import type { RequestUserWordProgressUpdate } from '../../types/training';
 import { transformUserProgressResponse } from '../../utils/transform-user-progress';
 import handleAPICall from '../../utils/handle-API-call';
 

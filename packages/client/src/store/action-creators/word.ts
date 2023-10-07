@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import WordAPI from '../../api/word';
-import { RequestAddWordsToCollection } from '../../types/collection';
+import type { RequestAddWordsToCollection } from '../../types/collection';
 import handleAPICall from '../../utils/handle-API-call';
 
 // Add words to collection

@@ -1,5 +1,5 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { RequestUserDataUpdate } from '../../types/user';
+import type { RequestUserDataUpdate } from '../../types/user';
 import userAPI from '../../api/user';
 import handleAPICall from '../../utils/handle-API-call';
 

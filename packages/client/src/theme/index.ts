@@ -1,4 +1,4 @@
-import { Theme } from 'antd/lib/config-provider/context';
+import type { Theme } from 'antd/lib/config-provider/context';
 
 const themes: { [key: string]: Theme } = {
   default: {},

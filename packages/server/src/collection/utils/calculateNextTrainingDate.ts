@@ -1,4 +1,4 @@
-import { UserTrainingSettings } from '@prisma/client';
+import type { UserTrainingSettings } from '@prisma/client';
 
 export default function calculateNextTrainingDate(
   stage: number,

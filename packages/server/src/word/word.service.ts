@@ -1,9 +1,9 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { Response } from 'common';
-import { WordWithTranslations } from 'word';
+import type { Response } from 'common';
+import type { WordWithTranslations } from 'word';
 import PrismaService from '../prisma/prisma.service';
-import { WordDto } from './dto';
-import { CollectionWithWords } from '../collection/dto';
+import type { WordDto } from './dto';
+import type { CollectionWithWords } from '../collection/dto';
 import { handleError } from '../common/utils';
 
 @Injectable()

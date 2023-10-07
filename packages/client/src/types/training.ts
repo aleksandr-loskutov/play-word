@@ -1,5 +1,5 @@
-import { WordForCollection } from './collection';
-import { EntityId } from './common';
+import type { WordForCollection } from './collection';
+import type { EntityId } from './common';
 
 export type UserWordProgress = {
   wordId: number;

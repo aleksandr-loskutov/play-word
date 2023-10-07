@@ -1,7 +1,7 @@
 import BaseAPI from './base';
-import { SignUpDTO, SignInDTO } from '../types/auth';
-import { User } from '../types/user';
-import { ApiResponse } from '../types/api';
+import type { SignUpDTO, SignInDTO } from '../types/auth';
+import type { User } from '../types/user';
+import type { ApiResponse } from '../types/api';
 
 class AuthAPI extends BaseAPI {
   constructor() {

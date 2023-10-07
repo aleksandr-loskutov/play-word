@@ -1,5 +1,5 @@
-import { OAuthServiceIdDTO, OAuthSignInYandexDTO } from '../types/auth';
-import { ApiResponse } from '../types/api';
+import type { OAuthServiceIdDTO, OAuthSignInYandexDTO } from '../types/auth';
+import type { ApiResponse } from '../types/api';
 import BaseAPI from './base';
 
 class OAuthYandexAPI extends BaseAPI {

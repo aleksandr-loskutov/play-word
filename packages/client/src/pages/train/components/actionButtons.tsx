@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { Button, Space, Popconfirm } from 'antd';
-import { UserWordProgress, WordInTraining } from '../../../types/training';
+import type { UserWordProgress, WordInTraining } from '../../../types/training';
 
 type ActionButtonsProps = {
   word: WordInTraining;

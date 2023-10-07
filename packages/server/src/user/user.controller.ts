@@ -8,14 +8,14 @@ import {
   Res,
   UseGuards,
 } from '@nestjs/common';
-import { UserWithTrainingSettings } from 'user';
-import { Response } from 'express';
-import { EditUserDto, UserDto } from './dto';
+import type { UserWithTrainingSettings } from 'user';
+import type { Response } from 'express';
+import { EditUserDto } from './dto';
 import UserService from './user.service';
 import { AtGuard, RtGuard } from '../common/guards';
 import { GetCurrentUser } from '../common/decorators';
 import setCookieToken from '../auth/utils/setCookieToken';
-import { JwtPayloadWithRt } from '../auth/types';
+import type { JwtPayloadWithRt } from '../auth/types';
 import excludeFields from '../auth/utils/exludeFields';
 import { disableCache } from '../common/utils';
 
@@ -32,9 +32,9 @@ export default class UserController {
     user: UserWithTrainingSettings,
     @Res() response: Response
   ): void {
-    excludeFields(user, ['iat', 'exp']);
+    const userData = excludeFields(user, ['iat', 'exp']);
     disableCache(response);
-    response.json(user);
+    response.json(userData);
   }
 
   @Patch()

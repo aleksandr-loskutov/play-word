@@ -24,7 +24,7 @@ import {
 } from '../../../components/hooks/store';
 import createCn from '../../../utils/create-cn';
 import AddWordsModal from './modal';
-import {
+import type {
   RequestCollectionUpdate,
   WordForCollection,
 } from '../../../types/collection';

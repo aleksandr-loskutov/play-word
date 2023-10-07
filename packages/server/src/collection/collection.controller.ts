@@ -11,8 +11,8 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { Collection } from '@prisma/client';
-import { Response } from 'common';
+import type { Collection } from '@prisma/client';
+import type { Response } from 'common';
 import { AtGuard } from '../common/guards';
 import CollectionService from './collection.service';
 import { GetCurrentUserId, Public } from '../common/decorators';

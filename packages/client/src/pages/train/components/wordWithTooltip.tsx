@@ -1,4 +1,3 @@
-import React from 'react';
 import { Tooltip } from 'antd';
 import createCn from '../../../utils/create-cn';
 

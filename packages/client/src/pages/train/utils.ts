@@ -1,8 +1,8 @@
-import { UserWordProgress, WordStats } from '../../types/training';
-import { UserTrainingSettings } from '../../types/user';
+import type { UserWordProgress, WordStats } from '../../types/training';
+import type { UserTrainingSettings } from '../../types/user';
 
 function getWordsReadyForTraining(training: UserWordProgress[]): number {
-  if (training.length === 0) return 0;
+  if (training && training.length === 0) return 0;
   const now = new Date();
   const wordsReadyForTraining = training.filter(
     (word) => new Date(word.nextReview) <= now

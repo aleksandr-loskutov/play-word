@@ -12,7 +12,7 @@ import {
 } from 'antd';
 import { DeleteOutlined, InboxOutlined, PlusOutlined } from '@ant-design/icons';
 import Papa from 'papaparse';
-import { WordForCollection } from '../../../../types/collection';
+import type { WordForCollection } from '../../../../types/collection';
 import customNotification from '../../../../components/custom-notification/customNotification';
 import validateArrayForEmptyStringAndLength from '../../../../utils/validate-array';
 
@@ -160,7 +160,7 @@ function AddWordsModal({
                   title: 'Слово',
                   dataIndex: 'word',
                   key: 'word',
-                  render: (text, record, index) => (
+                  render: (text, _record, index) => (
                     <Input
                       value={text}
                       placeholder={index === 0 ? 'Apple' : ''}
@@ -177,7 +177,7 @@ function AddWordsModal({
                   title: 'Перевод',
                   dataIndex: 'translation',
                   key: 'translation',
-                  render: (text, record, index) => (
+                  render: (text, _record, index) => (
                     <Input
                       value={text}
                       placeholder={index === 0 ? 'Яблоко' : ''}

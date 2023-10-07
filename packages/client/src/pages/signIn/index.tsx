@@ -6,7 +6,7 @@ import signUpRules from '../signUp/validator';
 import './style.css';
 import { useAuth } from '../../components/hooks/auth';
 import customNotification from '../../components/custom-notification/customNotification';
-import { Nullable } from '../../types/common';
+import type { Nullable } from '../../types/common';
 
 type FormData = {
   email: string;

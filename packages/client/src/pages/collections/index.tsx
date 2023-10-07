@@ -8,7 +8,7 @@ import { useAppDispatch, useAppSelector } from '../../components/hooks/store';
 import { createCollection } from '../../store/action-creators/collection';
 import PageLoader from '../../components/page-loader';
 import WithAuth from '../../components/hoc/withAuth';
-import { AvatarSrcs, Collection } from '../../types/collection';
+import type { AvatarSrcs, Collection } from '../../types/collection';
 import customNotification from '../../components/custom-notification/customNotification';
 import CollectionCreateForm from './modal';
 import createImageFromInitials from '../../utils/image-from-string';

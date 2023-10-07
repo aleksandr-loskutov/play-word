@@ -1,10 +1,10 @@
 import BaseAPI from './base';
-import {
+import type {
   Collection,
   RequestCollectionCreate,
   RequestCollectionUpdate,
 } from '../types/collection';
-import {
+import type {
   RequestUserWordProgressUpdate,
   UserWordProgressResponse,
 } from '../types/training';

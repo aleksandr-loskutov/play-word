@@ -1,4 +1,4 @@
-import { Rule } from 'antd/lib/form';
+import type { Rule } from 'antd/lib/form';
 
 const TRAINING_INTERVAL_RULES = [
   { required: true, message: 'Введите значение интервала' },

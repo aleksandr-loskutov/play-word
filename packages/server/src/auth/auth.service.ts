@@ -6,11 +6,11 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
-import { UserWithTrainingSettings } from 'user';
+import type { UserWithTrainingSettings } from 'user';
 import PrismaService from '../prisma/prisma.service';
 
-import { AuthDto, SignUpDto, AuthResponse } from './dto';
-import { JwtPayload, Tokens } from './types';
+import type { AuthDto, SignUpDto, AuthResponse } from './dto';
+import type { JwtPayload, Tokens } from './types';
 import excludeFields from './utils/exludeFields';
 import { handleError } from '../common/utils';
 
@@ -53,8 +53,12 @@ export default class AuthService {
       });
       const tokens = await this.createTokens(userWithSettings);
       await this.updateRtHash(user.id, tokens.refreshToken);
-      excludeFields(userWithSettings, ['hash', 'hashedRt', 'updatedAt']);
-      return { user: userWithSettings, tokens };
+      const userData = excludeFields(userWithSettings, [
+        'hash',
+        'hashedRt',
+        'updatedAt',
+      ]);
+      return { user: userData, tokens };
     } catch (error: any) {
       handleError(error);
       throw new NotFoundException('Unknown error.');
@@ -79,8 +83,8 @@ export default class AuthService {
 
       const tokens = await this.createTokens(user);
       await this.updateRtHash(user.id, tokens.refreshToken);
-      excludeFields(user, ['hash', 'hashedRt', 'updatedAt']);
-      return { user, tokens };
+      const userData = excludeFields(user, ['hash', 'hashedRt', 'updatedAt']);
+      return { user: userData, tokens };
     } catch (error: any) {
       handleError(error);
       throw new NotFoundException('Unknown error.');
@@ -123,8 +127,8 @@ export default class AuthService {
 
       const tokens = await this.createTokens(user);
       await this.updateRtHash(user.id, tokens.refreshToken);
-      excludeFields(user, ['hash', 'hashedRt', 'updatedAt']);
-      return { user, tokens };
+      const userData = excludeFields(user, ['hash', 'hashedRt', 'updatedAt']);
+      return { user: userData, tokens };
     } catch (error: any) {
       handleError(error);
       throw new NotFoundException('Unknown error.');

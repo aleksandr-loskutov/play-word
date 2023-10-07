@@ -1,4 +1,4 @@
-import { Word } from '@prisma/client';
+import type { Word } from '@prisma/client';
 
 export type Translation = {
   id: number;

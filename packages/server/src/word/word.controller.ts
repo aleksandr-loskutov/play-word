@@ -1,11 +1,11 @@
 import { Controller, Get, Param, Post, Body, UseGuards } from '@nestjs/common';
-import { Response } from 'common';
+import type { Response } from 'common';
 import WordService from './word.service';
-import { WordDto } from './dto';
+import type { WordDto } from './dto';
 import { AtGuard } from '../common/guards';
 import { GetCurrentUserId } from '../common/decorators';
 import { validateArrayForEmptyStringAndLength } from '../common/utils';
-import { CollectionWithWords } from '../collection/dto';
+import type { CollectionWithWords } from '../collection/dto';
 
 @UseGuards(AtGuard)
 @Controller('word')

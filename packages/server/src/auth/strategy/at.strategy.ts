@@ -2,8 +2,8 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
-import { Request as RequestType } from 'express';
-import { JwtPayload } from '../types';
+import type { Request as RequestType } from 'express';
+import type { JwtPayload } from '../types';
 
 @Injectable()
 export default class AtStrategy extends PassportStrategy(Strategy, 'jwt') {

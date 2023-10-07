@@ -1,8 +1,8 @@
-import { PayloadAction } from '@reduxjs/toolkit';
-import { Nullable } from '../../../types/common';
-import { User } from '../../../types/user';
-import { Collection } from '../../../types/collection';
-import { UserWordProgress } from '../../../types/training';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { Nullable } from '../../../types/common';
+import type { User } from '../../../types/user';
+import type { Collection } from '../../../types/collection';
+import type { UserWordProgress } from '../../../types/training';
 
 export type LoadingState = {
   isLoading: Nullable<boolean>;

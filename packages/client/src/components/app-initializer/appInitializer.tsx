@@ -1,6 +1,5 @@
-import React from 'react';
 import { useAppSelector } from '../hooks/store';
-import { RootState } from '../../store';
+import type { RootState } from '../../store';
 import PageLoader from '../page-loader';
 import AppRouter from '../../router/router';
 import Layout from '../layout';

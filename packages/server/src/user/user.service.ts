@@ -5,12 +5,12 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import * as argon from 'argon2';
-import { UserWithTrainingSettings } from 'user';
+import type { UserWithTrainingSettings } from 'user';
 import PrismaService from '../prisma/prisma.service';
-import { EditUserDto, TrainingSettingsDto, UserDto } from './dto';
+import type { EditUserDto, TrainingSettingsDto, UserDto } from './dto';
 import excludeFields from '../auth/utils/exludeFields';
 import AuthService from '../auth/auth.service';
-import { Tokens } from '../auth/types';
+import type { Tokens } from '../auth/types';
 import { handleError } from '../common/utils';
 
 type CommonFields = keyof EditUserDto & keyof UserWithTrainingSettings;
@@ -93,8 +93,8 @@ export default class UserService {
         tokens = authRes.tokens;
       }
 
-      excludeFields(user, ['hash', 'hashedRt', 'updatedAt']);
-      return { user, tokens };
+      const userData = excludeFields(user, ['hash', 'hashedRt', 'updatedAt']);
+      return { user: userData, tokens };
     } catch (error: any) {
       handleError(error);
       throw new BadRequestException('Something went wrong');

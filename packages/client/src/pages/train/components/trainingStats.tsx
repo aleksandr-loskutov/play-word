@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import Title from 'antd/lib/typography/Title';
-import { WordStats } from '../../../types/training';
+import type { WordStats } from '../../../types/training';
 import TrainingStatsTable from './trainingStatsTable';
 import { useAuth } from '../../../components/hooks/auth';
 import createCn from '../../../utils/create-cn';

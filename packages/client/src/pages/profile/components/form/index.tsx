@@ -11,8 +11,8 @@ import {
 } from 'antd';
 import signUpRules from '../../../signUp/validator';
 import createCn from '../../../../utils/create-cn';
-import { RequestUserDataUpdate, User } from '../../../../types/user';
-import { Nullable } from '../../../../types/common';
+import type { RequestUserDataUpdate, User } from '../../../../types/user';
+import type { Nullable } from '../../../../types/common';
 import './style.css';
 import {
   TRAINING_COUNTDOWN_RULES,

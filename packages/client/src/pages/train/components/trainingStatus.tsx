@@ -1,6 +1,5 @@
-import React from 'react';
 import { Typography } from 'antd';
-import { UserWordProgress, WordInTraining } from '../../../types/training';
+import type { UserWordProgress, WordInTraining } from '../../../types/training';
 
 const { Paragraph } = Typography;
 

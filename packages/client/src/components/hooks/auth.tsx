@@ -6,11 +6,11 @@ import {
   signOut as logout,
   signUp as register,
 } from '../../store/action-creators/auth';
-import { User } from '../../types/user';
-import { Nullable } from '../../types/common';
-import { SignInDTO, SignUpDTO } from '../../types/auth';
+import type { User } from '../../types/user';
+import type { Nullable } from '../../types/common';
+import type { SignInDTO, SignUpDTO } from '../../types/auth';
 import { getTraining } from '../../store/action-creators/training';
-import { UserWordProgress } from '../../types/training';
+import type { UserWordProgress } from '../../types/training';
 import { setUserInitialized } from '../../store/reducers/user';
 
 type Props = {

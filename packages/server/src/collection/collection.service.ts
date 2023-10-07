@@ -4,12 +4,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Collection } from '@prisma/client';
-import { Response } from 'common';
+import type { Collection } from '@prisma/client';
+import type { Response } from 'common';
 import PrismaService from '../prisma/prisma.service';
 import calculateNextTrainingDate from './utils/calculateNextTrainingDate';
 
-import {
+import type {
   CollectionWithWords,
   RequestCollectionCreateDto,
   RequestCollectionUpdateDto,

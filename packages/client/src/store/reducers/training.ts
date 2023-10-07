@@ -12,7 +12,7 @@ import {
   setRejected,
   TrainingState,
 } from './common';
-import { UserWordProgress } from '../../types/training';
+import type { UserWordProgress } from '../../types/training';
 
 const initialState: TrainingState = {
   training: [],

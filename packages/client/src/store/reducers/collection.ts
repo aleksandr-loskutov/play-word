@@ -8,7 +8,7 @@ import {
 } from '../action-creators/collection';
 
 import { setPending, setRejected, CollectionState } from './common';
-import { Collection } from '../../types/collection';
+import type { Collection } from '../../types/collection';
 import { updateWordsInCollection } from '../action-creators/word';
 
 const initialState: CollectionState = {

@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Form, Input, Button, Alert } from 'antd';
 import { useNavigate } from 'react-router';
-import { Rule } from 'antd/lib/form';
+import type { Rule } from 'antd/lib/form';
 import { Link } from 'react-router-dom';
 import createCn from '../../utils/create-cn';
 import signUpRules from './validator';
 import './style.css';
 import { useAuth } from '../../components/hooks/auth';
-import { Nullable } from '../../types/common';
+import type { Nullable } from '../../types/common';
 import customNotification from '../../components/custom-notification/customNotification';
 
 type FormData = {

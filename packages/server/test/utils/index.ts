@@ -1,7 +1,7 @@
-import { JwtService } from '@nestjs/jwt';
-import { UserDto } from '../../src/user/dto';
+import type { JwtService } from '@nestjs/jwt';
+import type { UserDto } from '../../src/user/dto';
 import { mockSignUpDto } from '../mockData';
-import { Tokens } from '../../src/auth/types';
+import type { Tokens } from '../../src/auth/types';
 
 export function verifyAuthResponse(
   { body, headers }: { body: Partial<UserDto>; headers: any },

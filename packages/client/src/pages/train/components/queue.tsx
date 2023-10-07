@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { UserWordProgress, WordInTraining } from '../../../types/training';
+import type { UserWordProgress, WordInTraining } from '../../../types/training';
 import { reverseWordAndTranslation } from '../utils';
 
 const useQueue = (initialQueue: UserWordProgress[] = []) => {

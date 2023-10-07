@@ -2,7 +2,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import supertest from 'supertest';
 import { JwtService } from '@nestjs/jwt';
-import { UserWithTrainingSettings } from 'user';
+import type { UserWithTrainingSettings } from 'user';
 import AppModule from '../src/app.module';
 import PrismaService from '../src/prisma/prisma.service';
 import {
@@ -21,10 +21,9 @@ import {
   mockInvalidWordsForCollectionDto,
   mockWordsForCollectionDto,
 } from './mockData';
-import { UserDto } from '../src/user/dto';
-import { Tokens } from '../src/auth/types';
+import type { Tokens } from '../src/auth/types';
 import { generateRandomString } from '../src/common/utils';
-import { UserWordProgressExtended } from '../src/collection/dto';
+import type { UserWordProgressExtended } from '../src/collection/dto';
 import calculateNextTrainingDate from '../src/collection/utils/calculateNextTrainingDate';
 import { extractTokensFromCookies, verifyAuthResponse } from './utils';
 

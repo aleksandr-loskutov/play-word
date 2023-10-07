@@ -9,12 +9,11 @@ import {
   Get,
 } from '@nestjs/common';
 
-import { Response } from 'express';
-import { UserWithTrainingSettings } from 'user';
+import type { Response } from 'express';
 import { Public, GetCurrentUserId, GetCurrentUser } from '../common/decorators';
 import { AtGuard, RtGuard } from '../common/guards';
 import AuthService from './auth.service';
-import { AuthDto, SignUpDto, AuthResponse } from './dto';
+import { AuthDto, SignUpDto } from './dto';
 import setCookieToken from './utils/setCookieToken';
 import { disableCache } from '../common/utils';
 

@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import UserAPI from '../../api/user';
 import AuthAPI from '../../api/auth';
-import { SignInDTO, SignUpDTO } from '../../types/auth';
+import type { SignInDTO, SignUpDTO } from '../../types/auth';
 import handleAPICall from '../../utils/handle-API-call';
 
 // Fetch User

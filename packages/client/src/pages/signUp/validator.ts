@@ -1,5 +1,5 @@
-import { Rule } from 'antd/lib/form';
-import { Indexable } from '../../types/common';
+import type { Rule } from 'antd/lib/form';
+import type { Indexable } from '../../types/common';
 
 const CIRILLIC_OR_LATIN_REGEXP = /^[a-zA-Zа-яА-ЯёЁ][a-zA-Zа-яА-ЯёЁ-]*$/g;
 const CHECK_NUMBER_REGEXP = /(?=.*\d)/;

@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import type { Response } from 'express';
 
 function disableCache(res: Response): void {
   res.setHeader(

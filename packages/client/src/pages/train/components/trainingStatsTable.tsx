@@ -1,5 +1,5 @@
 import { Col, Progress, Row, Table, Typography } from 'antd';
-import { TrainingStats } from '../../../types/training';
+import type { TrainingStats } from '../../../types/training';
 import createCn from '../../../utils/create-cn';
 
 const { Paragraph } = Typography;

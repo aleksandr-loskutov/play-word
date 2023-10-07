@@ -6,7 +6,7 @@ import { useAuth } from '../../components/hooks/auth';
 import { updateTraining } from '../../store/action-creators/training';
 import { transformUserProgressToUpdateRequest } from '../../utils/transform-user-progress';
 import { sortUserWordProgressByDate } from './utils';
-import { UserWordProgress, WordStats } from '../../types/training';
+import type { UserWordProgress, WordStats } from '../../types/training';
 import { TrainingStats, TrainingStart } from './components';
 import WithAuth from '../../components/hoc/withAuth';
 import customNotification from '../../components/custom-notification/customNotification';

@@ -7,8 +7,8 @@ import {
   IsString,
   Length,
 } from 'class-validator';
-import { Collection, UserWordProgress, Word } from '@prisma/client';
-import { TranslationWithWord } from 'word';
+import type { Collection, UserWordProgress, Word } from '@prisma/client';
+import type { TranslationWithWord } from 'word';
 
 export class CollectionDto {
   @IsNotEmpty()

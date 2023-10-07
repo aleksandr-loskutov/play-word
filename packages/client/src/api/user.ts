@@ -1,5 +1,5 @@
-import { ApiResponse } from '../types/api';
-import { User, RequestUserDataUpdate } from '../types/user';
+import type { ApiResponse } from '../types/api';
+import type { User, RequestUserDataUpdate } from '../types/user';
 import BaseAPI from './base';
 
 class UserAPI extends BaseAPI {

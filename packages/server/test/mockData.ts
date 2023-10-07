@@ -1,12 +1,12 @@
-import { UserTrainingSettings } from '@prisma/client';
-import { SignUpDto } from '../src/auth/dto';
-import { EditUserDto } from '../src/user/dto';
-import {
+import type { UserTrainingSettings } from '@prisma/client';
+import type { SignUpDto } from '../src/auth/dto';
+import type { EditUserDto } from '../src/user/dto';
+import type {
   RequestCollectionCreateDto,
   RequestUserTrainingUpdate,
 } from '../src/collection/dto';
 import { generateRandomString } from '../src/common/utils';
-import { WordDto } from '../src/word/dto';
+import type { WordDto } from '../src/word/dto';
 
 const mockSignUpDto: SignUpDto = {
   email: 'aleksandr@fakemail.com',

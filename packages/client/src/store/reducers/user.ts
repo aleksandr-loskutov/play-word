@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { User } from '../../types/user';
+import type { User } from '../../types/user';
 import { updateProfile, updateProfileAvatar } from '../action-creators/profile';
 import { fetchUser, signIn, signOut, signUp } from '../action-creators/auth';
 import { setFulfilled, setPending, setRejected, UserState } from './common';

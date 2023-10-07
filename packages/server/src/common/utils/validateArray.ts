@@ -1,5 +1,5 @@
 import { BadRequestException } from '@nestjs/common';
-import { RequestUserTrainingUpdate } from '../../collection/dto';
+import type { RequestUserTrainingUpdate } from '../../collection/dto';
 
 // we should use class-validator here, but for now we use this
 function validateArrayForEmptyStringAndLength(

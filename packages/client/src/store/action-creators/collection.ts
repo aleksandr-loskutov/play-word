@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import CollectionsAPI from '../../api/collections';
-import {
+import type {
   RequestCollectionCreate,
   RequestCollectionUpdate,
 } from '../../types/collection';

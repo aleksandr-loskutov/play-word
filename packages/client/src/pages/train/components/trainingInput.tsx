@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Input, InputRef, Space } from 'antd';
-import { UserWordProgress, WordStats } from '../../../types/training';
+import type { UserWordProgress, WordStats } from '../../../types/training';
 import {
   KEY_MAPPINGS,
   TRAINING_SETTINGS,

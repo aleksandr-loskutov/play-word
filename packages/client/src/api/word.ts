@@ -1,5 +1,5 @@
 import BaseAPI from './base';
-import { WordForCollection, Collection } from '../types/collection';
+import type { WordForCollection, Collection } from '../types/collection';
 
 class WordAPI extends BaseAPI {
   constructor() {

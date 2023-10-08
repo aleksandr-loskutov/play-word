@@ -1,27 +1,45 @@
-ARG NODE_VERSION=16
-ARG SERVER_PORT=3001
+# Builder stage
+FROM node:18.14.0-buster AS builder
 
-FROM node:$NODE_VERSION-buster as base
+ARG HOST
+ARG CLIENT_PORT
+ARG SERVER_PORT
+ARG DATABASE_URL
+ARG AT_SECRET
+ARG RT_SECRET
+
+# Set environment variables from arguments
+ENV HOST=${HOST}
+ENV CLIENT_PORT=${CLIENT_PORT}
+ENV SERVER_PORT=${SERVER_PORT}
+ENV DATABASE_URL=${DATABASE_URL}
+ENV AT_SECRET=${AT_SECRET}
+ENV RT_SECRET=${RT_SECRET}
 
 WORKDIR /app
 
-FROM base as builder
-
-COPY package.json yarn.lock
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
-
 COPY . .
-
 RUN yarn lerna bootstrap
-RUN rm -rf /app/packages/server/dist/ && yarn build --scope=server
+RUN rm -rf /app/packages/server/dist/
+RUN yarn workspace server prisma generate
+RUN yarn workspace server build
 
+# Production stage
+FROM node:18.14.0-buster-slim
 
-FROM node:$NODE_VERSION-buster-slim as production
+RUN apt update && apt install libssl-dev dumb-init -y --no-install-recommends
+
 WORKDIR /app
 
-COPY --from=builder /app/packages/server/dist/ /app/
+COPY --from=builder /app/packages/server/dist /app
 COPY --from=builder /app/packages/server/package.json /app/package.json
-RUN yarn install --production=true
+RUN yarn install --production
+COPY --from=builder /app/node_modules/.prisma/client /app/node_modules/.prisma/client
+COPY --from=builder /app/packages/server/prisma/schema.prisma /app/prisma/schema.prisma
+COPY --from=builder /app/packages/server/prisma/migrations /app/prisma/migrations
 
-EXPOSE $SERVER_PORT
-CMD [ "node", "/app/index.js" ]
+ARG SERVER_PORT
+EXPOSE ${SERVER_PORT}
+CMD ["dumb-init", "sh", "-c", "yarn run prisma:dev:deploy && node src/main.js"]

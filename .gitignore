@@ -38,3 +38,5 @@ lerna-debug.log*
 .env
 .env.test
 tmp
+database
+database-dev

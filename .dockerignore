@@ -1,0 +1,48 @@
+.dockerignore   # Ignore the ignore
+
+# Ignore node modules
+**/node_modules
+**/node_modules/**
+
+npm-debug.log   # Debug files
+Dockerfile      # The dockerfile
+.git            # The git history
+.gitignore      #
+.npmrc          # If accessing a private npm repository here will be the token used, so ignore to prevent leaking
+
+# Ignore local environment variables
+.env
+.env.*
+.env-*          # Any other environment that we don't want to include
+
+.github         # Using github actions ?
+*.md            # Any
+
+# IDE specific
+.idea/
+.vscode/
+
+# Ignore logs
+**/logs
+*.log
+*.log.*
+
+# Ignore test and development files
+**/__tests__
+**/__mocks__
+*.test.*
+*.spec.*
+
+# Ignore Git history
+.git
+.gitignore
+
+# Ignore other unnecessary files
+.DS_Store
+npm-debug.log
+yarn-error.log
+*.pem
+*.md
+
+# Lerna
+lerna-debug.log

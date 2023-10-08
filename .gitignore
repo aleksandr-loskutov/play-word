@@ -36,7 +36,6 @@ lerna-debug.log*
 
 #Rest
 .env
-.env.test
 tmp
 database
 database-dev

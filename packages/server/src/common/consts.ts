@@ -20,5 +20,4 @@ export const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   secure: IS_PROD,
   sameSite: 'strict',
-  domain: `.${HOST}`,
 };

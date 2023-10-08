@@ -46,3 +46,10 @@ yarn-error.log
 
 # Lerna
 lerna-debug.log
+
+# Rest
+entrypoint.sh
+db-test.js
+Dockerfile.debug
+Dockerfile.prisma.debug
+test-prisma-connection.js

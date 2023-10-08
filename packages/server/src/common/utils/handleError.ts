@@ -4,7 +4,7 @@ import {
   BadRequestException,
   HttpException,
 } from '@nestjs/common';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
 function handleError(error: any, customMessage?: string): never {
   // Prisma error handling

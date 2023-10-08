@@ -6,13 +6,13 @@ type Props = {
 };
 
 class ErrorBoundary extends Component<Props> {
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     const { navigate } = this.props;
     navigate('/error');
     console.error('Uncaught error:', error, errorInfo);
   }
 
-  render() {
+  override render() {
     const { children } = this.props;
 
     return children;

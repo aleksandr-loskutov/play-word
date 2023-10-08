@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 import axios from 'axios';
-import { ApiResponse, ResponseFormat } from '../types/api';
+import type { ApiResponse, ResponseFormat } from '../types/api';
 import CONSTS from './consts';
-import { User } from '../types/user';
+import type { User } from '../types/user';
 
 type RequestOptions<T> = {
   method: string;
@@ -12,7 +12,7 @@ type RequestOptions<T> = {
 };
 
 const axiosInstance = axios.create({
-  baseURL: CONSTS.APP_URL,
+  baseURL: CONSTS.APP_API_URL,
 });
 
 axiosInstance.interceptors.response.use(
@@ -26,10 +26,9 @@ axiosInstance.interceptors.response.use(
       !error.config._isRetry
     ) {
       originalRequest._isRetry = true;
-      await axios.get<User>(
-        `${CONSTS.APP_URL}${CONSTS.API_PATH}/auth/refresh`,
-        { withCredentials: true }
-      );
+      await axios.get<User>(`${CONSTS.APP_API_URL}/auth/refresh`, {
+        withCredentials: true,
+      });
       return axiosInstance.request(originalRequest);
     }
 

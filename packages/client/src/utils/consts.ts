@@ -1,25 +1,21 @@
-import { Indexable } from '../types/common';
+const HOST_ENV = __HOST__; // from vite.config.ts
+const IS_DEV = HOST_ENV === 'localhost' ? true : __IS_DEV__; // for testing production containers on localhost
+const IS_PROD = !IS_DEV;
+const CLIENT_PORT = __CLIENT_PORT__;
+const SERVER_PORT = __SERVER_PORT__;
+// build app url
+const HOST = IS_PROD ? HOST_ENV : 'localhost';
+const IS_HTTPS = IS_PROD;
+const PROTOCOL = IS_HTTPS ? 'https' : 'http';
+const URL = `${PROTOCOL}://${HOST}`;
+const APP_URL = `${URL}${IS_PROD ? '' : `:${CLIENT_PORT}`}`;
+// build api url
+const API_PREFIX = '/api';
+const APP_API_URL = IS_PROD
+  ? `${PROTOCOL}://api.${HOST}`
+  : `${URL}:${SERVER_PORT}${API_PREFIX}`;
 
-const APP_URL = 'http://localhost:3001';
-
-const API_PATH = '/api';
-const IS_PRODUCTION = process.env.NODE_ENV === 'production';
-const PROD_URL = 'https://prod.online';
-const DEV_URL = `http://localhost:${__CLIENT_PORT__}`;
-const AVATAR_PLACEHOLDER =
-  'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
-// OAuth providers
-export const OAUTH_PROVIDERS: Indexable<any> = {
-  yandex: {
-    name: 'Yandex',
-    serviceUrl:
-      'https://oauth.yandex.ru/authorize?response_type=code&client_id=',
-    signInURI: '',
-    getServiceIdURI: '',
-    redirectURI: IS_PRODUCTION ? PROD_URL : DEV_URL,
-  },
-};
-//  Local storage keys
+// local storage keys
 export enum Locals {
   OAUTH_PROVIDER = 'oauth-provider',
 }
@@ -89,12 +85,7 @@ const THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS: string[] = [
 
 export default {
   APP_URL,
-  API_PATH,
-  OAUTH_PROVIDERS,
-  IS_PRODUCTION,
-  PROD_URL,
-  DEV_URL,
-  AVATAR_PLACEHOLDER,
+  APP_API_URL,
   THEME_CUSTOM_CSS_PROPS,
   THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS,
   PALETTE,

@@ -16,7 +16,7 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=15"
+    "node": ">=18"
   },
   "devDependencies": {
     "lerna": "5.4.3"

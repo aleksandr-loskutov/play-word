@@ -23,3 +23,6 @@ jobs:
         run: yarn lint
       - name: Test
         run: yarn test
+      - name: Cleanup test db
+        if: always()
+        run: yarn lerna run db:test:rm --scope server || true

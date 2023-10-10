@@ -1,0 +1,40 @@
+name: Deploy
+on:
+  workflow_run:
+    workflows: ["Lint&Test"]
+    types:
+      - completed
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: stopping & removing old containers if exist
+        run: docker compose down --remove-orphans || true
+      - uses: actions/checkout@v3
+      - name: set env var for new docker containers postfix
+        run: echo "short_sha=`echo ${{ github.sha }} | cut -c1-8`" >> $GITHUB_ENV
+      - name: Make envfile
+        uses: SpicyPizza/create-envfile@v1.3
+        with:
+          envkey_HOST: ${{ secrets.HOST }}
+          envkey_CLIENT_PORT: ${{ secrets.CLIENT_PORT }}
+          envkey_SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          envkey_REPOSITORY_NAME: ${{ github.event.repository.name }}
+          envkey_SHORT_SHA: ${{ env.short_sha }}
+          envkey_POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          envkey_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          envkey_POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          envkey_POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+          envkey_POSTGRES_PATH: ${{ secrets.POSTGRES_PATH }}
+          envkey_AT_SECRET:  ${{ secrets.AT_SECRET }}
+          envkey_RT_SECRET:  ${{ secrets.RT_SECRET }}
+          file_name: .env
+          fail_on_empty: true
+      - name: create external postgres volume folder if its not exist
+        run: mkdir -p ${{ secrets.POSTGRES_PATH }}
+      - name: Install main deps
+        run: yarn
+      - name: Initialize
+        run: yarn lerna bootstrap
+      - name: building containers & starting it
+        run: docker compose up -d --build

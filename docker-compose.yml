@@ -50,7 +50,7 @@ services:
   postgres:
     networks:
       playword:
-    container_name: postgres
+    container_name: postgres-${REPOSITORY_NAME}
     image: postgres:14
     ports:
       - "${POSTGRES_PORT}:5432"

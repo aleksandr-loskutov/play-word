@@ -1,17 +1,33 @@
 name: Deploy
 on:
-  workflow_run:
-    workflows: [Lint&Test]
-    types:
-      - completed
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - '**/README.md'
 jobs:
   deploy:
     runs-on: self-hosted
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Install Yarn
+        run: npm install -g yarn
+      - name: Install main deps
+        run: yarn
+      - name: Initialize
+        run: yarn lerna bootstrap
+      - name: Lint
+        run: yarn lint
+      - name: Test
+        run: yarn test
+      - name: Cleanup test db
+        if: always()
+        run: yarn lerna run db:test:rm --scope server || true
       - name: stopping & removing old containers if exist
         run: docker compose down --remove-orphans || true
-      - uses: actions/checkout@v3
       - name: set env var for new docker containers postfix
         run: echo "short_sha=`echo ${{ github.sha }} | cut -c1-8`" >> $GITHUB_ENV
       - name: Make envfile
@@ -33,9 +49,5 @@ jobs:
           fail_on_empty: true
       - name: create external postgres volume folder if its not exist
         run: mkdir -p ${{ secrets.POSTGRES_PATH }}
-      - name: Install main deps
-        run: yarn
-      - name: Initialize
-        run: yarn lerna bootstrap
       - name: building containers & starting it
         run: docker compose up -d --build

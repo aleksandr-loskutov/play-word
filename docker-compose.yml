@@ -20,7 +20,7 @@ services:
     networks:
       playword:
     depends_on:
-      - postgres
+      - postgresdb
     container_name: server-${REPOSITORY_NAME}
     image: server-${REPOSITORY_NAME}
     build:
@@ -47,7 +47,7 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
-  postgres:
+  postgresdb:
     networks:
       playword:
     container_name: postgres-${REPOSITORY_NAME}

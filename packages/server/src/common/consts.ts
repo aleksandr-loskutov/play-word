@@ -14,7 +14,7 @@ export const IS_HTTPS = IS_PROD;
 export const PROTOCOL = IS_HTTPS ? 'https' : 'http';
 export const URL = `${PROTOCOL}://${HOST}`;
 export const APP_URL = `${URL}${IS_PROD ? '' : `:${CLIENT_PORT}`}`;
-export const API_PREFIX = '/api';
+export const API_PREFIX = IS_PROD ? '' : '/api';
 
 export const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,

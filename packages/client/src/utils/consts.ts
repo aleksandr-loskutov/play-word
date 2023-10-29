@@ -20,6 +20,12 @@ export enum Locals {
   OAUTH_PROVIDER = 'oauth-provider',
 }
 
+// other consts
+const DEMO_VIDEO_POSTER_URL =
+  'https://files.aleksandrl.ru/sites/playword/demo-video-poster.png';
+const DEMO_VIDEO_URL =
+  'https://files.aleksandrl.ru/sites/playword/demo-video.webm';
+
 const PALETTE = {
   primary: '#45f3ff',
   secondary: '#1b8aab',
@@ -90,4 +96,6 @@ export default {
   THEME_COMPONENTS_WITH_CUSTOM_CSS_PROPS,
   PALETTE,
   NOTIFICATION_SHADOWS,
+  DEMO_VIDEO_POSTER_URL,
+  DEMO_VIDEO_URL,
 };

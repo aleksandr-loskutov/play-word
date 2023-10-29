@@ -9,7 +9,7 @@
     @mixin box-shadow;
     max-width: 350px;
     margin: 0 auto;
-    background-color: var(--surface);
+    background: var(--background);
 
     &-image {
       display: block;

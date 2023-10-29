@@ -46,7 +46,7 @@ function ProfilePage(): React.ReactElement {
   return (
     <section className={cn('')}>
       <Title level={2} className="title">
-        Профиль
+        <span className="title-highlight">Настройки</span>
       </Title>
       <ProfileForm user={user} error={error} onSubmit={handleFormSubmit} />
     </section>

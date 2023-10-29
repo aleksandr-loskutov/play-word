@@ -230,7 +230,7 @@ function CollectionPage(): React.ReactElement {
                 level={2}
                 className={cn('title title')}
                 onClick={() => handleTitleClick()}>
-                {collection.name}
+                <span className="title-highlight">{collection.name}</span>
               </Title>
             </Tooltip>
             <Modal

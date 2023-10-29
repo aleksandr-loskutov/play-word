@@ -104,7 +104,7 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
               {
                 label: (
                   <Link to="/profile">
-                    <SettingOutlined /> Профиль
+                    <SettingOutlined /> Настройки
                   </Link>
                 ),
                 key: 'profile',
@@ -160,10 +160,11 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
           <Row
             justify="space-around"
             align="middle"
-            className="footer-container">
-            <Col span={3}>PlayWord.ru</Col>
-            <Col span={2}>FAQ</Col>
-            <Col span={3}>О проекте</Col>
+            className="footer-container"
+            gutter={[10, 10]}>
+            <Col>PlayWord.ru</Col>
+            <Col>FAQ</Col>
+            <Col>О проекте</Col>
           </Row>
         </Footer>
       </div>

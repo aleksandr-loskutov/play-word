@@ -1,12 +1,12 @@
 import { Avatar, Card, Carousel, Col, Row, Space } from 'antd';
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { chunk } from 'lodash';
 import createCn from '../../../../utils/create-cn';
 import type { Collection, AvatarSrcs } from '../../../../types/collection';
 import './style.css';
 import PageLoader from '../../../../components/page-loader';
 import createImageFromInitials from '../../../../utils/image-from-string';
+import chunkArray from '../../../../utils/chunkArray';
 
 const cn = createCn('collection-carousel');
 
@@ -27,7 +27,7 @@ function CollectionCarousel({
   );
 
   const chunkedCollections = useMemo(
-    () => chunk(collections, 3),
+    () => chunkArray(collections, 3),
     [collections]
   );
 
@@ -39,7 +39,7 @@ function CollectionCarousel({
     <Carousel dots={false} infinite autoplay className={cn('')}>
       {chunkedCollections.map((chunk, index) => (
         <Row
-          key={index}
+          key={`${index + chunk[0].id}`}
           justify="center"
           align="middle"
           className={cn('slide')}

@@ -27,6 +27,8 @@ async function bootstrap() {
           connectSrc: ["'self'", APP_URL],
         },
       },
+
+      referrerPolicy: { policy: 'no-referrer-when-downgrade' },
       crossOriginResourcePolicy: { policy: 'same-site' },
       crossOriginEmbedderPolicy: { policy: 'require-corp' },
     })

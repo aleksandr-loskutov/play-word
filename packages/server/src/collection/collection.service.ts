@@ -111,14 +111,29 @@ export default class CollectionService {
     userId: number
   ): Promise<Response<Collection>> {
     try {
+      const collection = await this.prisma.collection.findUnique({
+        where: { id: collectionId },
+        select: { name: true },
+      });
+
+      if (!collection) {
+        throw new NotFoundException('Коллекция не найдена');
+      }
+
       const isOwner = await this.isUserOwnsCollection(userId, collectionId);
       if (!isOwner) {
         throw new ForbiddenException('Доступ запрещен');
       }
 
+      const newName = `${collection.name}_deleted`;
+
       const deletedCollection = await this.prisma.collection.update({
         where: { id: collectionId },
-        data: { deleted: true, isPublic: false },
+        data: {
+          deleted: true,
+          isPublic: false,
+          name: newName,
+        },
       });
 
       return deletedCollection;

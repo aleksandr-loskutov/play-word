@@ -1,9 +1,13 @@
 @import '../../../../components/layout/mixins.css';
+
 .profile-form {
+
   &__box {
-    margin: 0 auto;
-    @mixin box-style 550px, 1080px;
+    @mixin responsive-box 550px, 0px;
+    @mixin box-style;
+    @mixin box-shadow var(--background);
   }
+
 
   @mixin form-style;
 }

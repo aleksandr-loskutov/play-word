@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Header,
   HttpCode,
   HttpStatus,
   Param,
@@ -115,6 +116,7 @@ export default class CollectionController {
 
   @Public()
   @Get('/public')
+  @Header('Cache-Control', 'public, max-age=3600')
   @HttpCode(HttpStatus.OK)
   getPublicCollections(): Promise<Response<Collection[]>> {
     return this.collectionService.getPublicCollections();

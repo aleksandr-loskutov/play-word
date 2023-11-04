@@ -4,7 +4,7 @@ services:
   client:
     networks:
       playword:
-    container_name: client-${REPOSITORY_NAME}${SHORT_SHA}
+    container_name: client-${REPOSITORY_NAME}
     image: client-${REPOSITORY_NAME}
     build:
       context: .
@@ -20,8 +20,8 @@ services:
     networks:
       playword:
     depends_on:
-      - postgres
-    container_name: server-${REPOSITORY_NAME}${SHORT_SHA}
+      - postgresdb
+    container_name: server-${REPOSITORY_NAME}
     image: server-${REPOSITORY_NAME}
     build:
       context: .
@@ -47,10 +47,10 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_PORT=${POSTGRES_PORT}
-  postgres:
+  postgresdb:
     networks:
       playword:
-    container_name: postgres
+    container_name: postgres-${REPOSITORY_NAME}
     image: postgres:14
     ports:
       - "${POSTGRES_PORT}:5432"

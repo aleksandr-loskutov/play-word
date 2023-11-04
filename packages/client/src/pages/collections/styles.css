@@ -1,28 +1,33 @@
 @import '../../components/layout/mixins.css';
 
 .collections-page {
+
+  &__actions {
+    margin-bottom: 15px;
+  }
+
   &__box {
-    @mixin box-style calc(100% - 4px), calc(100% - 4px);
+    @mixin box-style;
     @mixin box-shadow;
     &:hover {
       box-shadow: none;
+      margin: -2px;
+      padding: 2px;
     }
   }
 
   &__card {
+    position: relative;
+    border-radius: 8px;
+    z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: var(--surface);
-    z-index: 10;
+    background: var(--background);
 
     &:hover {
-      inset: 2px;
-      border-radius: 8px;
-      z-index: 11;
-      max-width: calc(100% - 4px);
-      max-height: calc(100% - 4px);
+      box-shadow: none;
     }
 
     & span {

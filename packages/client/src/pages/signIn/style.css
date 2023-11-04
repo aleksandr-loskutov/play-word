@@ -1,9 +1,11 @@
 @import '../../components/layout/mixins.css';
 
 .sign-in {
-  margin: 0 auto;
+  @mixin responsive-box;
+
   &__box {
-    @mixin box-style 380px, 400px;
+    @mixin box-style;
+    @mixin box-shadow var(--background);
   }
   @mixin form-style;
 }

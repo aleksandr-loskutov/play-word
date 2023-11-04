@@ -1,12 +1,10 @@
 @import 'variables.css';
 
-@define-mixin box-style $width, $height, $border-radius: 8px {
+@define-mixin box-style $width: auto, $height: auto, $border-radius: 8px {
   position: relative;
-  width: $width;
-  height: $height;
+  min-width: $width;
   border-radius: $border-radius;
   overflow: hidden;
-  max-width: $width;
 
   &::before,
   &::after {
@@ -16,6 +14,7 @@
     left: -50%;
     width: 100%;
     height: 100%;
+    z-index: 0;
     background: linear-gradient(
       0deg,
       transparent,
@@ -55,10 +54,10 @@
 
 @define-mixin form-style {
   &__form {
-    position: absolute;
-    inset: 2px;
+    position: relative;
+    margin: 2px;
     border-radius: 8px;
-    z-index: 10;
+    z-index: 1;
     background: var(--surface);
     padding: 40px 40px;
     display: flex;
@@ -86,19 +85,27 @@
 
   &__form-items {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     align-items: baseline;
     width: 100%;
     column-gap: 10px;
     row-gap: 1px;
+
+    @media screen and (min-width: 768px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
 
   &__form-divider {
-    grid-column: span 2;
+    grid-column: span 1;
+    @media screen and (min-width: 768px) {
+      grid-column: span 2;
+    }
   }
 
   &__form-item {
     margin: 0;
+
   }
 
   &__form-item-input-number {
@@ -115,6 +122,30 @@
   }
 }
 
-@define-mixin box-shadow {
-  box-shadow: 0 0 4px var(--primary), 0 0 1px var(--primary);
+@define-mixin box-shadow $color: var(--primary){
+  box-shadow: 0 0 4px $color, 0 0 1px $color;
+}
+
+@define-mixin responsive-box $maxWidth: 400px, $padding: 20px{
+
+  margin: 15px auto;
+  width: 90%;
+  max-width: $maxWidth;
+  padding: $padding;
+
+  @media screen and (min-width: 576px) {
+    width: 80%;
+  }
+
+  @media screen and (min-width: 768px) {
+    width: 70%;
+  }
+
+  @media screen and (min-width: 992px) {
+    width: 60%;
+  }
+
+  @media screen and (min-width: 1200px) {
+    width: 50%;
+  }
 }

@@ -56,7 +56,10 @@ function SignUpPage(): JSX.Element {
           layout="vertical"
           initialValues={{ remember: true }}
           onFinish={handleSubmit}>
-          <h1 className={cn('form-title')}>Регистрация</h1>
+          <h1 className={cn('form-title')}>
+            {' '}
+            <span className="title-highlight">Регистрация</span>
+          </h1>
           <Form.Item
             className={cn('form-item')}
             label="Почта"

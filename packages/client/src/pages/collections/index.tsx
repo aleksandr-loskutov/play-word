@@ -60,13 +60,13 @@ function CollectionsPage(): JSX.Element {
     return <PageLoader />;
   }
 
-  if (collections.length > 0) {
-    return (
-      <section className={cn('')}>
-        <Title level={2} className="title">
-          Коллекции слов
-        </Title>
-        <Space direction="vertical" align="center">
+  return (
+    <section className={cn('')}>
+      <Title level={2} className="title">
+        <span className="title-highlight">Коллекции слов</span>
+      </Title>
+      <Row className={cn('actions')} justify="center" align="middle">
+        <Col>
           <Button
             type="primary"
             icon={<PlusOutlined />}
@@ -75,55 +75,51 @@ function CollectionsPage(): JSX.Element {
             }}>
             Добавить коллекцию
           </Button>
+        </Col>
+      </Row>
 
-          <CollectionCreateForm
-            open={open}
-            onCreate={onCreate}
-            onCancel={() => {
-              setOpen(false);
-            }}
-          />
-          <Row gutter={[10, 15]} justify="center">
-            {collections.map((collection) => (
-              <Col
-                key={collection.id}
-                xs={{ span: 24 }}
-                sm={{ span: 12 }}
-                md={{ span: 8 }}
-                lg={{ span: 6 }}>
-                <Link
-                  to={`/collections/${collection.id}`}
-                  style={{ textDecoration: 'none' }}>
-                  <div className={cn('box')}>
-                    <Card className={cn('card')} bordered={false}>
-                      <Space direction="vertical" align="center" size={1}>
-                        <span className={cn('card-name')}>
-                          {collection.name}
-                        </span>
-                        <Avatar
-                          shape="square"
-                          className={cn('card-image')}
-                          src={avatarSrcs[collection.id]}
-                        />
-                        <span className={cn('card-description')}>
-                          {collection.description || 'нет описания'}
-                        </span>
-                        <span className={cn('card-words-count')}>
-                          Слов: {collection.words.length || 0}
-                        </span>
-                      </Space>
-                    </Card>
-                  </div>
-                </Link>
-              </Col>
-            ))}
-          </Row>
-        </Space>
-      </section>
-    );
-  }
-
-  return <Title className="title">Нет коллекций</Title>;
+      <CollectionCreateForm
+        open={open}
+        onCreate={onCreate}
+        onCancel={() => {
+          setOpen(false);
+        }}
+      />
+      <Row gutter={[10, 15]} justify="center" className={cn('collections')}>
+        {collections.map((collection) => (
+          <Col
+            key={collection.id}
+            xs={{ span: 24 }}
+            sm={{ span: 12 }}
+            md={{ span: 8 }}
+            lg={{ span: 6 }}>
+            <Link
+              to={`/collections/${collection.id}`}
+              style={{ textDecoration: 'none' }}>
+              <div className={cn('box')}>
+                <Card className={cn('card')} bordered={false}>
+                  <Space direction="vertical" align="center" size={1}>
+                    <span className={cn('card-name')}>{collection.name}</span>
+                    <Avatar
+                      shape="square"
+                      className={cn('card-image')}
+                      src={avatarSrcs[collection.id]}
+                    />
+                    <span className={cn('card-description')}>
+                      {collection.description || 'нет описания'}
+                    </span>
+                    <span className={cn('card-words-count')}>
+                      Слов: {collection.words.length || 0}
+                    </span>
+                  </Space>
+                </Card>
+              </div>
+            </Link>
+          </Col>
+        ))}
+      </Row>
+    </section>
+  );
 }
 
 export default WithAuth(CollectionsPage);

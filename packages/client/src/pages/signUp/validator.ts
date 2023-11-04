@@ -24,7 +24,7 @@ const signUpRules: Indexable<Rule[]> = {
 
   password: [
     {
-      required: false,
+      required: true,
       message: 'Введите пароль',
     },
     { min: 8, message: 'Не менее 8 символов' },

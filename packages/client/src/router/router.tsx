@@ -7,12 +7,13 @@ import ErrorBoundary from '../components/error-boundary';
 import ErrorPage from '../pages/error';
 import NotFoundPage from '../pages/notFound';
 import CollectionsLayout from '../pages/collections/layout';
+import MainPage from '../pages/main';
 
 function AppRouter() {
   return (
     <ErrorBoundary>
       <Routes>
-        <Route path="/" element={<TrainPage />} />
+        <Route path="/" element={<MainPage />} />
         <Route path="/sign-in" element={<SignInPage />} />
         <Route path="/sign-up" element={<SignUpPage />} />
         <Route path="/profile" element={<ProfilePage />} />

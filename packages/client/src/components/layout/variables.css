@@ -16,5 +16,8 @@
   --onSuccess: #ffffff;
   --onWarning: #000000;
   --onInfo: #ffffff;
+
   --backgroundSpecial: rgba(27, 138, 171, 0.4);
+  --primarySpecial: rgba(69, 243, 255, 0.5);
+  --surfaceSpecial: rgba(31, 31, 31, 0.4);
 }

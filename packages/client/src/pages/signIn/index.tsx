@@ -56,10 +56,13 @@ function SignInPage(): JSX.Element {
           onFinish={handleFormFinish}
           layout="vertical"
           autoComplete="off">
-          <h1 className={cn('form-title')}>Вход</h1>
+          <h1 className={cn('form-title')}>
+            <span className="title-highlight">Вход</span>
+          </h1>
           <Form.Item
             className={cn('form-item')}
-            label="Email"
+            label="Почта"
+            required
             name="email"
             rules={signUpRules.email}>
             <Input />
@@ -67,7 +70,8 @@ function SignInPage(): JSX.Element {
 
           <Form.Item
             className={cn('form-item')}
-            label="Password"
+            label="Пароль"
+            required
             name="password"
             rules={signUpRules.password}>
             <Input.Password />

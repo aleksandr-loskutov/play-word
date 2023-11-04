@@ -27,7 +27,7 @@ function CollectionCarousel({
   );
 
   const chunkedCollections = useMemo(
-    () => chunkArray(collections, 3),
+    () => chunkArray(collections, 2),
     [collections]
   );
 

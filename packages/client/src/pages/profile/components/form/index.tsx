@@ -33,6 +33,7 @@ const cn = createCn('profile-form');
 
 function ProfileForm({ user, error, onSubmit }: ProfileFormProps) {
   const [form] = Form.useForm();
+  // todo remove temp. lang setting from here and make it on backend
   const initialValues = {
     ...user,
     language: 'english',

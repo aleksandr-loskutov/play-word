@@ -2,10 +2,9 @@
 
 @define-mixin box-style $width: auto, $height: auto, $border-radius: 8px {
   position: relative;
-  width: $width;
+  min-width: $width;
   border-radius: $border-radius;
   overflow: hidden;
-  margin:5px;
 
   &::before,
   &::after {
@@ -123,6 +122,30 @@
   }
 }
 
-@define-mixin box-shadow {
-  box-shadow: 0 0 4px var(--primary), 0 0 1px var(--primary);
+@define-mixin box-shadow $color: var(--primary){
+  box-shadow: 0 0 4px $color, 0 0 1px $color;
+}
+
+@define-mixin responsive-box $maxWidth: 400px, $padding: 20px{
+
+  margin: 15px auto;
+  width: 90%;
+  max-width: $maxWidth;
+  padding: $padding;
+
+  @media screen and (min-width: 576px) {
+    width: 80%;
+  }
+
+  @media screen and (min-width: 768px) {
+    width: 70%;
+  }
+
+  @media screen and (min-width: 992px) {
+    width: 60%;
+  }
+
+  @media screen and (min-width: 1200px) {
+    width: 50%;
+  }
 }

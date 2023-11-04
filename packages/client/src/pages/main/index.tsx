@@ -129,15 +129,20 @@ function MainPage(): React.ReactElement {
             preload="none"
             poster={DEMO_VIDEO_POSTER_URL}
             className={cn('demo-video')}>
+            <track kind="captions" />
             <source src={DEMO_VIDEO_URL} type="video/webm" />
             Ваш браузер не поддерживает video тег.
           </video>
         </Col>
       </Row>
-      <Title level={2} className={cn('title')}>
-        Изучай то, что интересно
-      </Title>
-      <CollectionCarousel collections={publicCollections || []} />
+      {isLoaded && publicCollections?.length > 0 && (
+        <>
+          <Title level={2} className={cn('title')}>
+            Изучай то, что интересно
+          </Title>
+          <CollectionCarousel collections={publicCollections} />
+        </>
+      )}
     </section>
   );
 }

@@ -6,7 +6,7 @@ import type { Collection, AvatarSrcs } from '../../../../types/collection';
 import './style.css';
 import PageLoader from '../../../../components/page-loader';
 import createImageFromInitials from '../../../../utils/image-from-string';
-import chunkArray from '../../../../utils/chunkArray';
+import chunkArray from '../../../../utils/chunk-array';
 
 const cn = createCn('collection-carousel');
 

@@ -3,7 +3,7 @@
     &__custom-card {
         margin-top: 20px;
         width: 100%;
-        height: 175px;
+        min-height: 150px;
         color: var(--onSurface);
         font-size: 1rem;
         text-align: center;

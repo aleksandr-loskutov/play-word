@@ -4,13 +4,13 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   AppstoreOutlined,
   BookOutlined,
-  HomeOutlined,
   LoginOutlined,
   LogoutOutlined,
   SettingOutlined,
   UserAddOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+
 import { useAuth } from '../hooks/auth';
 import createCn from '../../utils/create-cn';
 import './style.css';
@@ -58,7 +58,13 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
       {
         label: (
           <Link to="/">
-            <HomeOutlined /> PlayWord
+            <div className={cn('logo-container')}>
+              <img
+                src="/img/logo/logo-transparent.svg"
+                alt="Logo"
+                className={cn('logo')}
+              />
+            </div>
           </Link>
         ),
         key: 'home',

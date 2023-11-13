@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Input, InputRef, Space } from 'antd';
+import { Col, Input, InputRef, Row, Space } from 'antd';
 import type { UserWordProgress, WordStats } from '../../../types/training';
 import {
   KEY_MAPPINGS,
@@ -18,6 +18,9 @@ import {
 } from './index';
 import { getWordStats } from '../utils';
 import BeamHighlight from './beamHighlight';
+import useIsMobile from '../../../components/hooks/isMobile';
+import VirtualKeyboard from './virtualKeyboard';
+import getKeycode from '../../../utils/get-keycode';
 
 const { successWordShowTime, errorLetterShowTime } = TRAINING_SETTINGS;
 
@@ -56,6 +59,7 @@ function TrainingInput({
   } = useQueue();
   const isZeroStage = currentWord?.sessionStage === 0;
   const isLoaded = user && currentWord && !isLoading && !isLoadingTraining;
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (initialQueue.length > 0 && isEmptyQueue()) {
@@ -216,7 +220,11 @@ function TrainingInput({
 
   const handleKeyPress = (event: KeyboardEvent) => {
     const pressedKey = event.key.toLowerCase();
-    const keyCode = event.code;
+    let keyCode: string | undefined = event.code;
+    if (keyCode === '') {
+      keyCode = getKeycode(pressedKey);
+    }
+    if (!keyCode) return;
 
     if (keyCode === 'Backspace' && !lockInput) {
       backspaceEmulation();
@@ -309,64 +317,83 @@ function TrainingInput({
   const isWordNew = peekQueue()?.stage === 0;
 
   return isLoaded ? (
-    <div className={cn('input-wrapper')}>
-      <WordWithTooltip
-        word={currentWord.word}
-        collectionName={collectionName}
-        showCollectionNameHint={user.trainingSettings.showCollectionNameHint}
-        isWordNew={isWordNew}
-      />
-      <div style={{ position: 'relative', marginTop: 15 }}>
-        <Input
-          placeholder="перевод"
-          value={inputValue}
-          disabled={lockInput}
-          className={cn(`train-input ${inputClassName}`)}
-          ref={inputRef}
-          autoFocus
-          bordered={false}
+    <Row className={cn('input-components-row')} gutter={[20, 20]}>
+      <Col span={24}>
+        <WordWithTooltip
+          word={currentWord.word}
+          collectionName={collectionName}
+          showCollectionNameHint={user.trainingSettings.showCollectionNameHint}
+          isWordNew={isWordNew}
         />
-        <BeamHighlight animate={inputClassName === 'correct'} />
-        {useCountDown && (
-          <Countdown
-            key={resetKey}
-            seconds={timerSeconds}
-            onComplete={handleTimerComplete}
+      </Col>
+      <Col span={24}>
+        <div className={cn(`train-input-box`)}>
+          <Input
+            placeholder="перевод"
+            value={inputValue}
+            disabled={lockInput}
+            className={cn(`train-input ${inputClassName}`)}
+            ref={inputRef}
+            autoFocus
+            bordered={false}
+            readOnly
           />
-        )}
-      </div>
-      <Space direction="horizontal" size={10}>
-        <WordPlayer
-          word={currentWord.word}
-          lang={synthSpeechLang}
-          autoPlay={user.trainingSettings.synthVoiceAutoStart}
-          play={false}
+          <BeamHighlight animate={inputClassName === 'correct'} />
+          {useCountDown && (
+            <Countdown
+              key={resetKey}
+              seconds={timerSeconds}
+              onComplete={handleTimerComplete}
+            />
+          )}
+        </div>
+      </Col>
+      {isMobile && !isZeroStage && (
+        <Col span={24}>
+          <div className={cn(`virtual-keyboard-box`)}>
+            <VirtualKeyboard
+              word={currentWord.translation}
+              inputValue={inputValue}
+            />
+          </div>
+        </Col>
+      )}
+      <Col span={24}>
+        <Space direction="horizontal" size={10}>
+          <WordPlayer
+            word={currentWord.word}
+            lang={synthSpeechLang}
+            autoPlay={user.trainingSettings.synthVoiceAutoStart}
+            play={false}
+          />
+          <SpeechRecognizer
+            word={currentWord.word}
+            onResult={handleSpeech}
+            lang={userSpeechLang}
+            autoStart={user.trainingSettings.speechRecognizerAutoStart}
+            isReady={useSpeechRecognizer}
+          />
+        </Space>
+      </Col>
+      <Col span={24}>
+        <ActionButtons
+          word={currentWord}
+          onLearnedButtonClick={handleLearned}
+          onNextButtonClick={handleNextButtonClick}
+          showAnswer={showAnswer}
+          resultingProgress={resultingProgress}
+          onFinishTraining={handleFinishTraining}
         />
-        <SpeechRecognizer
-          word={currentWord.word}
-          onResult={handleSpeech}
-          lang={userSpeechLang}
-          autoStart={user.trainingSettings.speechRecognizerAutoStart}
-          isReady={useSpeechRecognizer}
+      </Col>
+      <Col span={24}>
+        <TrainingStatus
+          resultingProgress={resultingProgress}
+          queue={queue}
+          word={currentWord}
+          totalErrorsCount={totalErrorsCount}
         />
-      </Space>
-      <br />
-      <ActionButtons
-        word={currentWord}
-        onLearnedButtonClick={handleLearned}
-        onNextButtonClick={handleNextButtonClick}
-        showAnswer={showAnswer}
-        resultingProgress={resultingProgress}
-        onFinishTraining={handleFinishTraining}
-      />
-      <br /> <br />
-      <TrainingStatus
-        resultingProgress={resultingProgress}
-        queue={queue}
-        word={currentWord}
-        totalErrorsCount={totalErrorsCount}
-      />
-    </div>
+      </Col>
+    </Row>
   ) : null;
 }
 

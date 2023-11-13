@@ -5,11 +5,24 @@
     min-height: 100vh;
     font-family: 'Roboto', sans-serif;
     background-color: var(--background);
-    background-image: url('/background.svg');
+    background-image: url('/img/common/background.svg');
     background-repeat: repeat;
 
     @media screen and (max-width: 1024px) {
         background-image:none;
+    }
+
+    &__logo-container{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+    }
+
+    &__logo{
+        max-width: 100px;
+        height: auto;
+        display: block;
     }
 
     &__header {

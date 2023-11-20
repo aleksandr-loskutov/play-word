@@ -21,6 +21,7 @@ import {
   TRAINING_MISTYPE_RULES,
   TRAINING_WORDS_PER_SESSION_RULES,
 } from './validator';
+import useIsMobile from '../../../../components/hooks/isMobile';
 
 const { Option } = Select;
 
@@ -40,13 +41,15 @@ function ProfileForm({ user, error, onSubmit }: ProfileFormProps) {
   };
 
   const [isFormTouched, setIsFormTouched] = useState(false);
+  const isDesktop = !useIsMobile();
 
   const handleFormChange = () => {
     setIsFormTouched(form.isFieldsTouched());
   };
+  const boxStyle = cn(`box`, { lights: isDesktop });
 
   return (
-    <div className={cn('box')}>
+    <div className={boxStyle}>
       <Form
         form={form}
         layout="vertical"

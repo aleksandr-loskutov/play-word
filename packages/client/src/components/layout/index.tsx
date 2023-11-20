@@ -162,7 +162,7 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
           </div>
         </Header>
         <Content className={cn('content-container')}>{children}</Content>
-        <Footer style={{ textAlign: 'center' }} className={cn('footer footer')}>
+        <Footer className={cn('footer footer')}>
           <Row
             justify="space-around"
             align="middle"

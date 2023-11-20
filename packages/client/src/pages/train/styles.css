@@ -67,6 +67,14 @@
         padding: 3px 3px;
         border-radius: 5px;
     }
+
+    &__stats-box {
+        overflow-x: auto;
+
+        h3 {
+            color: #b0b0b0;
+        }
+    }
 }
 
 .correct {

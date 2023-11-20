@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from 'antd';
 import { AudioOutlined } from '@ant-design/icons';
-import customNotification from '../../../components/custom-notification/customNotification';
 
 type SpeechRecognitionProps = {
   lang: string;
@@ -11,6 +10,8 @@ type SpeechRecognitionProps = {
   word: string;
 };
 
+const isSpeechRecognitionSupported = 'webkitSpeechRecognition' in window;
+
 function SpeechRecognizer({
   lang,
   onResult,
@@ -19,17 +20,10 @@ function SpeechRecognizer({
   word,
 }: SpeechRecognitionProps): React.ReactElement {
   const [isListening, setIsListening] = useState<boolean>(false);
-  // const [transcript, setTranscript] = useState<string>('');
   const recognitionRef = useRef<typeof window.webkitSpeechRecognition>(null);
 
   useEffect(() => {
-    // Check for browser compatibility
-    if (!('webkitSpeechRecognition' in window)) {
-      customNotification({
-        message: 'Ошибка!',
-        description: 'Ваш браузер не поддерживает распознавание речи',
-        type: 'error',
-      });
+    if (!isSpeechRecognitionSupported) {
       return;
     }
     // eslint-disable-next-line new-cap
@@ -42,12 +36,9 @@ function SpeechRecognizer({
       resultIndex: any;
       results: string | any[];
     }) => {
-      // let interim_transcript = '';
       for (let i = event.resultIndex; i < event.results.length; i += 1) {
         const { transcript } = event.results[i][0];
         if (event.results[i].isFinal) {
-          // setTranscript(transcript);
-          // setTranscript((prevTranscript) => prevTranscript + ' ' + transcript);
           if (onResult) {
             onResult(transcript);
           }
@@ -101,14 +92,17 @@ function SpeechRecognizer({
   if (isReady) {
     buttonType = isListening ? 'primary' : 'default';
   }
+  const title = isSpeechRecognitionSupported
+    ? `распознать речь`
+    : 'распознавание речи не поддерживается вашим браузером';
 
   return (
     <Button
       size="large"
-      title="распознать речь"
+      title={title}
       icon={<AudioOutlined />}
       onClick={handleToggle}
-      disabled={!isReady}
+      disabled={!isSpeechRecognitionSupported || !isReady}
       type={buttonType}
     />
   );

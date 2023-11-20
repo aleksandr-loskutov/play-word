@@ -64,9 +64,13 @@ function AddWordsModal({
 
   const handleOk = () => {
     // Filter out empty rows
-    const validWords = words.filter(
-      (row) => row.word !== '' && row.translation !== ''
-    );
+    const validWords = words
+      .filter((row) => row.word !== '' && row.translation !== '')
+      .map((row) => ({
+        ...row,
+        word: row.word.trim(),
+        translation: row.translation.trim(),
+      }));
     // we are temporarily is not using antd form validation
     const isValid = validateArrayForEmptyStringAndLength(validWords, [
       'word',

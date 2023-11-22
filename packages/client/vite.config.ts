@@ -35,21 +35,19 @@ export default defineConfig(({ command, mode }) => {
     plugins: [
       react(),
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
         devOptions: {
           enabled: isDevelopment,
         },
         includeAssets: [
-          'robots.txt',
-          'img/common/apple-touch-icon.png',
-          'img/common/icon.svg',
-          'img/common/background.svg',
-          'img/logo/logo-transparent.svg',
+          '/img/common/apple-touch-icon.png',
+          '/img/common/icon.svg',
+          '/img/common/background.svg',
+          '/img/logo/logo-transparent.svg',
+          '/favicon.ico',
         ],
         workbox: {
-          globPatterns: [
-            '**/*.{js,css,html,ico,png,svg,ttf,eot,woff,woff2,json,mp3}',
-          ],
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,eot,woff}'],
         },
         manifest: {
           name: 'PlayWord',

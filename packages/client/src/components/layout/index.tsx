@@ -16,6 +16,7 @@ import createCn from '../../utils/create-cn';
 import './style.css';
 
 import { getWordsReadyForTraining } from '../../pages/train/utils';
+import ReloadPrompt from '../reload-prompt';
 
 const { Header, Content, Footer } = Layout;
 const cn = createCn('layout');
@@ -161,7 +162,10 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
             />
           </div>
         </Header>
-        <Content className={cn('content-container')}>{children}</Content>
+        <Content className={cn('content-container')}>
+          <ReloadPrompt />
+          {children}
+        </Content>
         <Footer className={cn('footer footer')}>
           <Row
             justify="space-around"

@@ -1,0 +1,14 @@
+.reload-prompt {
+    margin: 5px;
+
+    &__alert {
+        justify-content: space-between;
+        gap: 10px;
+        background-color: var(--surface);
+        border-color: var(--primarySpecial);
+
+        .anticon {
+            color: var(--primarySpecial);
+        }
+    }
+}

@@ -44,7 +44,6 @@ export default defineConfig(({ command, mode }) => {
           '/img/common/icon.svg',
           '/img/common/background.svg',
           '/img/logo/logo-transparent.svg',
-          '/favicon.ico',
         ],
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,ttf,eot,woff}'],

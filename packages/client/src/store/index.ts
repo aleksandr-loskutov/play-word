@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import userReducer from './reducers/user';
 import collectionsReducer from './reducers/collection';
 import trainingReducer from './reducers/training';
+import CONSTS from '../utils/consts';
 
 export const store = configureStore({
   reducer: {
@@ -9,7 +10,7 @@ export const store = configureStore({
     collections: collectionsReducer,
     training: trainingReducer,
   },
-  devTools: true,
+  devTools: CONSTS.IS_DEV,
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -1,6 +1,6 @@
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { Alert, Button, Col, Row } from 'antd';
-import { useRegisterSW, RegisterSWOptions } from 'virtual:pwa-register/react';
+import { useRegisterSW } from 'virtual:pwa-register/react';
 import createCn from '../../utils/create-cn';
 import './style.css';
 
@@ -10,14 +10,7 @@ function ReloadPrompt(): React.ReactElement {
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     updateServiceWorker,
-  } = useRegisterSW({
-    onRegistered: (r: ServiceWorkerRegistration | undefined) => {
-      console.log(`SW Registered: ${r}`);
-    },
-    onRegisterError: (error: any) => {
-      console.log('SW registration error', error);
-    },
-  } as RegisterSWOptions);
+  } = useRegisterSW();
 
   const close = (): void => {
     setNeedRefresh(false);

@@ -5,7 +5,7 @@
     flex-direction: column;
     justify-content: center;
     text-align: center;
-    margin: 40px 10px;
+    margin: 30px 10px;
 
     &__train-input-box {
         position: relative;
@@ -70,10 +70,13 @@
 
     &__stats-box {
         overflow-x: auto;
-
         h3 {
             color: #b0b0b0;
         }
+    }
+
+    &__stats-action-box {
+        margin-top: 15px;
     }
 }
 

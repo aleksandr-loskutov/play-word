@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import Title from 'antd/lib/typography/Title';
-import { Col, Row } from 'antd';
+import { Button, Col, Row } from 'antd';
 import type { WordStats } from '../../../types/training';
 import TrainingStatsTable from './trainingStatsTable';
 import { useAuth } from '../../../components/hooks/auth';
@@ -10,11 +10,13 @@ import '../styles.css';
 
 type TrainingStatsProps = {
   trainingStats: WordStats[];
+  handleStartTraining: () => void;
 };
 const cn = createCn('train-page');
 
 function TrainingStats({
   trainingStats,
+  handleStartTraining,
 }: TrainingStatsProps): React.ReactElement | null {
   const { training } = useAuth();
   const extraStats = useMemo(
@@ -37,6 +39,13 @@ function TrainingStats({
           extraStats={extraStats}
         />
       </Col>
+      {training.length > 0 && (
+        <Col span={24} className={cn('stats-action-box')}>
+          <Button type="primary" onClick={handleStartTraining}>
+            Продолжить тренировку
+          </Button>
+        </Col>
+      )}
     </Row>
   ) : null;
 }

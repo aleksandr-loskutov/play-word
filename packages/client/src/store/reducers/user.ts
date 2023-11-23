@@ -9,6 +9,7 @@ const initialState: UserState = {
   isLoading: null,
   isLoggedIn: false,
   error: null,
+  isInTraining: false,
   isInitialized: false,
 };
 
@@ -33,6 +34,9 @@ const userSlice = createSlice({
     },
     setUserInitialized(state: UserState) {
       state.isInitialized = true;
+    },
+    setInTraining(state: UserState, action: PayloadAction<boolean>) {
+      state.isInTraining = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -85,6 +89,7 @@ export const {
   removeUser,
   updateUser,
   setUserInitialized,
+  setInTraining,
 } = userSlice.actions;
 
 export default userSlice.reducer;

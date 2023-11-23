@@ -12,6 +12,7 @@ export type LoadingState = {
 export type UserState = LoadingState & {
   user: Nullable<User>;
   isLoggedIn: boolean;
+  isInTraining: boolean;
   isInitialized: boolean;
 };
 

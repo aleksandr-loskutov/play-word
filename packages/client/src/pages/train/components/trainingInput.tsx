@@ -17,7 +17,7 @@ import {
   WordWithTooltip,
 } from './index';
 import { getWordStats } from '../utils';
-import useIsMobile from '../../../components/hooks/isMobile';
+import useScreenSize from '../../../components/hooks/screenSize';
 import VirtualKeyboard from './virtualKeyboard';
 import getKeycode from '../../../utils/get-keycode';
 
@@ -58,7 +58,7 @@ function TrainingInput({
   } = useQueue();
   const isZeroStage = currentWord?.sessionStage === 0;
   const isLoaded = user && currentWord && !isLoading && !isLoadingTraining;
-  const isMobile = useIsMobile();
+  const { isMobile } = useScreenSize();
 
   useEffect(() => {
     if (initialQueue.length > 0 && isEmptyQueue()) {
@@ -333,7 +333,6 @@ function TrainingInput({
             disabled={lockInput}
             className={cn(`train-input ${inputClassName}`)}
             ref={inputRef}
-            autoFocus
             bordered={false}
             readOnly
           />

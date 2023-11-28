@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import useScreenSize from '../../../components/hooks/screenSize';
 
 type CountdownProps = {
   seconds: number;
@@ -11,14 +12,8 @@ function Countdown({
 }: CountdownProps): React.ReactElement {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState(seconds);
-  const [dimensions, setDimensions] = useState<{
-    width: number;
-    height: number;
-  }>({ width: 0, height: 0 });
-
-  useEffect(() => {
-    setRemainingSeconds(seconds);
-  }, [seconds]);
+  const { screenWidth } = useScreenSize();
+  const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -26,16 +21,19 @@ function Countdown({
 
     const parentContainer = canvas.parentNode as HTMLElement;
     const rect = parentContainer.getBoundingClientRect();
-
     setDimensions({
       width: rect.width,
       height: rect.height,
     });
-  }, []);
+  }, [screenWidth]);
 
   useEffect(() => {
+    if (remainingSeconds <= 0) {
+      return;
+    }
+
     const canvas = canvasRef.current;
-    if (!canvas || remainingSeconds <= 0) return;
+    if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
@@ -54,10 +52,8 @@ function Countdown({
 
     const draw = () => {
       const progress = 1 - remainingSeconds / seconds;
-
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.globalAlpha = 0.1;
-
       const currentWidth = canvas.width * progress;
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, currentWidth, canvas.height);

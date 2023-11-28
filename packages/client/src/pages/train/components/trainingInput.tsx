@@ -17,7 +17,6 @@ import {
   WordWithTooltip,
 } from './index';
 import { getWordStats } from '../utils';
-import BeamHighlight from './beamHighlight';
 import useIsMobile from '../../../components/hooks/isMobile';
 import VirtualKeyboard from './virtualKeyboard';
 import getKeycode from '../../../utils/get-keycode';
@@ -338,7 +337,6 @@ function TrainingInput({
             bordered={false}
             readOnly
           />
-          <BeamHighlight animate={inputClassName === 'correct'} />
           {useCountDown && (
             <Countdown
               key={resetKey}

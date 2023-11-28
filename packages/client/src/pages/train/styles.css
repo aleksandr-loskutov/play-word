@@ -81,7 +81,7 @@
 }
 
 .correct {
-    @mixin disabled-style var(--primary);
+    @mixin disabled-style var(--succesSpecial);
 }
 
 .incorrect {

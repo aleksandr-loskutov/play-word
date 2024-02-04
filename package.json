@@ -20,5 +20,9 @@
   },
   "devDependencies": {
     "lerna": "5.4.3"
+  },
+  "volta": {
+    "node": "18.14.0",
+    "yarn": "1.22.19"
   }
 }

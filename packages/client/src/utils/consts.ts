@@ -98,4 +98,5 @@ export default {
   NOTIFICATION_SHADOWS,
   DEMO_VIDEO_POSTER_URL,
   DEMO_VIDEO_URL,
+  IS_DEV,
 };

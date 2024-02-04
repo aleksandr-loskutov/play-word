@@ -87,6 +87,7 @@ function TrainingStatsTable({
       columns={columns}
       pagination={false}
       rowKey={(record) => record.word}
+      size="large"
       caption={renderExtraHeader()}
     />
   ) : null;

@@ -8,7 +8,9 @@ const cn = createCn('error-page');
 function ErrorPage() {
   return (
     <section className={cn()}>
-      <Typography.Title>Что-то пошло не так</Typography.Title>
+      <Typography.Title className="title" level={1}>
+        что-то пошло не так
+      </Typography.Title>
       <Link to="/">
         <Button type="primary">На главную</Button>
       </Link>

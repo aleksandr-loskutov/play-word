@@ -16,7 +16,7 @@ const cn = createCn('train-page');
 
 function TrainPage() {
   const dispatch = useAppDispatch();
-  const { user, training } = useAuth();
+  const { user, training, setIsInTraining } = useAuth();
   const [queue, setQueue] = useState<UserWordProgress[]>([]);
   const [trainingStats, setTrainingStats] = useState<WordStats[]>([]);
 
@@ -47,6 +47,7 @@ function TrainPage() {
         if (resultingProgress.length > 0 && stats.length > 0) {
           setTrainingStats(stats);
         }
+        setIsInTraining(false);
       });
   };
 
@@ -57,6 +58,8 @@ function TrainPage() {
       user.trainingSettings.wordsPerSession
     );
     setQueue(sortedAndSlicedProgress);
+    setIsInTraining(true);
+    setTrainingStats([]);
   };
 
   return (
@@ -68,7 +71,10 @@ function TrainPage() {
         <TrainingInput initialQueue={queue} onFinish={handleFinishTraining} />
       )}
       {trainingStats.length > 0 && (
-        <TrainingStats trainingStats={trainingStats} />
+        <TrainingStats
+          trainingStats={trainingStats}
+          handleStartTraining={handleStartTraining}
+        />
       )}
     </section>
   );

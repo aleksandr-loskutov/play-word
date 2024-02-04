@@ -1,68 +1,81 @@
 @define-mixin train-input-style $color {
-  color: $color;
-  display: block;
-  font-size: inherit;
-  font-family: inherit;
-  text-transform: uppercase;
-  text-align: center;
-  @mixin input-background;
-
-  @mixin border-style $color;
-  box-shadow: 0 0 10px var(--primary), 0 0 1px var(--primary); /* Add glow */
-
-  &:focus {
-    @mixin border-style $color;
-    box-shadow: 0 0 10px var(--primary), 0 0 1px var(--primary);
-  }
-  &:hover {
-    @mixin border-style $color;
-    box-shadow: 0 0 10px var(--primary), 0 0 1px var(--primary);
-  }
-
-  &::placeholder {
     color: $color;
-    opacity: 0.2;
+    display: block;
+    font-size: 3rem;
+    font-family: inherit;
     text-transform: uppercase;
     text-align: center;
-    font-size: inherit;
-  }
+    margin: 0 auto;
+    width: 100%;
+
+    @mixin input-background;
+    @mixin border-style $color;
+    box-shadow: 0 0 10px var(--primary), 0 0 1px var(--primary); /* Add glow */
+    &:focus {
+        @mixin border-style $color;
+        box-shadow: 0 0 10px var(--primary), 0 0 1px var(--primary);
+    }
+
+    &:hover {
+        @mixin border-style $color;
+        box-shadow: 0 0 10px var(--primary), 0 0 1px var(--primary);
+    }
+
+    &::placeholder {
+        color: $color;
+        opacity: 0.2;
+        text-transform: uppercase;
+        text-align: center;
+    }
 }
 
 @define-mixin border-style $color {
-  border-color: $color;
-  border-bottom: 0px solid $color;
-  border-radius: 0;
-  border-top-style: none;
-  border-right-style: none;
-  border-left-style: none;
-
-  &:focus {
+    border-color: $color;
+    border-bottom: 0px solid $color;
+    border-radius: 0;
     border-top-style: none;
     border-right-style: none;
     border-left-style: none;
-  }
-  &:hover {
-    border-color: $color;
-  }
+
+    &:focus {
+        border-top-style: none;
+        border-right-style: none;
+        border-left-style: none;
+    }
+
+    &:hover {
+        border-color: $color;
+    }
 }
 
 @define-mixin disabled-style $color {
-  &:disabled {
-    font-size: inherit;
-    color: $color;
-    opacity: 0.7;
-    cursor: not-allowed;
-    @mixin border-style $color;
-    box-shadow: 0 0 10px var(--primary), 0 0 1px var(--primary); /* Add glow */
-    @mixin input-background;
-  }
+    &:disabled {
+        color: $color;
+        opacity: 0.7;
+        cursor: not-allowed;
+        @mixin border-style $color;
+        box-shadow: 0 0 10px var(--primary), 0 0 1px var(--primary); /* Add glow */
+        @mixin input-background;
+    }
 }
 
 @define-mixin input-background {
-  background: linear-gradient(
-    to right,
-    var(--backgroundSpecial),
-    var(--background) 50%,
-    var(--backgroundSpecial)
-  );
+    background: linear-gradient(
+            to right,
+            var(--backgroundSpecial),
+            var(--background) 50%,
+            var(--backgroundSpecial)
+    );
+}
+
+@define-mixin train-input-media-queries {
+    @media screen and (min-width: 576px) {
+        width: 85%;
+    }
+    @media screen and (min-width: 768px) {
+        width: 75%;
+    }
+    @media screen and (min-width: 992px) {
+        width: 65%;
+    }
 }

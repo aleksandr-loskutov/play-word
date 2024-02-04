@@ -1,4 +1,5 @@
 import React, { useEffect, useContext, createContext } from 'react';
+import { useLocation } from 'react-router';
 import { useAppDispatch, useAppSelector } from './store';
 import {
   fetchUser,
@@ -11,7 +12,7 @@ import type { Nullable } from '../../types/common';
 import type { SignInDTO, SignUpDTO } from '../../types/auth';
 import { getTraining } from '../../store/action-creators/training';
 import type { UserWordProgress } from '../../types/training';
-import { setUserInitialized } from '../../store/reducers/user';
+import { setUserInitialized, setInTraining } from '../../store/reducers/user';
 
 type Props = {
   children: React.ReactNode;
@@ -27,6 +28,8 @@ type AuthContextProps = {
   isLoggedIn: boolean;
   isLoadingTraining: boolean | null;
   training: UserWordProgress[];
+  isInTraining: boolean;
+  setIsInTraining: (isTraining: boolean) => void;
   errorTraining: string | null;
 };
 
@@ -35,8 +38,9 @@ export const useAuth = () => useContext(authContext);
 
 function useAuthProvider() {
   const dispatch = useAppDispatch();
+  const location = useLocation();
 
-  const { user, error, isLoading, isLoggedIn } = useAppSelector(
+  const { user, error, isLoading, isLoggedIn, isInTraining } = useAppSelector(
     (state) => state.user
   );
   const {
@@ -58,6 +62,22 @@ function useAuthProvider() {
   }, [user]);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      if (user && !isLoadingTraining && !isInTraining) {
+        dispatch(getTraining());
+      }
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, [user, isLoadingTraining, isInTraining, dispatch]);
+
+  useEffect(() => {
+    if (isInTraining) {
+      dispatch(setInTraining(false));
+    }
+  }, [location]);
+
+  useEffect(() => {
     if (!user && isLoading === null) {
       dispatch(fetchUser()).finally(() => {
         dispatch(setUserInitialized());
@@ -66,6 +86,9 @@ function useAuthProvider() {
       dispatch(setUserInitialized());
     }
   }, []);
+
+  const setIsInTraining = (isTraining: boolean) =>
+    dispatch(setInTraining(isTraining));
 
   return {
     user,
@@ -78,6 +101,8 @@ function useAuthProvider() {
     training,
     errorTraining,
     isLoadingTraining,
+    isInTraining,
+    setIsInTraining,
   };
 }
 

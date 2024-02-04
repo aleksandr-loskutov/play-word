@@ -4,8 +4,10 @@
 
   &__box {
     @mixin responsive-box 550px, 0px;
-    @mixin box-style;
     @mixin box-shadow var(--background);
+    &_lights {
+      @mixin box-style;
+    }
   }
 
 

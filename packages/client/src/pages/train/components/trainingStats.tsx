@@ -1,18 +1,22 @@
 import React, { useMemo } from 'react';
 import Title from 'antd/lib/typography/Title';
+import { Button, Col, Row } from 'antd';
 import type { WordStats } from '../../../types/training';
 import TrainingStatsTable from './trainingStatsTable';
 import { useAuth } from '../../../components/hooks/auth';
 import createCn from '../../../utils/create-cn';
 import { getTotalTimeSpent } from '../utils';
+import '../styles.css';
 
 type TrainingStatsProps = {
   trainingStats: WordStats[];
+  handleStartTraining: () => void;
 };
 const cn = createCn('train-page');
 
 function TrainingStats({
   trainingStats,
+  handleStartTraining,
 }: TrainingStatsProps): React.ReactElement | null {
   const { training } = useAuth();
   const extraStats = useMemo(
@@ -27,15 +31,22 @@ function TrainingStats({
   );
 
   return trainingStats.length > 0 ? (
-    <div className={cn()}>
-      <Title level={2} className={cn('title')} style={{ color: 'white' }}>
-        Результаты тренировки
-      </Title>
-      <TrainingStatsTable
-        trainingStats={trainingStats}
-        extraStats={extraStats}
-      />
-    </div>
+    <Row className={cn()}>
+      <Col span={24} className={cn('stats-box')}>
+        <Title level={3}>Результаты тренировки</Title>
+        <TrainingStatsTable
+          trainingStats={trainingStats}
+          extraStats={extraStats}
+        />
+      </Col>
+      {training.length > 0 && (
+        <Col span={24} className={cn('stats-action-box')}>
+          <Button type="primary" onClick={handleStartTraining}>
+            Продолжить тренировку
+          </Button>
+        </Col>
+      )}
+    </Row>
   ) : null;
 }
 

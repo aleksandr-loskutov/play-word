@@ -1,11 +1,12 @@
 import { useRef, useEffect, useState } from 'react';
+import CONSTS from '../../../utils/consts';
 
 type BeamHighlightProps = {
   animate: boolean;
   speed?: number;
 };
 
-function BeamHighlight({ animate, speed = 1000 }: BeamHighlightProps) {
+function BeamHighlight({ animate, speed = 3000 }: BeamHighlightProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [dimensions, setDimensions] = useState<{
     width: number;
@@ -33,72 +34,54 @@ function BeamHighlight({ animate, speed = 1000 }: BeamHighlightProps) {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let start: number | null = null;
+    let startTime: number | null = null;
     let animationFrameId: number;
 
-    const gradient = ctx.createLinearGradient(
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-    gradient.addColorStop(0, 'rgba(69,243,255,0)');
-    gradient.addColorStop(0.25, 'rgba(69,243,255,0.51)');
-    gradient.addColorStop(0.5, '#45f3ff');
-    gradient.addColorStop(0.75, '#33bccd');
-    gradient.addColorStop(1, '#1b8aab');
+    const beamColor = CONSTS.PALETTE.primary;
+    const duration = speed; // Duration of the animation in milliseconds
 
-    const draw = (timestamp: number) => {
-      if (start === null) start = timestamp;
-      const progress = (timestamp - start) / speed;
+    const drawBeams = (timestamp: number) => {
+      if (startTime === null) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const progress = Math.min(elapsed / duration, 1); // Ensure progress doesn't exceed 1
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = gradient;
-      ctx.lineWidth = 5;
 
-      if (progress <= 0.25) {
+      // Top Beam
+      if (progress < 1) {
         ctx.beginPath();
         ctx.moveTo(0, 0);
-        ctx.lineTo(canvas.width * progress * 4, 0);
+        ctx.lineTo(canvas.width * progress, 0);
+        ctx.strokeStyle = beamColor;
+        ctx.lineWidth = 2;
         ctx.stroke();
-      } else if (progress <= 0.5) {
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(canvas.width, 0);
-        ctx.lineTo(canvas.width, canvas.height * (progress - 0.25) * 4);
-        ctx.stroke();
-      } else if (progress <= 0.75) {
-        ctx.beginPath();
-        ctx.moveTo(canvas.width, 0);
-        ctx.lineTo(canvas.width, canvas.height);
-        ctx.lineTo(
-          canvas.width - canvas.width * (progress - 0.5) * 4,
-          canvas.height
-        );
-        ctx.stroke();
-      } else if (progress < 1) {
+      }
+
+      // Bottom Beam
+      if (progress < 1) {
         ctx.beginPath();
         ctx.moveTo(canvas.width, canvas.height);
-        ctx.lineTo(0, canvas.height);
-        ctx.lineTo(0, canvas.height - canvas.height * (progress - 0.75) * 4);
+        ctx.lineTo(canvas.width - canvas.width * progress, canvas.height);
+        ctx.strokeStyle = beamColor;
+        ctx.lineWidth = 2;
         ctx.stroke();
       }
 
       if (progress < 1) {
-        animationFrameId = requestAnimationFrame(draw);
+        animationFrameId = requestAnimationFrame(drawBeams);
       } else {
-        start = null;
+        startTime = null;
       }
     };
 
-    animationFrameId = requestAnimationFrame(draw);
+    animationFrameId = requestAnimationFrame(drawBeams);
 
     // eslint-disable-next-line consistent-return
     return () => {
       window.cancelAnimationFrame(animationFrameId);
       ctx.clearRect(0, 0, canvas.width, canvas.height);
     };
-  }, [dimensions]);
+  }, [dimensions, animate, speed]);
 
   return (
     <canvas

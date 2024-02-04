@@ -4,18 +4,19 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   AppstoreOutlined,
   BookOutlined,
-  HomeOutlined,
   LoginOutlined,
   LogoutOutlined,
   SettingOutlined,
   UserAddOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+
 import { useAuth } from '../hooks/auth';
 import createCn from '../../utils/create-cn';
 import './style.css';
 
 import { getWordsReadyForTraining } from '../../pages/train/utils';
+import ReloadPrompt from '../reload-prompt';
 
 const { Header, Content, Footer } = Layout;
 const cn = createCn('layout');
@@ -58,7 +59,13 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
       {
         label: (
           <Link to="/">
-            <HomeOutlined /> PlayWord
+            <div className={cn('logo-container')}>
+              <img
+                src="/img/logo/logo-transparent.svg"
+                alt="Logo"
+                className={cn('logo')}
+              />
+            </div>
           </Link>
         ),
         key: 'home',
@@ -155,8 +162,11 @@ function MainLayout({ children }: LayoutProps): JSX.Element {
             />
           </div>
         </Header>
-        <Content className={cn('content-container')}>{children}</Content>
-        <Footer style={{ textAlign: 'center' }} className={cn('footer footer')}>
+        <Content className={cn('content-container')}>
+          <ReloadPrompt />
+          {children}
+        </Content>
+        <Footer className={cn('footer footer')}>
           <Row
             justify="space-around"
             align="middle"

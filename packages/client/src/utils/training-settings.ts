@@ -1,8 +1,4 @@
-export type KeyMapping = {
-  [key: string]: {
-    [inputChar: string]: string;
-  };
-};
+export type KeyMapping = Record<string, Record<string, string>>;
 export const KEY_MAPPINGS: KeyMapping = {
   KeyA: { a: 'ф' },
   KeyB: { b: 'и' },

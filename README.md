@@ -41,11 +41,15 @@ MVP версия в проде доступна по адресу [`playword.ru`
 - [Node.js](https://nodejs.org/) - среда выполнения JavaScript на стороне сервера.
 - [NestJS](https://nestjs.com/) - фреймворк для создания масштабируемых и эффективных серверных приложений на Node.js.
 - [TypeScript](https://www.typescriptlang.org/) - язык программирования, добавляющий статическую типизацию к JavaScript.
+- [PostgreSQL](https://www.postgresql.org/) - реляционная база данных.
 - [Prisma](https://www.prisma.io/) - инструмент для работы с базами данных и ORM для Node.js и TypeScript.
 - [Passport](http://www.passportjs.org/) - библиотека для аутентификации в Node.js приложениях.
 - [JWT](https://jwt.io/) - стандарт JSON-токенов для безопасной передачи информации между двумя сторонами.
 - [Jest](https://jestjs.io/) - фреймворк для тестирования JavaScript кода.
 - [Supertest](https://github.com/visionmedia/supertest) - библиотека для тестирования HTTP запросов в Node.js приложениях.
+
+### CI/CD
+Линтинг, тестинг и деплоинг автоматизирован. Настроен github actions workflow на своем сервере с self-hosted раннером. Для контейнеризации используется docker и docker-compose.
 
 ### Линтинг
 - [ESLint](https://eslint.org/) - инструмент статического анализа кода для поиска и исправления проблем в JavaScript/TypeScript коде.
